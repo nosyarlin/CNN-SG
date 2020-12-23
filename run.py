@@ -126,7 +126,6 @@ if __name__ == '__main__':
         nn.Dropout(dropout),
         nn.Linear(mobilenet.last_channel, num_classes),
     )
-    # mobilenet.cuda()
 
     # Prepare for training
     if use_gpu:
