@@ -91,7 +91,7 @@ if __name__ == '__main__':
     # Set hyperparameters
     lr = 1e-3
     momentum = 0.9
-    epochs = 2
+    epochs = 25
     step_size = 5
     gamma = 0.1
     batch_size = 32
