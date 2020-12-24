@@ -55,20 +55,37 @@ def get_labels(y_fpath: str, delimiter=","):
     return y
 
 
-def get_balanced_labels(y_fpath: str, delimiter=","):
+def get_labels_for_images(image_dir: str, y_fpath: str, delimiter=","):
     """
-    Returns balanced dictionary of labels
+    Get labels for images stored in image_dir
     Parameters:
+        image_dir: Filepath to directory with images
         y_fpath: Filepath to csv file with labels
         delimiter: Delimiter used in csv file
 
     Returns:
         y (dict): Mapping from image filenames to labels
     """
-
-    # Get all image file names and labels
+    filenames = os.listdir(image_dir)
     labels = get_labels(y_fpath, delimiter)
+    y = {}
+    for filename in filenames:
+        if filename in labels:
+            y[filename] = labels[filename]
+    return y
 
+
+def balance_labels(labels: dict):
+    """
+    Returns balanced dictionary of labels by randomly sampling the same number
+    of observations for each y value
+
+    Parameters:
+        labels: Mapping from image filenames to labels
+
+    Returns:
+        y (dict): Balanced mapping from image filenames to labels
+    """
     # Split file names by labels
     x = defaultdict(list)
     for fname, label in labels.items():
@@ -88,7 +105,7 @@ def get_balanced_labels(y_fpath: str, delimiter=","):
     return y
 
 
-def get_splits(y_fpath: str, test_size: float, validation_size: float):
+def get_splits(image_dir: str, y_fpath: str, test_size: float, validation_size: float):
     """
     Splits data into train and test sets
     Parameters:
@@ -96,7 +113,8 @@ def get_splits(y_fpath: str, test_size: float, validation_size: float):
         test_size: Percentage of data to be in test set
         validation_size: Percentage of data to be in validation set
     """
-    labels = get_labels(y_fpath)
+    labels = get_labels_for_images(image_dir, y_fpath)
+    labels = balance_labels(labels)
     X_train, X_test, y_train, y_test = train_test_split(list(labels.keys()),
                                                         list(labels.values()),
                                                         test_size=test_size,
@@ -120,7 +138,13 @@ if __name__ == '__main__':
     y_fpath = './data/labels.csv'
     image_dir = './data/images'
 
-    X_train, X_val, X_test, y_train, y_val, y_test = get_splits(y_fpath, 0.1, 0.25)
+    X_train, X_val, X_test, y_train, y_val, y_test = get_splits(
+        image_dir,
+        y_fpath,
+        0.1,
+        0.25,
+    )
+
     files = {'X_train': X_train, 'X_val': X_val, 'X_test': X_test,
              'y_train': y_train, 'y_val': y_val, 'y_test': y_test}
     for file, obj in files.items():
