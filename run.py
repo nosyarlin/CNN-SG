@@ -18,7 +18,7 @@ def evaluate_model(model, dl, loss_func, device):
 
             logits = model(X)
             loss = loss_func(logits, y)
-            losses.append(loss)
+            losses.append(loss.item())
 
             pred = logits.argmax(1)
             total_correct += (pred == y).sum().item()
@@ -38,7 +38,7 @@ def train_model(model, dl, loss_func, optimizer, device):
 
         logits = model(X)
         loss = loss_func(logits, y)
-        train_loss.append(loss)
+        train_loss.append(loss.item())
 
         pred = logits.argmax(1)
         total_correct += (pred == y).sum().item()
