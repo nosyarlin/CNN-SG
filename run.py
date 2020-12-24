@@ -119,7 +119,6 @@ if __name__ == '__main__':
         X_test, y_test, batch_size, image_dir, img_size, crop_size
     )
 
-    # TODO: Augment training data
     # Build model
     mobilenet = models.mobilenet_v2(pretrained=True)
     mobilenet.classifier = nn.Sequential(

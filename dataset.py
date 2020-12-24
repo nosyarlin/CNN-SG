@@ -10,19 +10,37 @@ from torchvision import transforms
 
 
 class ImageDataset(data.Dataset):
-    def __init__(self, image_dir, img_size, crop_size, X, y):
+    def __init__(self, image_dir, img_size, crop_size, X, y, is_test):
         self.image_dir = image_dir
         self.X = X
         self.y = torch.LongTensor([int(i) for i in y])
-        self.transforms = transforms.Compose([
-            transforms.Resize(img_size, interpolation=2),
-            transforms.CenterCrop(crop_size),
-            transforms.ToTensor(),
-            transforms.Normalize(
-                mean=[0.485, 0.456, 0.406],
-                std=[0.229, 0.224, 0.225]
-            ),
-        ])
+        if is_test:
+            self.transforms = transforms.Compose([
+                transforms.Resize(img_size, interpolation=2),
+                transforms.CenterCrop(crop_size),
+                transforms.ToTensor(),
+                transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406],
+                    std=[0.229, 0.224, 0.225]
+                ),
+            ])
+        else:
+            self.transforms = transforms.Compose([
+                transforms.Resize(img_size, interpolation=2),
+                transforms.ColorJitter(0.2, 0.2, 0.2, 0.05),
+                transforms.RandomAffine(
+                    degrees=10,
+                    translate=(0, 0.1),
+                    scale=(0.9, 1.1)
+                ),
+                transforms.RandomGrayscale(),
+                transforms.TenCrop(crop_size),
+                transforms.ToTensor(),
+                transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406],
+                    std=[0.229, 0.224, 0.225]
+                ),
+            ])
 
     def __len__(self):
         return len(self.y)
