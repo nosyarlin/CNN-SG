@@ -84,7 +84,7 @@ def train_validate_test(
     model.load_state_dict(best_weights)
     test_acc, test_loss = evaluate_model(model, test_dl, loss_func, device)
     print("Test acc: {}, Test loss: {}".format(test_acc, test_loss))
-    return train_loss, train_acc, val_loss, val_acc, test_loss, test_acc
+    return best_weights, train_loss, train_acc, val_loss, val_acc, test_loss, test_acc
 
 
 if __name__ == '__main__':
@@ -97,13 +97,14 @@ if __name__ == '__main__':
     step_size = 5
     gamma = 0.1
     batch_size = 32
-    image_dir = './data/images'
     img_size = 256
     crop_size = 224  # smallest is 224
     dropout = 0.2
     use_gpu = False
     use_data_augmentation = True
     num_classes = 3
+    image_dir = './data/images'
+    path_to_save_model = './models/model.pth'
 
     # Read data
     X_train = read_csv('X_train.csv')
@@ -151,7 +152,7 @@ if __name__ == '__main__':
     )
 
     # Train, test
-    train_loss, train_acc, val_loss, val_acc, _, _ = train_validate_test(
+    weights, train_loss, train_acc, val_loss, val_acc, _, _ = train_validate_test(
         epochs, mobilenet, optimizer, scheduler,
         loss_func, train_dl, val_dl, test_dl, device
     )
@@ -161,3 +162,4 @@ if __name__ == '__main__':
     write_to_csv(train_acc, 'train_acc.csv')
     write_to_csv(val_loss, 'val_loss.csv')
     write_to_csv(val_acc, 'val_acc.csv')
+    torch.save(weights, path_to_save_model)
