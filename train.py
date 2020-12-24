@@ -93,13 +93,12 @@ if __name__ == '__main__':
     betas = (0.9, 0.999)
     eps = 1e-8
     weight_decay = 0
-    epochs = 25
+    epochs = 50
     step_size = 5
     gamma = 0.1
     batch_size = 32
     img_size = 256
     crop_size = 224  # smallest is 224
-    dropout = 0.2
     use_gpu = False
     use_data_augmentation = True
     num_classes = 3
@@ -124,21 +123,19 @@ if __name__ == '__main__':
     )
 
     # Build model
-    mobilenet = models.mobilenet_v2(pretrained=True)
-    mobilenet.classifier = nn.Sequential(
-        nn.Dropout(dropout),
-        nn.Linear(mobilenet.last_channel, num_classes),
-    )
+    model = models.resnet50(pretrained=True, num_classes=num_classes)
+    num_ftrs = model.fc.in_features
+    model.fc = nn.Linear(num_ftrs, num_classes)
 
     # Prepare for training
     if use_gpu:
-        mobilenet.cuda()
+        model.cuda()
         device = torch.device('cuda')
     else:
         device = torch.device('cpu')
 
     optimizer = optim.Adam(
-        mobilenet.classifier.parameters(),
+        model.fc.parameters(),
         lr=lr,
         betas=betas,
         eps=eps,
@@ -153,7 +150,7 @@ if __name__ == '__main__':
 
     # Train, test
     weights, train_loss, train_acc, val_loss, val_acc, _, _ = train_validate_test(
-        epochs, mobilenet, optimizer, scheduler,
+        epochs, model, optimizer, scheduler,
         loss_func, train_dl, val_dl, test_dl, device
     )
 
