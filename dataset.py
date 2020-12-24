@@ -34,7 +34,8 @@ class ImageDataset(data.Dataset):
                     scale=(0.9, 1.1)
                 ),
                 transforms.RandomGrayscale(),
-                transforms.TenCrop(crop_size),
+                transforms.RandomHorizontalFlip(),
+                transforms.CenterCrop(crop_size),
                 transforms.ToTensor(),
                 transforms.Normalize(
                     mean=[0.485, 0.456, 0.406],
