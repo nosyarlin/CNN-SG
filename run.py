@@ -89,8 +89,10 @@ def train_validate_test(
 
 if __name__ == '__main__':
     # Set hyperparameters
-    lr = 1e-3
-    momentum = 0.9
+    lr = 0.001
+    betas = (0.9, 0.999)
+    eps = 1e-8
+    weight_decay = 0
     epochs = 25
     step_size = 5
     gamma = 0.1
@@ -100,6 +102,7 @@ if __name__ == '__main__':
     crop_size = 224  # smallest is 224
     dropout = 0.2
     use_gpu = False
+    use_data_augmentation = True
     num_classes = 3
 
     # Read data
@@ -110,13 +113,13 @@ if __name__ == '__main__':
     X_test = read_csv('X_test.csv')
     y_test = read_csv('y_test.csv')
     train_dl = get_dataloader(
-        X_train, y_train, batch_size, image_dir, img_size, crop_size
+        X_train, y_train, batch_size, image_dir, img_size, crop_size, use_data_augmentation
     )
     val_dl = get_dataloader(
-        X_val, y_val, batch_size, image_dir, img_size, crop_size
+        X_val, y_val, batch_size, image_dir, img_size, crop_size, False
     )
     test_dl = get_dataloader(
-        X_test, y_test, batch_size, image_dir, img_size, crop_size
+        X_test, y_test, batch_size, image_dir, img_size, crop_size, False
     )
 
     # Build model
@@ -133,11 +136,12 @@ if __name__ == '__main__':
     else:
         device = torch.device('cpu')
 
-    # TODO: use adam
-    optimizer = optim.SGD(
+    optimizer = optim.Adam(
         mobilenet.classifier.parameters(),
         lr=lr,
-        momentum=momentum,
+        betas=betas,
+        eps=eps,
+        weight_decay=weight_decay,
     )
     loss_func = nn.CrossEntropyLoss()
     scheduler = optim.lr_scheduler.StepLR(

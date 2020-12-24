@@ -10,11 +10,11 @@ from torchvision import transforms
 
 
 class ImageDataset(data.Dataset):
-    def __init__(self, image_dir, img_size, crop_size, X, y, is_test):
+    def __init__(self, image_dir, img_size, crop_size, X, y, is_train):
         self.image_dir = image_dir
         self.X = X
         self.y = torch.LongTensor([int(i) for i in y])
-        if is_test:
+        if not is_train:
             self.transforms = transforms.Compose([
                 transforms.Resize(img_size, interpolation=2),
                 transforms.CenterCrop(crop_size),
@@ -147,8 +147,8 @@ def get_splits(image_dir: str, y_fpath: str, test_size: float, validation_size: 
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 
-def get_dataloader(x, y, batch_size, image_dir, img_size, crop_size):
-    return data.DataLoader(ImageDataset(image_dir, img_size, crop_size, x, y),
+def get_dataloader(x, y, batch_size, image_dir, img_size, crop_size, is_train):
+    return data.DataLoader(ImageDataset(image_dir, img_size, crop_size, x, y, is_train),
                            batch_size=batch_size)
 
 
