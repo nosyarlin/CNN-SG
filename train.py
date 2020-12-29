@@ -118,11 +118,11 @@ if __name__ == '__main__':
     img_size = 256
     crop_size = 224  # smallest is 224
 
-    archi = 'wide_resnet50'
+    archi = 'inception'
     num_classes = 3
     use_gpu = True
     use_data_augmentation = True
-    train_all_weights = True
+    train_all_weights = False
     pretrained = True
 
     image_dir = './data/images'

@@ -12,9 +12,11 @@ def get_model(
         name: Name of architecture. mobilenet/resnet50
     """
     if name == 'resnet50':
-        return _get_resnet(name, num_classes, train_all_weights, pretrained)
+        return _get_resnet_or_inception(name, num_classes, train_all_weights, pretrained)
     elif name == 'wide_resnet50':
-        return _get_resnet(name, num_classes, train_all_weights, pretrained)
+        return _get_resnet_or_inception(name, num_classes, train_all_weights, pretrained)
+    elif name == 'inception':
+        return _get_resnet_or_inception(name, num_classes, train_all_weights, pretrained)
     else:
         model = models.mobilenet_v2(pretrained=pretrained)
         model.classifier = nn.Sequential(
@@ -29,13 +31,16 @@ def get_model(
     return model, parameters
 
 
-def _get_resnet(name: str, num_classes: int, train_all_weights: bool,
-                pretrained: bool):
+def _get_resnet_or_inception(
+        name: str, num_classes: int, train_all_weights: bool, pretrained: bool):
+
     # Get model
     if name == 'resnet50':
         model = models.resnet50(pretrained=pretrained)
-    else:
+    elif name == 'wide_resnet50':
         model = models.wide_resnet50_2(pretrained=pretrained)
+    else:
+        model = models.inception_v3(pretrained=pretrained)
 
     # Reset classifier
     num_ftrs = model.fc.in_features
