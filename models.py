@@ -12,11 +12,11 @@ def get_model(
         name: Name of architecture. mobilenet/resnet50
     """
     if name == 'resnet50':
-        return _get_resnet_or_inception(name, num_classes, train_all_weights, pretrained)
+        return _get_resnet(name, num_classes, train_all_weights, pretrained)
     elif name == 'wide_resnet50':
-        return _get_resnet_or_inception(name, num_classes, train_all_weights, pretrained)
+        return _get_resnet(name, num_classes, train_all_weights, pretrained)
     elif name == 'inception':
-        return _get_resnet_or_inception(name, num_classes, train_all_weights, pretrained)
+        return _get_inception(num_classes, train_all_weights, pretrained)
     else:
         model = models.mobilenet_v2(pretrained=pretrained)
         model.classifier = nn.Sequential(
@@ -31,16 +31,33 @@ def get_model(
     return model, parameters
 
 
-def _get_resnet_or_inception(
-        name: str, num_classes: int, train_all_weights: bool, pretrained: bool):
+def _get_inception(num_classes: int, train_all_weights: bool, pretrained: bool):
+    model = models.inception_v3(pretrained=pretrained)
+
+    # Handle the auxilary net
+    num_ftrs = model.AuxLogits.fc.in_features
+    model.AuxLogits.fc = nn.Linear(num_ftrs, num_classes)
+
+    # Handle the primary net
+    num_ftrs = model.fc.in_features
+    model.fc = nn.Linear(num_ftrs, num_classes)
+
+    # Get params
+    if train_all_weights:
+        parameters = model.parameters()
+    else:
+        parameters = model.fc.parameters()
+
+    return model, parameters
+
+
+def _get_resnet(name: str, num_classes: int, train_all_weights: bool, pretrained: bool):
 
     # Get model
     if name == 'resnet50':
         model = models.resnet50(pretrained=pretrained)
-    elif name == 'wide_resnet50':
-        model = models.wide_resnet50_2(pretrained=pretrained)
     else:
-        model = models.inception_v3(pretrained=pretrained)
+        model = models.wide_resnet50_2(pretrained=pretrained)
 
     # Reset classifier
     num_ftrs = model.fc.in_features

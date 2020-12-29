@@ -115,12 +115,12 @@ if __name__ == '__main__':
     step_size = 5
     gamma = 0.1
     batch_size = 32
-    img_size = 256
-    crop_size = 224  # smallest is 224
+    img_size = 360
+    crop_size = 299  # Inception v3 expects 299
 
     archi = 'inception'
     num_classes = 3
-    use_gpu = True
+    use_gpu = False
     use_data_augmentation = True
     train_all_weights = False
     pretrained = True
