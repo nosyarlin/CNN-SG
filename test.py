@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     archi = 'resnet50'
     num_classes = 3
-    use_gpu = False
+    use_gpu = True
 
     image_dir = './data/images'
     model_path = './models/model.pth'

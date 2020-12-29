@@ -108,7 +108,7 @@ if __name__ == '__main__':
     betas = (0.9, 0.999)
     eps = 1e-8
     weight_decay = 0
-    epochs = 25
+    epochs = 50
     step_size = 5
     gamma = 0.1
     batch_size = 32
@@ -117,9 +117,9 @@ if __name__ == '__main__':
 
     archi = 'resnet50'
     num_classes = 3
-    use_gpu = False
+    use_gpu = True
     use_data_augmentation = True
-    train_all_weights = False
+    train_all_weights = True
     pretrained = True
 
     image_dir = './data/images'
