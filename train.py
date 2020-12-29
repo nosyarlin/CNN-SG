@@ -127,8 +127,8 @@ if __name__ == '__main__':
 
     image_dir = './data/images'
     path_to_save_model = './models/model.pth'
-    path_to_save_trainval_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Wide_Resnet50/train_val_results.csv'
-    path_to_save_test_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Wide_Resnet50/test_results.csv'
+    path_to_save_trainval_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception/train_val_results.csv'
+    path_to_save_test_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception/test_results.csv'
 
     # Read data
     X_train = read_csv('X_train.csv')
