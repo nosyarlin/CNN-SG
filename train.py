@@ -4,7 +4,6 @@ from dataset import get_dataloader
 from models import get_model
 from shared_funcs import read_csv, write_to_csv
 from torch import nn, optim
-from torchvision import models
 
 
 def evaluate_model(model, dl, loss_func, device):
