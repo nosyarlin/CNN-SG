@@ -28,7 +28,7 @@ def evaluate_model(model, dl, loss_func, device):
     return total_correct / total_count, np.mean(losses)
 
 
-def train_model(model, dl, loss_func, optimizer, device):
+def train_model(model, dl, loss_func, optimizer, device, is_inception):
     model.train()
     train_loss = []
     total_count = 0
@@ -37,8 +37,15 @@ def train_model(model, dl, loss_func, optimizer, device):
         model.zero_grad()
         X, y = X.to(device), y.to(device)
 
-        logits = model(X)
-        loss = loss_func(logits, y)
+        # Inception gives two outputs
+        if is_inception:
+            logits, aux_logits = model(X)
+            loss1 = loss_func(logits, y)
+            loss2 = loss_func(aux_logits, y)
+            loss = loss1 + 0.4 * loss2
+        else:
+            logits = model(X)
+            loss = loss_func(logits, y)
         train_loss.append(loss.item())
 
         pred = logits.argmax(1)
@@ -53,7 +60,7 @@ def train_model(model, dl, loss_func, optimizer, device):
 
 def train_validate_test(
         epochs, model, optimizer, scheduler, loss_func,
-        train_dl, val_dl, test_dl, device):
+        train_dl, val_dl, test_dl, device, is_inception):
     train_loss = []
     train_acc = []
     val_loss = []
@@ -68,7 +75,8 @@ def train_validate_test(
 
     for epoch in range(epochs):
         # Train
-        acc, loss = train_model(model, train_dl, loss_func, optimizer, device)
+        acc, loss = train_model(
+            model, train_dl, loss_func, optimizer, device, is_inception)
         train_loss.append(loss)
         train_acc.append(acc)
         scheduler.step()
@@ -176,8 +184,8 @@ if __name__ == '__main__':
 
     # Train, test
     weights, train_loss, train_acc, val_loss, val_acc, test_results, train_val_results = train_validate_test(
-        epochs, model, optimizer, scheduler,
-        loss_func, train_dl, val_dl, test_dl, device
+        epochs, model, optimizer, scheduler, loss_func,
+        train_dl, val_dl, test_dl, device, archi == 'inception'
     )
 
     # Save results
