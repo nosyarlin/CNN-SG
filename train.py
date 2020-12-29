@@ -4,7 +4,7 @@ from dataset import get_dataloader
 from shared_funcs import read_csv, write_to_csv
 from torch import nn, optim
 from torchvision import models
-
+import pandas as pd
 
 def evaluate_model(model, dl, loss_func, device):
     model.eval()
@@ -57,8 +57,14 @@ def train_validate_test(
     train_acc = []
     val_loss = []
     val_acc = []
+    test_acc_data = []
+    test_loss_data = []
     best_val_acc = -1
     best_weights = None
+
+    print("Starting the training now.")
+    print("Training for {} epochs".format(epochs))
+
     for epoch in range(epochs):
         # Train
         acc, loss = train_model(model, train_dl, loss_func, optimizer, device)
@@ -71,7 +77,7 @@ def train_validate_test(
         val_acc.append(acc)
         val_loss.append(loss)
 
-        print("Epoch: {}".format(epoch + 1))
+        print("Epoch: {} of {}".format(epoch + 1,epochs))
         print("Validation acc: {}, Validation loss: {}\n"
               .format(acc, loss))
 
@@ -79,13 +85,22 @@ def train_validate_test(
         if not best_weights or val_acc[-1] > best_val_acc:
             best_weights = model.state_dict()
             best_val_acc = val_acc[-1]
+        else:
+            print("Model has not improved, and will not be saved.")
 
     # Test
+    print("Training and validation complete. Starting testing now.")
     model.load_state_dict(best_weights)
     test_acc, test_loss = evaluate_model(model, test_dl, loss_func, device)
     print("Test acc: {}, Test loss: {}".format(test_acc, test_loss))
-    return best_weights, train_loss, train_acc, val_loss, val_acc, test_loss, test_acc
+    test_acc_data.append(test_acc)
+    test_loss_data.append(test_loss)
 
+    # Saving them into datasets 
+    test_results = pd.DataFrame({'Acc':test_acc_data, 'Loss': test_loss_data})
+    train_val_results = pd.DataFrame({'Epoch': list(range(1,epochs+1)), 'TrainAcc':train_acc, 'TrainLoss': train_loss, 'ValAcc':val_acc, 'ValLoss': val_loss})
+
+    return best_weights, train_loss, train_acc, val_loss, val_acc, test_results, train_val_results
 
 if __name__ == '__main__':
     # Set hyperparameters
@@ -93,17 +108,19 @@ if __name__ == '__main__':
     betas = (0.9, 0.999)
     eps = 1e-8
     weight_decay = 0
-    epochs = 50
+    epochs = 25
     step_size = 5
     gamma = 0.1
     batch_size = 32
     img_size = 256
     crop_size = 224  # smallest is 224
-    use_gpu = False
+    use_gpu = True
     use_data_augmentation = True
     num_classes = 3
     image_dir = './data/images'
     path_to_save_model = './models/model.pth'
+    path_to_save_trainval_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50/train_val_results.csv'
+    path_to_save_test_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50/test_results.csv'
 
     # Read data
     X_train = read_csv('X_train.csv')
@@ -134,6 +151,8 @@ if __name__ == '__main__':
     else:
         device = torch.device('cpu')
 
+    print("Using {} for training.".format(device))
+
     optimizer = optim.Adam(
         model.fc.parameters(),
         lr=lr,
@@ -149,7 +168,7 @@ if __name__ == '__main__':
     )
 
     # Train, test
-    weights, train_loss, train_acc, val_loss, val_acc, _, _ = train_validate_test(
+    weights, train_loss, train_acc, val_loss, val_acc, test_results, train_val_results = train_validate_test(
         epochs, model, optimizer, scheduler,
         loss_func, train_dl, val_dl, test_dl, device
     )
@@ -159,4 +178,7 @@ if __name__ == '__main__':
     write_to_csv(train_acc, 'train_acc.csv')
     write_to_csv(val_loss, 'val_loss.csv')
     write_to_csv(val_acc, 'val_acc.csv')
+
+    train_val_results.to_csv(index = False, path_or_buf = path_to_save_trainval_results)
+    test_results.to_csv(index = False, path_or_buf = path_to_save_test_results)
     torch.save(weights, path_to_save_model)
