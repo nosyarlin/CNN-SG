@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 from dataset import get_dataloader
+from models import get_model
 from shared_funcs import read_csv, write_to_csv
 from torch import nn, optim
 from torchvision import models
@@ -99,9 +100,14 @@ if __name__ == '__main__':
     batch_size = 32
     img_size = 256
     crop_size = 224  # smallest is 224
+
+    archi = 'resnet50'
+    num_classes = 3
     use_gpu = False
     use_data_augmentation = True
-    num_classes = 3
+    train_all_weights = False
+    pretrained = True
+
     image_dir = './data/images'
     path_to_save_model = './models/model.pth'
 
@@ -123,9 +129,8 @@ if __name__ == '__main__':
     )
 
     # Build model
-    model = models.resnet50(pretrained=True)
-    num_ftrs = model.fc.in_features
-    model.fc = nn.Linear(num_ftrs, num_classes)
+    model, parameters = get_model(
+        archi, num_classes, train_all_weights, pretrained)
 
     # Prepare for training
     if use_gpu:
@@ -135,7 +140,7 @@ if __name__ == '__main__':
         device = torch.device('cpu')
 
     optimizer = optim.Adam(
-        model.fc.parameters(),
+        parameters,
         lr=lr,
         betas=betas,
         eps=eps,
