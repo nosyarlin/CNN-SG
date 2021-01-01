@@ -47,7 +47,7 @@ class ImageDataset(data.Dataset):
         return len(self.y)
 
     def __getitem__(self, idx):
-        fname = os.path.join(self.image_dir, self.X[idx])
+        fname = os.path.join(self.image_dir, self.X[idx][:2], self.X[idx])
         img = Image.open(fname)
         if img.mode != 'RGB':
             img = img.convert('RGB')
@@ -85,7 +85,14 @@ def get_labels_for_images(image_dir: str, y_fpath: str, delimiter=","):
     Returns:
         y (dict): Mapping from image filenames to labels
     """
-    filenames = os.listdir(image_dir)
+    # Get image file names recursively
+    filenames = []
+    for _, _, files in os.walk(image_dir):
+        for name in files:
+            if name.endswith('.jpg'):
+                filenames.append(name)
+
+    # Get labels for the images that we have
     labels = get_labels(y_fpath, delimiter)
     y = {}
     for filename in filenames:
@@ -154,8 +161,8 @@ def get_dataloader(x, y, batch_size, image_dir, img_size, crop_size, is_train):
 
 
 if __name__ == '__main__':
-    # y_fpath = './data/labels.csv'
-    # image_dir = './data/images'
+    y_fpath = './data/labels.csv'
+    image_dir = './data/images'
 
     X_train, X_val, X_test, y_train, y_val, y_test = get_splits(
         image_dir,
