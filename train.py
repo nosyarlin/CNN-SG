@@ -1,3 +1,4 @@
+import csv
 import numpy as np
 import torch
 from dataset import get_dataloader
@@ -5,6 +6,19 @@ from models import get_model
 from shared_funcs import read_csv, write_to_csv
 from torch import nn, optim
 import pandas as pd
+
+
+def get_probabilities(model, dl, device):
+    model.eval()
+    with torch.no_grad():
+        probabilities = []
+        for X, y in dl:
+            X, y = X.to(device), y.to(device)
+            logits = model(X)
+            softmax = nn.Softmax(1)
+            probabilities.append(softmax(logits))
+    probabilities = torch.cat(probabilities, 0)
+    return probabilities.tolist()
 
 
 def evaluate_model(model, dl, loss_func, device):
@@ -135,6 +149,7 @@ if __name__ == '__main__':
 
     image_dir = './data/images'
     path_to_save_model = './models/model.pth'
+    probabilities_path = './test_probabilities.csv'
     path_to_save_trainval_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception/train_val_results.csv'
     path_to_save_test_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception/test_results.csv'
 
@@ -182,7 +197,7 @@ if __name__ == '__main__':
         gamma=gamma
     )
 
-    # Train, test
+    # Train, validate, test
     weights, train_loss, train_acc, val_loss, val_acc, test_results, train_val_results = train_validate_test(
         epochs, model, optimizer, scheduler, loss_func,
         train_dl, val_dl, test_dl, device, archi == 'inception'
@@ -198,3 +213,11 @@ if __name__ == '__main__':
         index=False, path_or_buf=path_to_save_trainval_results)
     test_results.to_csv(index=False, path_or_buf=path_to_save_test_results)
     torch.save(weights, path_to_save_model)
+
+    # Output probablities for test data
+    model.load_state_dict(weights)
+    probabilities = get_probabilities(model, test_dl, device)
+    with open(probabilities_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        for row in probabilities:
+            writer.writerow(row)
