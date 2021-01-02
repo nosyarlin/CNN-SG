@@ -101,7 +101,7 @@ def train_validate_test(
         val_loss.append(loss)
 
         print("Epoch: {} of {}".format(epoch + 1, epochs))
-        print("Validation acc: {}, Validation loss: {}\n"
+        print("Validation acc: {}, Validation loss: {}"
               .format(acc, loss))
 
         # Save model if improved
@@ -110,7 +110,7 @@ def train_validate_test(
             torch.save(best_weights, path_to_save_model)
             best_val_acc = val_acc[-1]
         else:
-            print("Model has not improved, and will not be saved.")
+            print("Model has not improved, and will not be saved.\n")
 
     # Test
     print("Training and validation complete. Starting testing now.")
@@ -134,7 +134,7 @@ if __name__ == '__main__':
     betas = (0.9, 0.999)
     eps = 1e-8
     weight_decay = 0
-    epochs = 50
+    epochs = 25
     step_size = 5
     gamma = 0.1
     batch_size = 32
@@ -148,11 +148,11 @@ if __name__ == '__main__':
     train_all_weights = True
     pretrained = True
 
-    image_dir = './data/images'
-    path_to_save_model = './models/model.pth'
-    probabilities_path = './test_probabilities.csv'
-    path_to_save_trainval_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception/train_val_results.csv'
-    path_to_save_test_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception/test_results.csv'
+    # image_dir = './data/images'
+    # path_to_save_model = './models/model.pth'
+    # probabilities_path = './test_probabilities.csv'
+    # path_to_save_trainval_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception/train_val_results.csv'
+    # path_to_save_test_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception/test_results.csv'
 
     # Read data
     X_train = read_csv('X_train.csv')
@@ -170,6 +170,12 @@ if __name__ == '__main__':
     test_dl = get_dataloader(
         X_test, y_test, batch_size, image_dir, img_size, crop_size, False
     )
+
+    print("Dataset to be used includes {} training images, {} validation images and {} testing images.".format(len(X_train), len(X_val), len(X_test)))
+    print("Number of empty:humans:animals in training, validation and testing sets respectively is: {}:{}:{}; {}:{}:{}; {}:{}:{}".format(
+        y_train.count("0"),y_train.count("1"),y_train.count("2"),
+        y_val.count("0"),y_val.count("1"),y_val.count("2"),
+        y_test.count("0"),y_test.count("1"),y_test.count("2")))
 
     # Build model
     model, parameters = get_model(
