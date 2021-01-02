@@ -73,8 +73,8 @@ def train_model(model, dl, loss_func, optimizer, device, is_inception):
 
 
 def train_validate_test(
-        epochs, model, optimizer, scheduler, loss_func,
-        train_dl, val_dl, test_dl, device, is_inception):
+        epochs, model, optimizer, scheduler, loss_func, train_dl,
+        val_dl, test_dl, device, is_inception, path_to_save_model):
     train_loss = []
     train_acc = []
     val_loss = []
@@ -107,6 +107,7 @@ def train_validate_test(
         # Save model if improved
         if not best_weights or val_acc[-1] > best_val_acc:
             best_weights = model.state_dict()
+            torch.save(best_weights, path_to_save_model)
             best_val_acc = val_acc[-1]
         else:
             print("Model has not improved, and will not be saved.")
@@ -142,9 +143,9 @@ if __name__ == '__main__':
 
     archi = 'inception'
     num_classes = 3
-    use_gpu = False
+    use_gpu = True
     use_data_augmentation = True
-    train_all_weights = False
+    train_all_weights = True
     pretrained = True
 
     image_dir = './data/images'
@@ -200,7 +201,8 @@ if __name__ == '__main__':
     # Train, validate, test
     weights, train_loss, train_acc, val_loss, val_acc, test_results, train_val_results = train_validate_test(
         epochs, model, optimizer, scheduler, loss_func,
-        train_dl, val_dl, test_dl, device, archi == 'inception'
+        train_dl, val_dl, test_dl, device, archi == 'inception',
+        path_to_save_model
     )
 
     # Save results
@@ -212,7 +214,6 @@ if __name__ == '__main__':
     train_val_results.to_csv(
         index=False, path_or_buf=path_to_save_trainval_results)
     test_results.to_csv(index=False, path_or_buf=path_to_save_test_results)
-    torch.save(weights, path_to_save_model)
 
     # Output probablities for test data
     model.load_state_dict(weights)
