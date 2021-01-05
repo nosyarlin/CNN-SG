@@ -167,8 +167,8 @@ if __name__ == '__main__':
     X_train, X_val, X_test, y_train, y_val, y_test = get_splits(
         image_dir,
         y_fpath,
-        0.7,
-        0.1,
+        0.55,
+        0.15,
     )
 
     files = {'X_train': X_train, 'X_val': X_val, 'X_test': X_test,

@@ -42,7 +42,7 @@ def evaluate_model(model, dl, loss_func, device):
     return total_correct / total_count, np.mean(losses)
 
 
-def train_model(model, dl, loss_func, optimizer, device, is_inception):
+def train_model(model, dl, loss_func, optimizer, device, archi):
     model.train()
     train_loss = []
     total_count = 0
@@ -52,7 +52,7 @@ def train_model(model, dl, loss_func, optimizer, device, is_inception):
         X, y = X.to(device), y.to(device)
 
         # Inception gives two outputs
-        if is_inception:
+        if archi == "inception":
             logits, aux_logits = model(X)
             loss1 = loss_func(logits, y)
             loss2 = loss_func(aux_logits, y)
@@ -74,7 +74,7 @@ def train_model(model, dl, loss_func, optimizer, device, is_inception):
 
 def train_validate_test(
         epochs, model, optimizer, scheduler, loss_func, train_dl,
-        val_dl, test_dl, device, is_inception, path_to_save_model):
+        val_dl, test_dl, device, archi, path_to_save_model):
     train_loss = []
     train_acc = []
     val_loss = []
@@ -90,7 +90,7 @@ def train_validate_test(
     for epoch in range(epochs):
         # Train
         acc, loss = train_model(
-            model, train_dl, loss_func, optimizer, device, is_inception)
+            model, train_dl, loss_func, optimizer, device, archi)
         train_loss.append(loss)
         train_acc.append(acc)
         scheduler.step()
@@ -138,21 +138,21 @@ if __name__ == '__main__':
     step_size = 5
     gamma = 0.1
     batch_size = 32
-    img_size = 360
+    img_size = 360 #inception 360
     crop_size = 299  # Inception v3 expects 299
 
-    archi = 'inception'
+    archi = 'resnet50'
     num_classes = 3
     use_gpu = True
     use_data_augmentation = True
     train_all_weights = True
     pretrained = True
 
-    # image_dir = './data/images'
-    # path_to_save_model = './models/model.pth'
-    # probabilities_path = './test_probabilities.csv'
-    # path_to_save_trainval_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception/train_val_results.csv'
-    # path_to_save_test_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception/test_results.csv'
+    image_dir = 'C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media'
+    path_to_save_model = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50_FYP/model.pth'
+    probabilities_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50_FYP/test_probabilities.csv'
+    path_to_save_trainval_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50_FYP/train_val_results.csv'
+    path_to_save_test_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50_FYP/test_results.csv'
 
     # Read data
     X_train = read_csv('X_train.csv')
@@ -172,7 +172,7 @@ if __name__ == '__main__':
     )
 
     print("Dataset to be used includes {} training images, {} validation images and {} testing images.".format(len(X_train), len(X_val), len(X_test)))
-    print("Number of empty:humans:animals in training, validation and testing sets respectively is: {}:{}:{}; {}:{}:{}; {}:{}:{}".format(
+    print("Number of empty:humans:animals in training, validation and testing sets respectively is: {}:{}:{}; {}:{}:{}; {}:{}:{}\n".format(
         y_train.count("0"),y_train.count("1"),y_train.count("2"),
         y_val.count("0"),y_val.count("1"),y_val.count("2"),
         y_test.count("0"),y_test.count("1"),y_test.count("2")))
@@ -207,7 +207,7 @@ if __name__ == '__main__':
     # Train, validate, test
     weights, train_loss, train_acc, val_loss, val_acc, test_results, train_val_results = train_validate_test(
         epochs, model, optimizer, scheduler, loss_func,
-        train_dl, val_dl, test_dl, device, archi == 'inception',
+        train_dl, val_dl, test_dl, device, archi, 
         path_to_save_model
     )
 
