@@ -1,6 +1,6 @@
 from torchvision import models
 from torch import nn
-
+import sys
 
 def get_model(
         name: str, num_classes: int, train_all_weights: bool,
@@ -17,7 +17,7 @@ def get_model(
         return _get_resnet(name, num_classes, train_all_weights, pretrained)
     elif name == 'inception':
         return _get_inception(num_classes, train_all_weights, pretrained)
-    else:
+    elif name == 'mobilenet':
         model = models.mobilenet_v2(pretrained=pretrained)
         model.classifier = nn.Sequential(
             nn.Dropout(0.2),
@@ -27,6 +27,8 @@ def get_model(
             parameters = model.parameters()
         else:
             parameters = model.classifier.parameters()
+    else:
+        sys.exit("\nError: Please enter a valid architecture")
 
     return model, parameters
 

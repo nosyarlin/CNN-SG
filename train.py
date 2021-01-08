@@ -6,19 +6,9 @@ from models import get_model
 from shared_funcs import read_csv, write_to_csv
 from torch import nn, optim
 import pandas as pd
-
-
-def get_probabilities(model, dl, device):
-    model.eval()
-    with torch.no_grad():
-        probabilities = []
-        for X, y in dl:
-            X, y = X.to(device), y.to(device)
-            logits = model(X)
-            softmax = nn.Softmax(1)
-            probabilities.append(softmax(logits))
-    probabilities = torch.cat(probabilities, 0)
-    return probabilities.tolist()
+import os.path
+from os import path
+import sys
 
 
 def evaluate_model(model, dl, loss_func, device):
@@ -27,6 +17,8 @@ def evaluate_model(model, dl, loss_func, device):
         losses = []
         total_count = 0
         total_correct = 0
+
+        probabilities = []
 
         for X, y in dl:
             X, y = X.to(device), y.to(device)
@@ -39,7 +31,11 @@ def evaluate_model(model, dl, loss_func, device):
             total_correct += (pred == y).sum().item()
             total_count += y.size(0)
 
-    return total_correct / total_count, np.mean(losses)
+            softmax = nn.Softmax(1)
+            probabilities.append(softmax(logits))
+    probabilities = torch.cat(probabilities, 0)
+
+    return total_correct / total_count, np.mean(losses), probabilities.tolist()
 
 
 def train_model(model, dl, loss_func, optimizer, device, archi):
@@ -74,7 +70,7 @@ def train_model(model, dl, loss_func, optimizer, device, archi):
 
 def train_validate_test(
         epochs, model, optimizer, scheduler, loss_func, train_dl,
-        val_dl, test_dl, device, archi, path_to_save_model):
+        val_dl, test_dl, device, archi, path_to_save_results):
     train_loss = []
     train_acc = []
     val_loss = []
@@ -96,7 +92,7 @@ def train_validate_test(
         scheduler.step()
 
         # Validate
-        acc, loss = evaluate_model(model, val_dl, loss_func, device)
+        acc, loss, probabilities = evaluate_model(model, val_dl, loss_func, device)
         val_acc.append(acc)
         val_loss.append(loss)
 
@@ -107,15 +103,16 @@ def train_validate_test(
         # Save model if improved
         if not best_weights or val_acc[-1] > best_val_acc:
             best_weights = model.state_dict()
-            torch.save(best_weights, path_to_save_model)
+            torch.save(best_weights, path_to_save_results+'model.pth')
             best_val_acc = val_acc[-1]
+            print("\n")
         else:
             print("Model has not improved, and will not be saved.\n")
 
     # Test
     print("Training and validation complete. Starting testing now.")
     model.load_state_dict(best_weights)
-    test_acc, test_loss = evaluate_model(model, test_dl, loss_func, device)
+    test_acc, test_loss, probabilities = evaluate_model(model, test_dl, loss_func, device)
     print("Test acc: {}, Test loss: {}".format(test_acc, test_loss))
     test_acc_data.append(test_acc)
     test_loss_data.append(test_loss)
@@ -125,34 +122,37 @@ def train_validate_test(
     train_val_results = pd.DataFrame({'Epoch': list(range(
         1, epochs + 1)), 'TrainAcc': train_acc, 'TrainLoss': train_loss, 'ValAcc': val_acc, 'ValLoss': val_loss})
 
-    return best_weights, train_loss, train_acc, val_loss, val_acc, test_results, train_val_results
-
-
+    return best_weights, train_loss, train_acc, val_loss, val_acc, test_results, train_val_results, probabilities
+    
+    
 if __name__ == '__main__':
     # Set hyperparameters
     lr = 0.001
     betas = (0.9, 0.999)
     eps = 1e-8
     weight_decay = 0
-    epochs = 25
+    epochs = 1
     step_size = 5
     gamma = 0.1
     batch_size = 32
     img_size = 360 #inception 360
     crop_size = 299  # Inception v3 expects 299
 
-    archi = 'resnet50'
+    archi = 'resnet50' #either inception, resnet50, wide_resnet50, or mobilenet
     num_classes = 3
     use_gpu = True
     use_data_augmentation = True
-    train_all_weights = True
+    train_all_weights = False
     pretrained = True
 
     image_dir = 'C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media'
-    path_to_save_model = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50_FYP/model.pth'
-    probabilities_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50_FYP/test_probabilities.csv'
-    path_to_save_trainval_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50_FYP/train_val_results.csv'
-    path_to_save_test_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50_FYP/test_results.csv'
+    path_to_save_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test/' #must end with /
+
+    # Check that paths to save results and models exist 
+    if path.exists(path_to_save_results):
+        print("\nSaving results in "+path_to_save_results)
+    else:
+        sys.exit("\nError: File path to save results do not exist")
 
     # Read data
     X_train = read_csv('X_train.csv')
@@ -188,7 +188,7 @@ if __name__ == '__main__':
     else:
         device = torch.device('cpu')
 
-    print("Using {} for training.".format(device))
+    print("Using {} for training with {} architecture.".format(device, archi))
 
     optimizer = optim.Adam(
         parameters,
@@ -205,10 +205,10 @@ if __name__ == '__main__':
     )
 
     # Train, validate, test
-    weights, train_loss, train_acc, val_loss, val_acc, test_results, train_val_results = train_validate_test(
+    weights, train_loss, train_acc, val_loss, val_acc, test_results, train_val_results, probabilities = train_validate_test(
         epochs, model, optimizer, scheduler, loss_func,
         train_dl, val_dl, test_dl, device, archi, 
-        path_to_save_model
+        path_to_save_results
     )
 
     # Save results
@@ -218,13 +218,25 @@ if __name__ == '__main__':
     write_to_csv(val_acc, 'val_acc.csv')
 
     train_val_results.to_csv(
-        index=False, path_or_buf=path_to_save_trainval_results)
-    test_results.to_csv(index=False, path_or_buf=path_to_save_test_results)
+        index=False, path_or_buf=path_to_save_results+'train_val_results.csv')
+    test_results.to_csv(index=False, path_or_buf=path_to_save_results+'test_results.csv')
 
     # Output probablities for test data
-    model.load_state_dict(weights)
-    probabilities = get_probabilities(model, test_dl, device)
-    with open(probabilities_path, 'w', newline='') as f:
+    with open(path_to_save_results+'test_probabilities.csv', 'w', newline='') as f:
         writer = csv.writer(f)
+        writer.writerow(["prob_empty", "prob_human", "prob_animal"])
         for row in probabilities:
             writer.writerow(row)
+
+    # Output hyperparameters for recording purposes
+    hp_names = (
+        "LearningRate", "Betas", "Eps", "WeightDecay", "Epochs", "StepSize", "Gamma", "BatchSize", "ImgSize", "CropSize",
+        "Architecture", "NumClasses", "UseDataAugmentation", "TrainAllWeights", "Pretrained",
+        "NumTrainImages", "NumValImages", "NumTestImages")
+    hp_values = (
+        lr, betas, eps, weight_decay, epochs, step_size, gamma, batch_size, img_size, crop_size, 
+        archi, num_classes, use_data_augmentation, train_all_weights, pretrained,
+        len(X_train), len(X_val), len(X_test))
+
+    hp_records = pd.DataFrame({'Hyperparameters': hp_names, 'Values': hp_values})
+    hp_records.to_csv(index=False, path_or_buf=path_to_save_results+'hyperparameter_records.csv')
