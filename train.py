@@ -128,7 +128,7 @@ def train_validate_test(
 
 if __name__ == '__main__':
     # Connecting to the clearml dashboard 
-    task = Task.init(project_name="Nosyarlin", task_name="training")
+    task = Task.init(project_name="Nosyarlin", task_name="TrialTraining")
 
     # Set hyperparameters
     parser = argparse.ArgumentParser(description='Process Command-line Arguments')
@@ -140,24 +140,25 @@ if __name__ == '__main__':
     parser.add_argument('--use_data_augmentation', default= True, type= bool, action='store', help='Using data augmentation')
     parser.add_argument('--use_gpu', default= True, type= bool, action='store', help='Using GPU for processing')
     parser.add_argument('--num_classes', default= '3', type= int, action='store', help='Number of classes to be trained')
-    parser.add_argument('--lr', default= '0.001', type= int, action='store', help='The learning rate')
-    parser.add_argument('--betas', default= '(0.9, 0.999)', type= int, action='store', help='The alpha and beta values controlling the shape of the beta distribution for the Adam optimiser')
-    parser.add_argument('--eps', default= '1e-8', type= int, action='store', help='Epsilon value for Adam optimiser')
+    parser.add_argument('--lr', default= '0.001', type= float, action='store', help='The learning rate')
+    parser.add_argument('--betas', default= None, nargs= 2, type= float, action='store', help='The alpha and beta values controlling the shape of the beta distribution for the Adam optimiser')
+    parser.add_argument('--eps', default= '1e-8', type= float, action='store', help='Epsilon value for Adam optimiser')
     parser.add_argument('--weight_decay', default= '0', type= int, action='store', help='Weight decay for Adam optimiser')
     parser.add_argument('--epochs', default= '25', type= int, action='store', help='Number of epochs to be run for training')
     parser.add_argument('--step_size', default= '5', type= int, action='store', help='Step size')
-    parser.add_argument('--gamma', default= '0.1', type= int, action='store', help='Gamma value for optimiser')
+    parser.add_argument('--gamma', default= '0.1', type= float, action='store', help='Gamma value for optimiser')
     parser.add_argument('--batch_size', default= '32', type= int, action='store', help='Batch size for training')
     parser.add_argument('--img_size', default= '360', type= int, action='store', help='Image size for each image')
     parser.add_argument('--crop_size', default= '299', type= int, action='store', help='Crop size for each image. Inception v3 expects 299')
 
     args = parser.parse_args([
         '--image_dir', 'C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
-        '--path_to_save_results', 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50_FYP/AllLayer_propTrain=0.3/run_2/', #must end with /
-        '--archi', 'resnet50',
-        '--epochs', '15',
+        '--path_to_save_results', 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test', #must end with /
+        '--archi', 'mobilenet',
+        '--epochs', '1',
         '--lr', '0.001',
-        '--batch_size', '32',  
+        '--betas', '0.9', '0.99', 
+        '--batch_size', '32'
         ])
 
     # Check that paths to save results and models exist 
@@ -218,7 +219,7 @@ if __name__ == '__main__':
     optimizer = optim.Adam(
         parameters,
         lr=args.lr,
-        betas=args.betas,
+        betas=tuple(args.betas),
         eps=args.eps,
         weight_decay=args.weight_decay,
     )
