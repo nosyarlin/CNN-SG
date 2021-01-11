@@ -9,7 +9,7 @@ import pandas as pd
 import os.path
 from os import path
 import sys
-from clearml import Task
+from clearml import Task, Logger
 import argparse
 
 
@@ -22,7 +22,11 @@ def evaluate_model(model, dl, loss_func, device):
 
         probabilities = []
 
+        j = 0 #Starting the iteration count
+
         for X, y in dl:
+            j += 1 #Adding one iteration count per batch
+
             X, y = X.to(device), y.to(device)
 
             logits = model(X)
@@ -35,17 +39,28 @@ def evaluate_model(model, dl, loss_func, device):
 
             softmax = nn.Softmax(1)
             probabilities.append(softmax(logits))
+
+            Logger.current_logger().report_scalar(
+                "Testing", "loss", iteration= j, value= loss.item())
+            Logger.current_logger().report_scalar(
+                "Testing", "accuracy", iteration= j, value= (total_correct / total_count))
+
     probabilities = torch.cat(probabilities, 0)
 
     return total_correct / total_count, np.mean(losses), probabilities.tolist()
 
 
-def train_model(model, dl, loss_func, optimizer, device, archi):
+def train_model(model, dl, loss_func, optimizer, device, archi, epoch):
     model.train()
     train_loss = []
     total_count = 0
     total_correct = 0
+
+    j = 0 #Starting the iteration count 
+
     for X, y in dl:
+        j += 1 #Adding one iteration count per batch
+
         model.zero_grad()
         X, y = X.to(device), y.to(device)
 
@@ -66,6 +81,11 @@ def train_model(model, dl, loss_func, optimizer, device, archi):
 
         loss.backward()
         optimizer.step()
+
+        Logger.current_logger().report_scalar(
+            "Training", "loss", iteration=((epoch+1) * j), value= loss.item())
+        Logger.current_logger().report_scalar(
+            "Training", "accuracy", iteration=((epoch+1) * j), value= (total_correct / total_count))
 
     return total_correct / total_count, np.mean(train_loss)
 
@@ -88,7 +108,7 @@ def train_validate_test(
     for epoch in range(epochs):
         # Train
         acc, loss = train_model(
-            model, train_dl, loss_func, optimizer, device, archi)
+            model, train_dl, loss_func, optimizer, device, archi, epoch)
         train_loss.append(loss)
         train_acc.append(acc)
         scheduler.step()
@@ -97,6 +117,10 @@ def train_validate_test(
         acc, loss, probabilities = evaluate_model(model, val_dl, loss_func, device)
         val_acc.append(acc)
         val_loss.append(loss)
+        Logger.current_logger().report_scalar(
+            "Validation", "loss", iteration= epoch+1, value= loss)
+        Logger.current_logger().report_scalar(
+            "Validation", "accuracy", iteration= epoch+1, value= acc)
 
         print("Epoch: {} of {}".format(epoch + 1, epochs))
         print("Validation acc: {}, Validation loss: {}"
