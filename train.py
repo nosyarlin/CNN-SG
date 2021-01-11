@@ -9,6 +9,8 @@ import pandas as pd
 import os.path
 from os import path
 import sys
+from clearml import Task
+import argparse
 
 
 def evaluate_model(model, dl, loss_func, device):
@@ -103,9 +105,8 @@ def train_validate_test(
         # Save model if improved
         if not best_weights or val_acc[-1] > best_val_acc:
             best_weights = model.state_dict()
-            torch.save(best_weights, path_to_save_results+'model.pth')
+            torch.save(best_weights, os.path.join(path_to_save_results, 'model.pth'))
             best_val_acc = val_acc[-1]
-            print("\n")
         else:
             print("Model has not improved, and will not be saved.\n")
 
@@ -124,33 +125,44 @@ def train_validate_test(
 
     return best_weights, train_loss, train_acc, val_loss, val_acc, test_results, train_val_results, probabilities
     
-    
+
 if __name__ == '__main__':
+    # Connecting to the clearml dashboard 
+    task = Task.init(project_name="Nosyarlin", task_name="training")
+
     # Set hyperparameters
-    lr = 0.001
-    betas = (0.9, 0.999)
-    eps = 1e-8
-    weight_decay = 0
-    epochs = 1
-    step_size = 5
-    gamma = 0.1
-    batch_size = 32
-    img_size = 360 #inception 360
-    crop_size = 299  # Inception v3 expects 299
+    parser = argparse.ArgumentParser(description='Process Command-line Arguments')
+    parser.add_argument('--image_dir', default= None, action= 'store', help= 'Path to the directory containing the images')
+    parser.add_argument('--path_to_save_results', default= None, action= 'store', help= 'Path to the directory to save the model, hyperparameters and results')
+    parser.add_argument('--archi', default= 'resnet50', action='store', help='Architecture of the model to be trained. Either inception, resnet50, wide_resnet50, or mobilenet')
+    parser.add_argument('--pretrained', default= True, type= bool, action='store', help='Choose if the model to be trained should be a pretrained model from pytorch')
+    parser.add_argument('--train_all_weights', default= True, type= bool, action='store', help='True: train all weights across all layers; False: train classification layer only')
+    parser.add_argument('--use_data_augmentation', default= True, type= bool, action='store', help='Using data augmentation')
+    parser.add_argument('--use_gpu', default= True, type= bool, action='store', help='Using GPU for processing')
+    parser.add_argument('--num_classes', default= '3', type= int, action='store', help='Number of classes to be trained')
+    parser.add_argument('--lr', default= '0.001', type= int, action='store', help='The learning rate')
+    parser.add_argument('--betas', default= '(0.9, 0.999)', type= int, action='store', help='The alpha and beta values controlling the shape of the beta distribution for the Adam optimiser')
+    parser.add_argument('--eps', default= '1e-8', type= int, action='store', help='Epsilon value for Adam optimiser')
+    parser.add_argument('--weight_decay', default= '0', type= int, action='store', help='Weight decay for Adam optimiser')
+    parser.add_argument('--epochs', default= '25', type= int, action='store', help='Number of epochs to be run for training')
+    parser.add_argument('--step_size', default= '5', type= int, action='store', help='Step size')
+    parser.add_argument('--gamma', default= '0.1', type= int, action='store', help='Gamma value for optimiser')
+    parser.add_argument('--batch_size', default= '32', type= int, action='store', help='Batch size for training')
+    parser.add_argument('--img_size', default= '360', type= int, action='store', help='Image size for each image')
+    parser.add_argument('--crop_size', default= '299', type= int, action='store', help='Crop size for each image. Inception v3 expects 299')
 
-    archi = 'resnet50' #either inception, resnet50, wide_resnet50, or mobilenet
-    num_classes = 3
-    use_gpu = True
-    use_data_augmentation = True
-    train_all_weights = False
-    pretrained = True
-
-    image_dir = 'C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media'
-    path_to_save_results = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test/' #must end with /
+    args = parser.parse_args([
+        '--image_dir', 'C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
+        '--path_to_save_results', 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50_FYP/AllLayer_propTrain=0.3/run_2/', #must end with /
+        '--archi', 'resnet50',
+        '--epochs', '15',
+        '--lr', '0.001',
+        '--batch_size', '32',  
+        ])
 
     # Check that paths to save results and models exist 
-    if path.exists(path_to_save_results):
-        print("\nSaving results in "+path_to_save_results)
+    if path.exists(args.path_to_save_results):
+        print("\nSaving results in " + args.path_to_save_results)
     else:
         sys.exit("\nError: File path to save results do not exist")
 
@@ -162,13 +174,13 @@ if __name__ == '__main__':
     X_test = read_csv('X_test.csv')
     y_test = read_csv('y_test.csv')
     train_dl = get_dataloader(
-        X_train, y_train, batch_size, image_dir, img_size, crop_size, use_data_augmentation
+        X_train, y_train, args.batch_size, args.image_dir, args.img_size, args.crop_size, args.use_data_augmentation
     )
     val_dl = get_dataloader(
-        X_val, y_val, batch_size, image_dir, img_size, crop_size, False
+        X_val, y_val, args.batch_size, args.image_dir, args.img_size, args.crop_size, False
     )
     test_dl = get_dataloader(
-        X_test, y_test, batch_size, image_dir, img_size, crop_size, False
+        X_test, y_test, args.batch_size, args.image_dir, args.img_size, args.crop_size, False
     )
 
     print("Dataset to be used includes {} training images, {} validation images and {} testing images.".format(len(X_train), len(X_val), len(X_test)))
@@ -177,38 +189,51 @@ if __name__ == '__main__':
         y_val.count("0"),y_val.count("1"),y_val.count("2"),
         y_test.count("0"),y_test.count("1"),y_test.count("2")))
 
+    # Output hyperparameters for recording purposes
+    hp_names = (
+        "LearningRate", "Betas", "Eps", "WeightDecay", "Epochs", "StepSize", "Gamma", "BatchSize", "ImgSize", "CropSize",
+        "Architecture", "NumClasses", "UseDataAugmentation", "TrainAllWeights", "Pretrained",
+        "NumTrainImages", "NumValImages", "NumTestImages")
+    hp_values = (
+        args.lr, args.betas, args.eps, args.weight_decay, args.epochs, args.step_size, args.gamma, args.batch_size, args.img_size, args.crop_size, 
+        args.archi, args.num_classes, args.use_data_augmentation, args.train_all_weights, args.pretrained,
+        len(X_train), len(X_val), len(X_test))
+
+    hp_records = pd.DataFrame({'Hyperparameters': hp_names, 'Values': hp_values})
+    hp_records.to_csv(index=False, path_or_buf= os.path.join(args.path_to_save_results, 'hyperparameter_records.csv'))
+
     # Build model
     model, parameters = get_model(
-        archi, num_classes, train_all_weights, pretrained)
+        args.archi, args.num_classes, args.train_all_weights, args.pretrained)
 
     # Prepare for training
-    if use_gpu:
+    if args.use_gpu:
         model.cuda()
         device = torch.device('cuda')
     else:
         device = torch.device('cpu')
 
-    print("Using {} for training with {} architecture.".format(device, archi))
+    print("Using {} for training with {} architecture.".format(device, args.archi))
 
     optimizer = optim.Adam(
         parameters,
-        lr=lr,
-        betas=betas,
-        eps=eps,
-        weight_decay=weight_decay,
+        lr=args.lr,
+        betas=args.betas,
+        eps=args.eps,
+        weight_decay=args.weight_decay,
     )
     loss_func = nn.CrossEntropyLoss()
     scheduler = optim.lr_scheduler.StepLR(
         optimizer,
-        step_size=step_size,
-        gamma=gamma
+        step_size=args.step_size,
+        gamma=args.gamma
     )
 
     # Train, validate, test
     weights, train_loss, train_acc, val_loss, val_acc, test_results, train_val_results, probabilities = train_validate_test(
-        epochs, model, optimizer, scheduler, loss_func,
-        train_dl, val_dl, test_dl, device, archi, 
-        path_to_save_results
+        args.epochs, model, optimizer, scheduler, loss_func,
+        train_dl, val_dl, test_dl, device, args.archi, 
+        args.path_to_save_results
     )
 
     # Save results
@@ -218,25 +243,13 @@ if __name__ == '__main__':
     write_to_csv(val_acc, 'val_acc.csv')
 
     train_val_results.to_csv(
-        index=False, path_or_buf=path_to_save_results+'train_val_results.csv')
-    test_results.to_csv(index=False, path_or_buf=path_to_save_results+'test_results.csv')
+        index=False, path_or_buf = os.path.join(args.path_to_save_results, 'train_val_results.csv'))
+    test_results.to_csv(index=False, path_or_buf = os.path.join(args.path_to_save_results, 'test_results.csv'))
 
     # Output probablities for test data
-    with open(path_to_save_results+'test_probabilities.csv', 'w', newline='') as f:
+    with open(os.path.join(args.path_to_save_results, 'test_probabilities.csv'), 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(["prob_empty", "prob_human", "prob_animal"])
         for row in probabilities:
             writer.writerow(row)
 
-    # Output hyperparameters for recording purposes
-    hp_names = (
-        "LearningRate", "Betas", "Eps", "WeightDecay", "Epochs", "StepSize", "Gamma", "BatchSize", "ImgSize", "CropSize",
-        "Architecture", "NumClasses", "UseDataAugmentation", "TrainAllWeights", "Pretrained",
-        "NumTrainImages", "NumValImages", "NumTestImages")
-    hp_values = (
-        lr, betas, eps, weight_decay, epochs, step_size, gamma, batch_size, img_size, crop_size, 
-        archi, num_classes, use_data_augmentation, train_all_weights, pretrained,
-        len(X_train), len(X_val), len(X_test))
-
-    hp_records = pd.DataFrame({'Hyperparameters': hp_names, 'Values': hp_values})
-    hp_records.to_csv(index=False, path_or_buf=path_to_save_results+'hyperparameter_records.csv')
