@@ -1,16 +1,17 @@
+import sys
+import os.path
+from os import path
 import csv
 import numpy as np
 import torch
+from torch import nn, optim
+import pandas as pd
+from clearml import Task, Logger
+import argparse
+
 from dataset import get_dataloader
 from models import get_model
 from shared_funcs import read_csv, write_to_csv
-from torch import nn, optim
-import pandas as pd
-import os.path
-from os import path
-import sys
-from clearml import Task, Logger
-import argparse
 
 
 def evaluate_model(model, dl, loss_func, device):
