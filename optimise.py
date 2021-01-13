@@ -23,7 +23,7 @@ optimizer = HyperParameterOptimizer(
         UniformParameterRange('Args/lr', min_value=0.0005, max_value=0.005, step_size=0.0005),
     ],
     # setting the objective metric we want to maximize/minimize
-    objective_metric_title='validation',
+    objective_metric_title='OverallVal',
     objective_metric_series='accuracy',
     objective_metric_sign='max',  
 

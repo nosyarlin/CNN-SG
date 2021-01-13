@@ -169,7 +169,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr', default= '0.001', type= float, action='store', help='The learning rate')
     parser.add_argument('--betas', default= None, nargs= 2, type= float, action='store', help='The alpha and beta values controlling the shape of the beta distribution for the Adam optimiser')
     parser.add_argument('--eps', default= '1e-8', type= float, action='store', help='Epsilon value for Adam optimiser')
-    parser.add_argument('--weight_decay', default= '0', type= int, action='store', help='Weight decay for Adam optimiser')
+    parser.add_argument('--weight_decay', default= '0', type= float, action='store', help='Weight decay for Adam optimiser')
     parser.add_argument('--epochs', default= '25', type= int, action='store', help='Number of epochs to be run for training')
     parser.add_argument('--step_size', default= '5', type= int, action='store', help='Step size')
     parser.add_argument('--gamma', default= '0.1', type= float, action='store', help='Gamma value for optimiser')
@@ -262,6 +262,9 @@ if __name__ == '__main__':
         train_dl, val_dl, test_dl, device, args.archi, 
         args.path_to_save_results
     )
+
+    Logger.current_logger().report_scalar(title='OverallVal', series='loss', value=val_loss, iteration= args.epochs)
+    Logger.current_logger().report_scalar(title='OverallVal', series='accuracy', value=val_acc, iteration= args.epochs)
 
     # Save results
     write_to_csv(train_loss, 'train_loss.csv')
