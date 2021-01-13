@@ -153,7 +153,8 @@ def train_validate_test(
 
 if __name__ == '__main__':
     # Connecting to the clearml dashboard 
-    task = Task.init(project_name="Nosyarlin", task_name="TrialTraining")
+    task = Task.init(project_name="Nosyarlin", task_name="Train_20210113",
+        task_type= Task.TaskTypes.training)
 
     # Set hyperparameters
     parser = argparse.ArgumentParser(description='Process Command-line Arguments')

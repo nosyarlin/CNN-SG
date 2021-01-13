@@ -1,23 +1,30 @@
 from clearml import Task
-from clearml.automation import UniformParameterRange, UniformIntegerParameterRange
+from clearml.automation import UniformParameterRange, UniformIntegerParameterRange, DiscreteParameterRange
 from clearml.automation import HyperParameterOptimizer
 from clearml.automation.optuna import OptimizerOptuna
+import argparse
 
 task = Task.init(project_name='Nosyarlin', task_name='Hyper-Parameter Optimization', 
     task_type= Task.TaskTypes.optimizer)
 
+parser = argparse.ArgumentParser(description='Process Command-line Arguments')
+parser.add_argument('--task_id', default= None, action= 'store', help= 'Clearml Task ID that you want to optimise')
+
+args = parser.parse_args([
+        '--task_id', '9fe8c12745d54f34bb4df0304d18bd7f'])
+
 optimizer = HyperParameterOptimizer(
-    base_task_id= "8e7bc6643cd7485e9c67b6944584c769",  
+    base_task_id= args.task_id,  
     
     # setting the hyper-parameters to optimize
     hyper_parameters=[
-        UniformIntegerParameterRange('batch_size', min_value=32, max_value=128, step_size=16),
-        UniformParameterRange('weight_decay', min_value=0, max_value=0.01, step_size=0.005),
-        UniformParameterRange('lr', min_value=0.0005, max_value=0.005, step_size=0.0005),
+        UniformIntegerParameterRange('Args/batch_size', min_value=32, max_value=128, step_size=16),
+        DiscreteParameterRange('Args/weight_decay', values = [0.025, 0.05]),
+        UniformParameterRange('Args/lr', min_value=0.0005, max_value=0.005, step_size=0.0005),
     ],
     # setting the objective metric we want to maximize/minimize
-    objective_metric_title='accuracy',
-    objective_metric_series='total',
+    objective_metric_title='validation',
+    objective_metric_series='accuracy',
     objective_metric_sign='max',  
 
     # setting optimizer 
