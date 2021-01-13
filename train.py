@@ -180,7 +180,7 @@ if __name__ == '__main__':
         '--image_dir', 'C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
         '--path_to_save_results', 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test', #must end with /
         '--archi', 'mobilenet',
-        '--epochs', '1',
+        '--epochs', '20',
         '--lr', '0.001',
         '--betas', '0.9', '0.99', 
         '--batch_size', '32'
