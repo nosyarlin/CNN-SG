@@ -169,7 +169,8 @@ if __name__ == '__main__':
     parser.add_argument('--use_gpu', default= True, type= bool, action='store', help='Using GPU for processing')
     parser.add_argument('--num_classes', default= '3', type= int, action='store', help='Number of classes to be trained')
     parser.add_argument('--lr', default= '0.001', type= float, action='store', help='The learning rate')
-    parser.add_argument('--betas', default= None, nargs= 2, type= float, action='store', help='The alpha and beta values controlling the shape of the beta distribution for the Adam optimiser')
+    parser.add_argument('--betadist_alpha', default= 0.9, type= float, action='store', help='The alpha value controlling the shape of the beta distribution for the Adam optimiser')
+    parser.add_argument('--betadist_beta', default= 0.99, type= float, action='store', help='The beta value controlling the shape of the beta distribution for the Adam optimiser')
     parser.add_argument('--eps', default= '1e-8', type= float, action='store', help='Epsilon value for Adam optimiser')
     parser.add_argument('--weight_decay', default= '0', type= float, action='store', help='Weight decay for Adam optimiser')
     parser.add_argument('--epochs', default= '25', type= int, action='store', help='Number of epochs to be run for training')
@@ -185,7 +186,8 @@ if __name__ == '__main__':
         '--archi', 'mobilenet',
         '--epochs', '1',
         '--lr', '0.001',
-        '--betas', '0.9', '0.99', 
+        '--betadist_alpha', '0.9', 
+        '--betadist_beta', '0.99', 
         '--batch_size', '32', 
         '--weight_decay', '0'
         ])
@@ -245,10 +247,11 @@ if __name__ == '__main__':
 
     print("Using {} for training with {} architecture.".format(device, args.archi))
 
+    betas = (args.betadist_alpha, args.betadist_beta)
     optimizer = optim.Adam(
         parameters,
         lr=args.lr,
-        betas=tuple(args.betas),
+        betas=betas,
         eps=args.eps,
         weight_decay=args.weight_decay,
     )

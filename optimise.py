@@ -26,8 +26,13 @@ optimizer = HyperParameterOptimizer(
     # setting the hyper-parameters to optimize
     hyper_parameters=[
         UniformIntegerParameterRange('Args/batch_size', min_value=32, max_value=128, step_size=16),
-        DiscreteParameterRange('Args/weight_decay', values = [0.025, 0.05]),
+        DiscreteParameterRange('Args/weight_decay', values = [0, 0.01, 0.02]),
         UniformParameterRange('Args/lr', min_value=0.0005, max_value=0.005, step_size=0.0005),
+        DiscreteParameterRange('Args/betadist_alpha', values = [0.8, 0.85, 0.9]),
+        DiscreteParameterRange('Args/betadist_beta', values = [0.85, 0.9, 0.99]),
+        DiscreteParameterRange('Args/eps', values = [1e-7, 1e-8, 1e-9]),
+        UniformIntegerParameterRange('Args/step_size', min_value=5, max_value=55, step_size=10),
+        UniformIntegerParameterRange('Args/gamma', min_value=0.05, max_value=0.2, step_size=0.05)
     ],
     # setting the objective metric we want to maximize/minimize
     objective_metric_title='Training',
