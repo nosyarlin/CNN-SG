@@ -1,6 +1,8 @@
 import sys
 import os.path
 from os import path
+from datetime import date
+
 import csv
 import numpy as np
 import torch
@@ -153,7 +155,7 @@ def train_validate_test(
 
 if __name__ == '__main__':
     # Connecting to the clearml dashboard 
-    task = Task.init(project_name="Nosyarlin", task_name="Train_20210113",
+    task = Task.init(project_name="Nosyarlin", task_name= "Train_"+ date.today().strftime('%Y-%m-%d'),
         task_type= Task.TaskTypes.training)
 
     # Set hyperparameters
@@ -179,12 +181,13 @@ if __name__ == '__main__':
 
     args = parser.parse_args([
         '--image_dir', 'C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
-        '--path_to_save_results', 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test', #must end with /
+        '--path_to_save_results', 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test/', #must end with /
         '--archi', 'mobilenet',
-        '--epochs', '20',
+        '--epochs', '1',
         '--lr', '0.001',
         '--betas', '0.9', '0.99', 
-        '--batch_size', '32'
+        '--batch_size', '32', 
+        '--weight_decay', '0'
         ])
 
     # Check that paths to save results and models exist 
@@ -262,9 +265,6 @@ if __name__ == '__main__':
         train_dl, val_dl, test_dl, device, args.archi, 
         args.path_to_save_results
     )
-
-    Logger.current_logger().report_scalar(title='OverallVal', series='loss', value=val_loss, iteration= args.epochs)
-    Logger.current_logger().report_scalar(title='OverallVal', series='accuracy', value=val_acc, iteration= args.epochs)
 
     # Save results
     write_to_csv(train_loss, 'train_loss.csv')

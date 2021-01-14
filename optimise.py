@@ -3,6 +3,7 @@ from clearml.automation import UniformParameterRange, UniformIntegerParameterRan
 from clearml.automation import HyperParameterOptimizer
 from clearml.automation.optuna import OptimizerOptuna
 import argparse
+from datetime import date
 
 task = Task.init(project_name='Nosyarlin', task_name='Hyper-Parameter Optimization', 
     task_type= Task.TaskTypes.optimizer)
@@ -10,8 +11,14 @@ task = Task.init(project_name='Nosyarlin', task_name='Hyper-Parameter Optimizati
 parser = argparse.ArgumentParser(description='Process Command-line Arguments')
 parser.add_argument('--task_id', default= None, action= 'store', help= 'Clearml Task ID that you want to optimise')
 
-args = parser.parse_args([
-        '--task_id', '9fe8c12745d54f34bb4df0304d18bd7f'])
+args = parser.parse_args(
+    # ['--task_id', '9fe8c12745d54f34bb4df0304d18bd7f']
+    )
+
+# Get the template task experiment that we want to optimize
+if not args.task_id:
+    args.task_id = Task.get_task(
+        project_name= 'Nosyarlin', task_name= 'Train_'+ date.today().strftime('%Y-%m-%d')).id
 
 optimizer = HyperParameterOptimizer(
     base_task_id= args.task_id,  
@@ -23,7 +30,7 @@ optimizer = HyperParameterOptimizer(
         UniformParameterRange('Args/lr', min_value=0.0005, max_value=0.005, step_size=0.0005),
     ],
     # setting the objective metric we want to maximize/minimize
-    objective_metric_title='OverallVal',
+    objective_metric_title='Training',
     objective_metric_series='accuracy',
     objective_metric_sign='max',  
 
