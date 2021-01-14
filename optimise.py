@@ -39,6 +39,8 @@ if __name__ == '__main__':
         # setting the hyper-parameters to optimize
         hyper_parameters=[
             DiscreteParameterRange('Args/epochs', values = [20]),
+            DiscreteParameterRange('Args/run_test', values = [False]),
+            DiscreteParameterRange('Args/archi', values = ['inception', 'resnet50', 'mobilenet']),
             UniformIntegerParameterRange('Args/batch_size', min_value=32, max_value=128, step_size=16),
             DiscreteParameterRange('Args/weight_decay', values = [0, 1e-4, 1e-5, 1e-6]),
             UniformParameterRange('Args/lr', min_value=0.0005, max_value=0.005, step_size=0.0005),
