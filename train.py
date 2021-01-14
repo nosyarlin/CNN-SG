@@ -93,15 +93,13 @@ def train_model(model, dl, loss_func, optimizer, device, archi, epoch):
     return total_correct / total_count, np.mean(train_loss)
 
 
-def train_validate_test(
+def train_validate(
         epochs, model, optimizer, scheduler, loss_func, train_dl,
-        val_dl, test_dl, device, archi, path_to_save_results):
+        val_dl, device, archi, path_to_save_results):
     train_loss = []
     train_acc = []
     val_loss = []
     val_acc = []
-    test_acc_data = []
-    test_loss_data = []
     best_val_acc = -1
     best_weights = None
 
@@ -137,9 +135,19 @@ def train_validate_test(
         else:
             print("Model has not improved, and will not be saved.\n")
 
-    # Test
+    # Saving them into datasets
+    train_val_results = pd.DataFrame({'Epoch': list(range(
+        1, epochs + 1)), 'TrainAcc': train_acc, 'TrainLoss': train_loss, 'ValAcc': val_acc, 'ValLoss': val_loss})
+
+    return best_weights, train_loss, train_acc, val_loss, val_acc, train_val_results
+    
+def test(weights, model, loss_func, test_dl, device):
+    
+    test_acc_data = []
+    test_loss_data = []
+
     print("Training and validation complete. Starting testing now.")
-    model.load_state_dict(best_weights)
+    model.load_state_dict(weights)
     test_acc, test_loss, probabilities = evaluate_model(model, test_dl, loss_func, device)
     print("Test acc: {}, Test loss: {}".format(test_acc, test_loss))
     test_acc_data.append(test_acc)
@@ -147,11 +155,8 @@ def train_validate_test(
 
     # Saving them into datasets
     test_results = pd.DataFrame({'Acc': test_acc_data, 'Loss': test_loss_data})
-    train_val_results = pd.DataFrame({'Epoch': list(range(
-        1, epochs + 1)), 'TrainAcc': train_acc, 'TrainLoss': train_loss, 'ValAcc': val_acc, 'ValLoss': val_loss})
 
-    return best_weights, train_loss, train_acc, val_loss, val_acc, test_results, train_val_results, probabilities
-    
+    return test_results, probabilities
 
 if __name__ == '__main__':
     # Connecting to the clearml dashboard 
@@ -162,6 +167,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process Command-line Arguments')
     parser.add_argument('--image_dir', default= None, action= 'store', help= 'Path to the directory containing the images')
     parser.add_argument('--path_to_save_results', default= None, action= 'store', help= 'Path to the directory to save the model, hyperparameters and results')
+    parser.add_argument('--run_test', default= False, type= bool, action= 'store', help= 'Determine if testing should be conducted')
     parser.add_argument('--archi', default= 'resnet50', action='store', help='Architecture of the model to be trained. Either inception, resnet50, wide_resnet50, or mobilenet')
     parser.add_argument('--pretrained', default= True, type= bool, action='store', help='Choose if the model to be trained should be a pretrained model from pytorch')
     parser.add_argument('--train_all_weights', default= True, type= bool, action='store', help='True: train all weights across all layers; False: train classification layer only')
@@ -183,6 +189,7 @@ if __name__ == '__main__':
     args = parser.parse_args([
         '--image_dir', 'C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
         '--path_to_save_results', 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test/', #must end with /
+        '--run_test', 'False',
         '--archi', 'mobilenet',
         '--epochs', '1',
         '--lr', '0.001',
@@ -223,11 +230,11 @@ if __name__ == '__main__':
 
     # Output hyperparameters for recording purposes
     hp_names = (
-        "LearningRate", "Betas", "Eps", "WeightDecay", "Epochs", "StepSize", "Gamma", "BatchSize", "ImgSize", "CropSize",
+        "LearningRate", "BetaDist_alpha", "BetaDist_beta", "Eps", "WeightDecay", "Epochs", "StepSize", "Gamma", "BatchSize", "ImgSize", "CropSize",
         "Architecture", "NumClasses", "UseDataAugmentation", "TrainAllWeights", "Pretrained",
         "NumTrainImages", "NumValImages", "NumTestImages")
     hp_values = (
-        args.lr, args.betas, args.eps, args.weight_decay, args.epochs, args.step_size, args.gamma, args.batch_size, args.img_size, args.crop_size, 
+        args.lr, args.betadist_alpha, args.betadist_beta, args.eps, args.weight_decay, args.epochs, args.step_size, args.gamma, args.batch_size, args.img_size, args.crop_size, 
         args.archi, args.num_classes, args.use_data_augmentation, args.train_all_weights, args.pretrained,
         len(X_train), len(X_val), len(X_test))
 
@@ -263,12 +270,11 @@ if __name__ == '__main__':
     )
 
     # Train, validate, test
-    weights, train_loss, train_acc, val_loss, val_acc, test_results, train_val_results, probabilities = train_validate_test(
+    weights, train_loss, train_acc, val_loss, val_acc, train_val_results= train_validate(
         args.epochs, model, optimizer, scheduler, loss_func,
-        train_dl, val_dl, test_dl, device, args.archi, 
+        train_dl, val_dl, device, args.archi, 
         args.path_to_save_results
     )
-
     # Save results
     write_to_csv(train_loss, 'train_loss.csv')
     write_to_csv(train_acc, 'train_acc.csv')
@@ -277,12 +283,20 @@ if __name__ == '__main__':
 
     train_val_results.to_csv(
         index=False, path_or_buf = os.path.join(args.path_to_save_results, 'train_val_results.csv'))
-    test_results.to_csv(index=False, path_or_buf = os.path.join(args.path_to_save_results, 'test_results.csv'))
 
-    # Output probablities for test data
-    with open(os.path.join(args.path_to_save_results, 'test_probabilities.csv'), 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(["prob_empty", "prob_human", "prob_animal"])
-        for row in probabilities:
-            writer.writerow(row)
+    # Test
+    if args.run_test:
+        test_results, probabilities= test(
+            weights, model, loss_func, test_dl, device, args.path_to_save_results
+        )
 
+        test_results.to_csv(index=False, path_or_buf = os.path.join(args.path_to_save_results, 'test_results.csv'))
+        
+        # Output probablities for test data
+        with open(os.path.join(args.path_to_save_results, 'test_probabilities.csv'), 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["prob_empty", "prob_human", "prob_animal"])
+            for row in probabilities:
+                writer.writerow(row)      
+    else:
+        print("Testing will not be conducted")
