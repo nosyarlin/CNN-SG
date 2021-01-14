@@ -139,7 +139,7 @@ def train_validate(
 
         print("Epoch: {} of {}".format(epoch + 1, epochs))
         print("Validation acc: {}, Validation loss: {}"
-              .format(acc, loss))
+              .format(acc_val, loss_val))
 
     # Saving them into datasets
     train_val_results = pd.DataFrame({'Epoch': list(range(
@@ -178,12 +178,12 @@ if __name__ == '__main__':
 
     args = parser.parse_args([
         '--image_dir', 'C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
-        '--path_to_save_results', 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test/', 
+        '--path_to_save_results', 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test/',
         '--run_test', 'False',
         '--archi', 'mobilenet',
         '--epochs', '2',
         '--lr', '0.001',
-        '--betadist_alpha', '0.9', 
+        '--betadist_alpha', '0.9',
         '--betadist_beta', '0.99', 
         '--batch_size', '32', 
         '--weight_decay', '0'
