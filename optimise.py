@@ -46,8 +46,8 @@ optimizer = HyperParameterOptimizer(
     # Configuring optimization parameters
     execution_queue='default',  
     max_number_of_concurrent_tasks=2,  
-    optimization_time_limit=60., 
-    compute_time_limit=120, 
+    # optimization_time_limit=60., 
+    # compute_time_limit=120, 
     total_max_jobs=10,  
     min_iteration_per_job=15000,  
     max_iteration_per_job=150000,  

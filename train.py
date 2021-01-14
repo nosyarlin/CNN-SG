@@ -16,7 +16,7 @@ from models import get_model
 from shared_funcs import read_csv, write_to_csv
 
 
-def evaluate_model(model, dl, loss_func, device):
+def evaluate_model(model, dl, loss_func, device, logger_title):
     model.eval()
     with torch.no_grad():
         losses = []
@@ -44,9 +44,9 @@ def evaluate_model(model, dl, loss_func, device):
             probabilities.append(softmax(logits))
 
             Logger.current_logger().report_scalar(
-                "Testing", "loss", iteration= j, value= loss.item())
+                logger_title, "loss", iteration= j, value= loss.item())
             Logger.current_logger().report_scalar(
-                "Testing", "accuracy", iteration= j, value= (total_correct / total_count))
+                logger_title, "accuracy", iteration= j, value= (total_correct / total_count))
 
     probabilities = torch.cat(probabilities, 0)
 
@@ -108,25 +108,17 @@ def train_validate(
 
     for epoch in range(epochs):
         # Train
-        acc, loss = train_model(
+        acc_train, loss_train = train_model(
             model, train_dl, loss_func, optimizer, device, archi, epoch)
-        train_loss.append(loss)
-        train_acc.append(acc)
+        train_acc.append(acc_train)
+        train_loss.append(loss_train)       
         scheduler.step()
 
         # Validate
-        acc, loss, probabilities = evaluate_model(model, val_dl, loss_func, device)
-        val_acc.append(acc)
-        val_loss.append(loss)
-        Logger.current_logger().report_scalar(
-            "Validation", "loss", iteration= epoch+1, value= loss)
-        Logger.current_logger().report_scalar(
-            "Validation", "accuracy", iteration= epoch+1, value= acc)
-
-        print("Epoch: {} of {}".format(epoch + 1, epochs))
-        print("Validation acc: {}, Validation loss: {}"
-              .format(acc, loss))
-
+        acc_val, loss_val, probabilities = evaluate_model(model, val_dl, loss_func, device, 'Validation (Most recent epoch)')
+        val_acc.append(acc_val)
+        val_loss.append(loss_val)
+        
         # Save model if improved
         if not best_weights or val_acc[-1] > best_val_acc:
             best_weights = model.state_dict()
@@ -135,28 +127,26 @@ def train_validate(
         else:
             print("Model has not improved, and will not be saved.\n")
 
+        # Logging the results in clearml
+        Logger.current_logger().report_scalar(
+            "Training and Validation", "Train accuracy", iteration= epoch+1, value= acc_train)
+        Logger.current_logger().report_scalar(
+            "Training and Validation", "Train loss", iteration= epoch+1, value= loss_train)
+        Logger.current_logger().report_scalar(
+            "Training and Validation", "Val accuracy", iteration= epoch+1, value= acc_val)
+        Logger.current_logger().report_scalar(
+            "Training and Validation", "Val loss", iteration= epoch+1, value= loss_val)
+
+        print("Epoch: {} of {}".format(epoch + 1, epochs))
+        print("Validation acc: {}, Validation loss: {}"
+              .format(acc, loss))
+
     # Saving them into datasets
     train_val_results = pd.DataFrame({'Epoch': list(range(
         1, epochs + 1)), 'TrainAcc': train_acc, 'TrainLoss': train_loss, 'ValAcc': val_acc, 'ValLoss': val_loss})
 
     return best_weights, train_loss, train_acc, val_loss, val_acc, train_val_results
-    
-def test(weights, model, loss_func, test_dl, device):
-    
-    test_acc_data = []
-    test_loss_data = []
 
-    print("Training and validation complete. Starting testing now.")
-    model.load_state_dict(weights)
-    test_acc, test_loss, probabilities = evaluate_model(model, test_dl, loss_func, device)
-    print("Test acc: {}, Test loss: {}".format(test_acc, test_loss))
-    test_acc_data.append(test_acc)
-    test_loss_data.append(test_loss)
-
-    # Saving them into datasets
-    test_results = pd.DataFrame({'Acc': test_acc_data, 'Loss': test_loss_data})
-
-    return test_results, probabilities
 
 if __name__ == '__main__':
     # Connecting to the clearml dashboard 
@@ -167,7 +157,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process Command-line Arguments')
     parser.add_argument('--image_dir', default= None, action= 'store', help= 'Path to the directory containing the images')
     parser.add_argument('--path_to_save_results', default= None, action= 'store', help= 'Path to the directory to save the model, hyperparameters and results')
-    parser.add_argument('--run_test', default= False, type= bool, action= 'store', help= 'Determine if testing should be conducted')
+    parser.add_argument('--run_test', default= True, type= bool, action= 'store', help= 'Determine if testing should be conducted')
     parser.add_argument('--archi', default= 'resnet50', action='store', help='Architecture of the model to be trained. Either inception, resnet50, wide_resnet50, or mobilenet')
     parser.add_argument('--pretrained', default= True, type= bool, action='store', help='Choose if the model to be trained should be a pretrained model from pytorch')
     parser.add_argument('--train_all_weights', default= True, type= bool, action='store', help='True: train all weights across all layers; False: train classification layer only')
@@ -188,10 +178,10 @@ if __name__ == '__main__':
 
     args = parser.parse_args([
         '--image_dir', 'C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
-        '--path_to_save_results', 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test/', #must end with /
+        '--path_to_save_results', 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test/', 
         '--run_test', 'False',
         '--archi', 'mobilenet',
-        '--epochs', '1',
+        '--epochs', '2',
         '--lr', '0.001',
         '--betadist_alpha', '0.9', 
         '--betadist_beta', '0.99', 
@@ -269,34 +259,40 @@ if __name__ == '__main__':
         gamma=args.gamma
     )
 
-    # Train, validate, test
+    # Train and validate
     weights, train_loss, train_acc, val_loss, val_acc, train_val_results= train_validate(
         args.epochs, model, optimizer, scheduler, loss_func,
         train_dl, val_dl, device, args.archi, 
         args.path_to_save_results
     )
-    # Save results
+
     write_to_csv(train_loss, 'train_loss.csv')
     write_to_csv(train_acc, 'train_acc.csv')
     write_to_csv(val_loss, 'val_loss.csv')
     write_to_csv(val_acc, 'val_acc.csv')
-
     train_val_results.to_csv(
         index=False, path_or_buf = os.path.join(args.path_to_save_results, 'train_val_results.csv'))
 
     # Test
     if args.run_test:
-        test_results, probabilities= test(
-            weights, model, loss_func, test_dl, device, args.path_to_save_results
-        )
+        print("Training and validation complete. Starting testing now.")
+        
+        test_acc_data = []
+        test_loss_data = []        
+        model.load_state_dict(weights)
+        test_acc, test_loss, probabilities = evaluate_model(model, test_dl, loss_func, device, 'Testing')
+        print("Test acc: {}, Test loss: {}".format(test_acc, test_loss))
+        test_acc_data.append(test_acc)
+        test_loss_data.append(test_loss)
 
+        # Saving results and probabilities into datasets
+        test_results = pd.DataFrame({'Acc': test_acc_data, 'Loss': test_loss_data})
         test_results.to_csv(index=False, path_or_buf = os.path.join(args.path_to_save_results, 'test_results.csv'))
         
-        # Output probablities for test data
         with open(os.path.join(args.path_to_save_results, 'test_probabilities.csv'), 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(["prob_empty", "prob_human", "prob_animal"])
             for row in probabilities:
-                writer.writerow(row)      
+                writer.writerow(row)
     else:
         print("Testing will not be conducted")

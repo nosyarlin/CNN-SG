@@ -161,17 +161,21 @@ def get_dataloader(x, y, batch_size, image_dir, img_size, crop_size, is_train):
 
 
 if __name__ == '__main__':
-    # y_fpath = './data/labels.csv'
-    # image_dir = './data/images'
+    y_fpath = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Datasheets/FYP_dataset_datasheet.csv'
+    image_dir = 'C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media'
+    prop_test = 0.75
+    prop_val = 0.1
 
     X_train, X_val, X_test, y_train, y_val, y_test = get_splits(
         image_dir,
         y_fpath,
-        0.55,
-        0.15,
+        prop_test, 
+        prop_val, 
     )
 
     files = {'X_train': X_train, 'X_val': X_val, 'X_test': X_test,
              'y_train': y_train, 'y_val': y_val, 'y_test': y_test}
     for file, obj in files.items():
         write_to_csv(obj, '{}.csv'.format(file))
+
+    print("Dataset has been split with the following proportions: {} train, {} val, {} test".format(1-prop_test-prop_val, prop_val, prop_test))
