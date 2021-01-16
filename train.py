@@ -19,59 +19,59 @@ if __name__ == '__main__':
     # Set hyperparameters
     parser = argparse.ArgumentParser(
         description='Process Command-line Arguments')
-    parser.add_argument('--image_dir', default=None, action='store',
+    parser.add_argument('--image_dir', default='./data/images',
                         help='Path to the directory containing the images')
-    parser.add_argument('--path_to_save_results', default=None, action='store',
+    parser.add_argument('--path_to_save_results', default='./models',
                         help='Path to the directory to save the model, hyperparameters and results')
-    parser.add_argument('--run_test', default=True, type=bool,
-                        action='store', help='Determine if testing should be conducted')
-    parser.add_argument('--archi', default='resnet50', action='store',
+    parser.add_argument('--skip_test', action='store_true',
+                        help='Set if testing should be skipped')
+    parser.add_argument('--archi', default='resnet50',
                         help='Architecture of the model to be trained. Either inception, resnet50, wide_resnet50, or mobilenet')
-    parser.add_argument('--pretrained', default=True, type=bool, action='store',
-                        help='Choose if the model to be trained should be a pretrained model from pytorch')
-    parser.add_argument('--train_all_weights', default=True, type=bool, action='store',
-                        help='True: train all weights across all layers; False: train classification layer only')
-    parser.add_argument('--use_data_augmentation', default=True,
-                        type=bool, action='store', help='Using data augmentation')
-    parser.add_argument('--use_gpu', default=True, type=bool,
-                        action='store', help='Using GPU for processing')
+    parser.add_argument('--no_pretraining', action='store_true',
+                        help='Set if you want the model to be trained from scratch')
+    parser.add_argument('--train_only_classifier', action='store_true',
+                        help='Set if we train classification layer only')
+    parser.add_argument('--no_data_augmentation', action='store_true',
+                        help='Skip data augmentation')
+    parser.add_argument('--use_cpu', action='store_true',
+                        help='Using CPU for processing')
     parser.add_argument('--num_classes', default='3', type=int,
                         action='store', help='Number of classes to be trained')
-    parser.add_argument('--lr', default='0.001', type=float,
-                        action='store', help='The learning rate')
-    parser.add_argument('--betadist_alpha', default=0.9, type=float, action='store',
+    parser.add_argument('--lr', default='0.001', type=float, help='The learning rate')
+    parser.add_argument('--betadist_alpha', default=0.9, type=float,
                         help='The alpha value controlling the shape of the beta distribution for the Adam optimiser')
-    parser.add_argument('--betadist_beta', default=0.99, type=float, action='store',
+    parser.add_argument('--betadist_beta', default=0.99, type=float,
                         help='The beta value controlling the shape of the beta distribution for the Adam optimiser')
     parser.add_argument('--eps', default='1e-8', type=float,
-                        action='store', help='Epsilon value for Adam optimiser')
+                        help='Epsilon value for Adam optimiser')
     parser.add_argument('--weight_decay', default='0', type=float,
-                        action='store', help='Weight decay for Adam optimiser')
+                        help='Weight decay for Adam optimiser')
     parser.add_argument('--epochs', default='25', type=int,
-                        action='store', help='Number of epochs to be run for training')
+                        help='Number of epochs to be run for training')
     parser.add_argument('--step_size', default='5', type=int,
-                        action='store', help='Step size')
+                        help='Step size')
     parser.add_argument('--gamma', default='0.1', type=float,
-                        action='store', help='Gamma value for optimiser')
+                        help='Gamma value for optimiser')
     parser.add_argument('--batch_size', default='32', type=int,
-                        action='store', help='Batch size for training')
+                        help='Batch size for training')
     parser.add_argument('--img_size', default='360', type=int,
-                        action='store', help='Image size for each image')
-    parser.add_argument('--crop_size', default='299', type=int, action='store',
+                        help='Image size for each image')
+    parser.add_argument('--crop_size', default='299', type=int,
                         help='Crop size for each image. Inception v3 expects 299')
 
-    args = parser.parse_args([
-        '--image_dir', 'C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
-        '--path_to_save_results', 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test/',
-        '--run_test', 'False',
-        '--archi', 'mobilenet',
-        '--epochs', '15',
-        '--lr', '0.001',
-        '--betadist_alpha', '0.9',
-        '--betadist_beta', '0.99',
-        '--batch_size', '32',
-        '--weight_decay', '0'
-    ])
+    args = parser.parse_args()
+    # args = parser.parse_args([
+    #     '--image_dir', 'C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
+    #     '--path_to_save_results', 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test/',
+    #     '--skip_test',
+    #     '--archi', 'mobilenet',
+    #     '--epochs', 15,
+    #     '--lr', '0.001',
+    #     '--betadist_alpha', '0.9',
+    #     '--betadist_beta', '0.99',
+    #     '--batch_size', '32',
+    #     '--weight_decay', '0'
+    # ])
 
     # Check that paths to save results and models exist
     if os.path.exists(args.path_to_save_results):
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     y_test = read_csv('y_test.csv')
     train_dl = get_dataloader(
         X_train, y_train, args.batch_size, args.image_dir,
-        args.img_size, args.crop_size, args.use_data_augmentation
+        args.img_size, args.crop_size, args.no_data_augmentation
     )
     val_dl = get_dataloader(
         X_val, y_val, args.batch_size, args.image_dir,
@@ -105,24 +105,24 @@ if __name__ == '__main__':
         y_train.count("0"), y_train.count("1"), y_train.count("2"),
         y_val.count("0"), y_val.count("1"), y_val.count("2"),
         y_test.count("0"), y_test.count("1"), y_test.count("2")))
-    if args.run_test:
+    if not args.skip_test:
         print('Testing will be conducted.')
     else:
         print('Testing will NOT be conducted')
 
     # Output hyperparameters for recording purposes
     hp_names = (
-        "Run_test", "LearningRate", "BetaDist_alpha", "BetaDist_beta", "Eps",
+        "SkipTest", "LearningRate", "BetaDist_alpha", "BetaDist_beta", "Eps",
         "WeightDecay", "Epochs", "StepSize", "Gamma", "BatchSize", "ImgSize",
-        "CropSize", "Architecture", "NumClasses", "UseDataAugmentation",
-        "TrainAllWeights", "Pretrained", "NumTrainImages", "NumValImages",
+        "CropSize", "Architecture", "NumClasses", "NoDataAugmentation",
+        "TrainOnlyClassifier", "NoPretraining", "NumTrainImages", "NumValImages",
         "NumTestImages")
     hp_values = (
-        args.run_test, args.lr, args.betadist_alpha, args.betadist_beta,
+        args.skip_test, args.lr, args.betadist_alpha, args.betadist_beta,
         args.eps, args.weight_decay, args.epochs, args.step_size, args.gamma,
         args.batch_size, args.img_size, args.crop_size, args.archi,
-        args.num_classes, args.use_data_augmentation, args.train_all_weights,
-        args.pretrained, len(X_train), len(X_val), len(X_test))
+        args.num_classes, args.no_data_augmentation, args.train_only_classifier,
+        args.no_pretraining, len(X_train), len(X_val), len(X_test))
 
     hp_records = pd.DataFrame(
         {'Hyperparameters': hp_names, 'Values': hp_values})
@@ -131,10 +131,12 @@ if __name__ == '__main__':
 
     # Build model
     model, parameters = get_model(
-        args.archi, args.num_classes, args.train_all_weights, args.pretrained)
+        args.archi, args.num_classes,
+        not args.train_only_classifier, not args.no_pretraining
+    )
 
     # Prepare for training
-    if args.use_gpu:
+    if not args.use_cpu:
         model.cuda()
         device = torch.device('cuda')
     else:
@@ -176,7 +178,7 @@ if __name__ == '__main__':
     )
 
     # Test
-    if not args.run_test:
+    if args.skip_test:
         sys.exit("\nTesting will not be conducted")
 
     print("Training and validation complete. Starting testing now.")
