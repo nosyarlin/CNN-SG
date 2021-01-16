@@ -26,7 +26,7 @@ if __name__ == '__main__':
     parser.add_argument('--skip_test', action='store_true',
                         help='Set if testing should be skipped')
     parser.add_argument('--archi', default='resnet50',
-                        help='Architecture of the model to be trained. Either inception, resnet50, wide_resnet50, or mobilenet')
+                        help='Architecture of the model to be trained. Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet')
     parser.add_argument('--no_pretraining', action='store_true',
                         help='Set if you want the model to be trained from scratch')
     parser.add_argument('--train_only_classifier', action='store_true',

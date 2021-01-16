@@ -14,6 +14,10 @@ def get_model(
     """
     if name == 'resnet50':
         return _get_resnet(name, num_classes, train_all_weights, pretrained)
+    elif name == 'resnet101':
+        return _get_resnet(name, num_classes, train_all_weights, pretrained)
+    elif name == 'resnet152':
+        return _get_resnet(name, num_classes, train_all_weights, pretrained)
     elif name == 'wide_resnet50':
         return _get_resnet(name, num_classes, train_all_weights, pretrained)
     elif name == 'inception':
@@ -59,6 +63,10 @@ def _get_resnet(name: str, num_classes: int, train_all_weights: bool, pretrained
     # Get model
     if name == 'resnet50':
         model = models.resnet50(pretrained=pretrained)
+    elif name == 'resnet101':
+        model = models.resnet101(pretrained=pretrained)
+    elif name == 'resnet152':
+        model = models.resnet152(pretrained=pretrained)
     else:
         model = models.wide_resnet50_2(pretrained=pretrained)
 
