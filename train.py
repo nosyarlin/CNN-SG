@@ -181,7 +181,7 @@ if __name__ == '__main__':
         '--path_to_save_results', 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test/',
         '--run_test', 'False',
         '--archi', 'mobilenet',
-        '--epochs', '2',
+        '--epochs', '15',
         '--lr', '0.001',
         '--betadist_alpha', '0.9',
         '--betadist_beta', '0.99', 
@@ -217,14 +217,18 @@ if __name__ == '__main__':
         y_train.count("0"),y_train.count("1"),y_train.count("2"),
         y_val.count("0"),y_val.count("1"),y_val.count("2"),
         y_test.count("0"),y_test.count("1"),y_test.count("2")))
-
+    if args.run_test:
+        print('Testing will be conducted.')
+    else:
+        print('Testing will NOT be conducted')
+        
     # Output hyperparameters for recording purposes
     hp_names = (
-        "LearningRate", "BetaDist_alpha", "BetaDist_beta", "Eps", "WeightDecay", "Epochs", "StepSize", "Gamma", "BatchSize", "ImgSize", "CropSize",
+        "Run_test", "LearningRate", "BetaDist_alpha", "BetaDist_beta", "Eps", "WeightDecay", "Epochs", "StepSize", "Gamma", "BatchSize", "ImgSize", "CropSize",
         "Architecture", "NumClasses", "UseDataAugmentation", "TrainAllWeights", "Pretrained",
         "NumTrainImages", "NumValImages", "NumTestImages")
     hp_values = (
-        args.lr, args.betadist_alpha, args.betadist_beta, args.eps, args.weight_decay, args.epochs, args.step_size, args.gamma, args.batch_size, args.img_size, args.crop_size, 
+        args.run_test, args.lr, args.betadist_alpha, args.betadist_beta, args.eps, args.weight_decay, args.epochs, args.step_size, args.gamma, args.batch_size, args.img_size, args.crop_size, 
         args.archi, args.num_classes, args.use_data_augmentation, args.train_all_weights, args.pretrained,
         len(X_train), len(X_val), len(X_test))
 

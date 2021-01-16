@@ -38,7 +38,7 @@ if __name__ == '__main__':
         
         # setting the hyper-parameters to optimize
         hyper_parameters=[
-            DiscreteParameterRange('Args/epochs', values = [20]),
+            DiscreteParameterRange('Args/epochs', values = [15]),
             DiscreteParameterRange('Args/run_test', values = [False]),
             DiscreteParameterRange('Args/archi', values = ['inception', 'resnet50', 'mobilenet']),
             UniformIntegerParameterRange('Args/batch_size', min_value=32, max_value=128, step_size=16),
@@ -69,7 +69,7 @@ if __name__ == '__main__':
         max_iteration_per_job= 150000,  
     )
 
-    optimizer.set_report_period(5) # setting the time gap between two consecutive reports
+    optimizer.set_report_period(60) # setting the time gap between two consecutive reports
     optimizer.start(job_complete_callback=job_complete_callback)
     optimizer.wait() # wait until process is done
     top_exp = optimizer.get_top_experiments(top_k= 5)
