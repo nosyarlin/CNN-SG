@@ -1,4 +1,10 @@
+from clearml import Logger
+from torch import nn
 import csv
+import numpy as np
+import os
+import pandas as pd
+import torch
 
 
 def write_to_csv(obj, fname):
@@ -14,3 +20,154 @@ def read_csv(fname):
         for line in reader:
             out.append(line)
     return [item for sublist in out for item in sublist]
+
+
+def evaluate_model(model, dl, loss_func, device, logger_title):
+    model.eval()
+    with torch.no_grad():
+        losses = []
+        total_count = 0
+        total_correct = 0
+
+        probabilities = []
+
+        j = 0  # Starting the iteration count
+
+        for X, y in dl:
+            j += 1  # Adding one iteration count per batch
+
+            X, y = X.to(device), y.to(device)
+
+            logits = model(X)
+            loss = loss_func(logits, y)
+            losses.append(loss.item())
+
+            pred = logits.argmax(1)
+            total_correct += (pred == y).sum().item()
+            total_count += y.size(0)
+
+            softmax = nn.Softmax(1)
+            probabilities.append(softmax(logits))
+
+            Logger.current_logger().report_scalar(
+                logger_title, "loss", iteration=j, value=loss.item())
+            Logger.current_logger().report_scalar(
+                logger_title, "accuracy", iteration=j,
+                value=(total_correct / total_count)
+            )
+
+    probabilities = torch.cat(probabilities, 0)
+
+    return total_correct / total_count, np.mean(losses), probabilities
+
+
+def train_model(model, dl, loss_func, optimizer, device, archi, epoch):
+    model.train()
+    train_loss = []
+    total_count = 0
+    total_correct = 0
+
+    j = 0  # Starting the iteration count
+
+    for X, y in dl:
+        j += 1  # Adding one iteration count per batch
+
+        model.zero_grad()
+        X, y = X.to(device), y.to(device)
+
+        # Inception gives two outputs
+        if archi == "inception":
+            logits, aux_logits = model(X)
+            loss1 = loss_func(logits, y)
+            loss2 = loss_func(aux_logits, y)
+            loss = loss1 + 0.4 * loss2
+        else:
+            logits = model(X)
+            loss = loss_func(logits, y)
+        train_loss.append(loss.item())
+
+        pred = logits.argmax(1)
+        total_correct += (pred == y).sum().item()
+        total_count += y.size(0)
+
+        loss.backward()
+        optimizer.step()
+
+        Logger.current_logger().report_scalar(
+            "Training", "loss", iteration=((epoch + 1) * j), value=loss.item())
+        Logger.current_logger().report_scalar(
+            "Training", "accuracy", iteration=((epoch + 1) * j),
+            value=(total_correct / total_count)
+        )
+
+    return total_correct / total_count, np.mean(train_loss)
+
+
+def train_validate(
+        epochs, model, optimizer, scheduler, loss_func, train_dl,
+        val_dl, device, archi, path_to_save_results):
+    train_loss = []
+    train_acc = []
+    val_loss = []
+    val_acc = []
+    best_val_acc = -1
+    best_weights = None
+
+    print("Starting the training now.")
+    print("Training for {} epochs".format(epochs))
+
+    for epoch in range(epochs):
+        # Train
+        acc_train, loss_train = train_model(
+            model, train_dl, loss_func, optimizer, device, archi, epoch)
+        train_acc.append(acc_train)
+        train_loss.append(loss_train)
+        scheduler.step()
+
+        # Validate
+        acc_val, loss_val, probabilities = evaluate_model(
+            model, val_dl, loss_func, device, 'Validation (Most recent epoch)')
+        val_acc.append(acc_val)
+        val_loss.append(loss_val)
+
+        # Save model if improved
+        if not best_weights or val_acc[-1] > best_val_acc:
+            best_weights = model.state_dict()
+            torch.save(best_weights, os.path.join(
+                path_to_save_results, 'model.pth'))
+            best_val_acc = val_acc[-1]
+        else:
+            print("Model has not improved, and will not be saved.\n")
+
+        # Logging the results in clearml
+        Logger.current_logger().report_scalar(
+            "Training and Validation", "Train accuracy",
+            iteration=epoch + 1, value=acc_train
+        )
+        Logger.current_logger().report_scalar(
+            "Training and Validation", "Train loss",
+            iteration=epoch + 1, value=loss_train
+        )
+        Logger.current_logger().report_scalar(
+            "Training and Validation", "Val accuracy",
+            iteration=epoch + 1, value=acc_val
+        )
+        Logger.current_logger().report_scalar(
+            "Training and Validation", "Val loss",
+            iteration=epoch + 1, value=loss_val
+        )
+
+        print("Epoch: {} of {}".format(epoch + 1, epochs))
+        print("Validation acc: {}, Validation loss: {}"
+              .format(acc_val, loss_val))
+
+    # Saving results into a dataframe
+    train_val_results = pd.DataFrame({
+        'Epoch': list(range(1, epochs + 1)),
+        'TrainAcc': train_acc,
+        'TrainLoss': train_loss,
+        'ValAcc': val_acc,
+        'ValLoss': val_loss
+    })
+
+    return best_weights, train_loss, train_acc, val_loss, val_acc, train_val_results
