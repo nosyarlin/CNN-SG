@@ -74,7 +74,7 @@ if __name__ == '__main__':
     ])
 
     # Check that paths to save results and models exist
-    if path.exists(args.path_to_save_results):
+    if os.path.exists(args.path_to_save_results):
         print("\nSaving results in " + args.path_to_save_results)
     else:
         sys.exit("\nError: File path to save results do not exist")

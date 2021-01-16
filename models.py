@@ -2,6 +2,7 @@ from torchvision import models
 from torch import nn
 import sys
 
+
 def get_model(
         name: str, num_classes: int, train_all_weights: bool,
         pretrained: bool):
