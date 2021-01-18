@@ -46,7 +46,7 @@ if __name__ == '__main__':
                         help='Epsilon value for Adam optimiser')
     parser.add_argument('--weight_decay', default='0', type=float,
                         help='Weight decay for Adam optimiser')
-    parser.add_argument('--epochs', default='25', type=int,
+    parser.add_argument('--epochs', default='15', type=int,
                         help='Number of epochs to be run for training')
     parser.add_argument('--step_size', default='5', type=int,
                         help='Step size')
@@ -59,19 +59,19 @@ if __name__ == '__main__':
     parser.add_argument('--crop_size', default='299', type=int,
                         help='Crop size for each image. Inception v3 expects 299')
 
-    args = parser.parse_args()
-    # args = parser.parse_args([
-    #     '--image_dir', 'C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
-    #     '--path_to_save_results', 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test/',
-    #     '--skip_test',
-    #     '--archi', 'mobilenet',
-    #     '--epochs', 15,
-    #     '--lr', '0.001',
-    #     '--betadist_alpha', '0.9',
-    #     '--betadist_beta', '0.99',
-    #     '--batch_size', '32',
-    #     '--weight_decay', '0'
-    # ])
+    # args = parser.parse_args()
+    args = parser.parse_args([
+        '--image_dir', 'C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
+        '--path_to_save_results', 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test/',
+        '--skip_test',
+        # '--archi', 'mobilenet',
+        # '--epochs', '1'
+        # '--lr', '0.001',
+        # '--betadist_alpha', '0.9',
+        # '--betadist_beta', '0.99',
+        # '--batch_size', '32',
+        # '--weight_decay', '0'
+    ])
 
     # Check that paths to save results and models exist
     if os.path.exists(args.path_to_save_results):
@@ -106,9 +106,9 @@ if __name__ == '__main__':
         y_val.count("0"), y_val.count("1"), y_val.count("2"),
         y_test.count("0"), y_test.count("1"), y_test.count("2")))
     if not args.skip_test:
-        print('Testing will be conducted.')
+        print('Testing will be conducted\n')
     else:
-        print('Testing will NOT be conducted')
+        print('Testing will NOT be conducted\n')
 
     # Output hyperparameters for recording purposes
     hp_names = (
@@ -129,6 +129,8 @@ if __name__ == '__main__':
     hp_records.to_csv(index=False, path_or_buf=os.path.join(
         args.path_to_save_results, 'hyperparameter_records.csv'))
 
+    print(hp_records)
+
     # Build model
     model, parameters = get_model(
         args.archi, args.num_classes,
@@ -142,7 +144,7 @@ if __name__ == '__main__':
     else:
         device = torch.device('cpu')
 
-    print("Using {} for training with {} architecture.".format(device, args.archi))
+    print("\nUsing {} for training with {} architecture.".format(device, args.archi))
 
     betas = (args.betadist_alpha, args.betadist_beta)
     optimizer = optim.Adam(

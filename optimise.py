@@ -1,5 +1,5 @@
 from clearml import Task
-from clearml.automation import UniformParameterRange, UniformIntegerParameterRange, DiscreteParameterRange
+from clearml.automation import UniformParameterRange, UniformIntegerParameterRange, DiscreteParameterRange, ParameterSet
 from clearml.automation import HyperParameterOptimizer
 from clearml.automation.optuna import OptimizerOptuna
 import optuna
@@ -21,7 +21,7 @@ def job_complete_callback(
             objective_value))
 
 
-task = Task.init(project_name='Nosyarlin', task_name='Hyper-Parameter Optimization',
+task = Task.init(project_name='Nosyarlin', task_name='Hyper-Parameter Optimization ' + date.today().strftime('%Y-%m-%d'),
                  task_type=Task.TaskTypes.optimizer)
 
 if __name__ == '__main__':
@@ -31,7 +31,7 @@ if __name__ == '__main__':
                         help='Clearml Task ID that you want to optimise')
 
     args = parser.parse_args(
-        # ['--task_id', '9fe8c12745d54f34bb4df0304d18bd7f']
+        ['--task_id', '160f736150454ce1b4290afe1b221fd9']
     )
 
     # Get the template task experiment that we want to optimize if not already manually input
@@ -44,23 +44,21 @@ if __name__ == '__main__':
 
         # setting the hyper-parameters to optimize
         hyper_parameters=[
-            DiscreteParameterRange('Args/epochs', values=[15]),
-            DiscreteParameterRange('Args/run_test', values=[False]),
+            # DiscreteParameterRange(
+            #     'Args/epochs', values=[15]),
+            # DiscreteParameterRange('Args/skip_test', values=[False]),
+            # DiscreteParameterRange(
+            #     'Args/archi', values=['inception', 'resnet50', 'mobilenet']),
             DiscreteParameterRange(
-                'Args/archi', values=['inception', 'resnet50', 'mobilenet']),
-            UniformIntegerParameterRange(
-                'Args/batch_size', min_value=32, max_value=128, step_size=16),
-            DiscreteParameterRange('Args/weight_decay',
-                                   values=[0, 1e-4, 1e-5, 1e-6]),
+                'Args/weight_decay', values=[0, 1e-4, 1e-5, 1e-6]),
             UniformParameterRange(
                 'Args/lr', min_value=0.0005, max_value=0.005, step_size=0.0005),
-            DiscreteParameterRange('Args/betadist_alpha',
-                                   values=[0.8, 0.85, 0.9]),
-            DiscreteParameterRange('Args/betadist_beta',
-                                   values=[0.85, 0.9, 0.99]),
-            DiscreteParameterRange('Args/eps', values=[1e-7, 1e-8, 1e-9]),
-            UniformIntegerParameterRange(
-                'Args/step_size', min_value=5, max_value=55, step_size=10),
+            # ParameterSet(
+            #     parameter_combinations=[
+            #         {'Args/betadist_alpha':0.9, 'Args/betadist_beta':0.99},
+            #         {'Args/betadist_alpha':0.8, 'Args/betadist_beta':0.9}]),
+            DiscreteParameterRange(
+                'Args/eps', values=[1e-7, 1e-8, 1e-9]),
             UniformParameterRange(
                 'Args/gamma', min_value=0.05, max_value=0.2, step_size=0.05)
         ],
@@ -71,8 +69,7 @@ if __name__ == '__main__':
 
         # setting optimizer
         optimizer_class=OptimizerOptuna,
-        optuna_pruner=optuna.pruners.MedianPruner(
-            n_startup_trials=3, n_warmup_steps=0, interval_steps=1),
+        optuna_pruner=optuna.pruners.HyperbandPruner(),
 
         # Configuring optimization parameters
         execution_queue='default',
