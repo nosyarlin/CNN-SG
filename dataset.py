@@ -163,8 +163,8 @@ def get_dataloader(x, y, batch_size, image_dir, img_size, crop_size, is_train):
 if __name__ == '__main__':
     y_fpath = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Datasheets/FYP_dataset_datasheet.csv'
     image_dir = 'C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media'
-    prop_test = 0.75
-    prop_val = 0.1
+    prop_test = 0.15
+    prop_val = 0.15
 
     X_train, X_val, X_test, y_train, y_val, y_test = get_splits(
         image_dir,

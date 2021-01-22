@@ -35,37 +35,37 @@ if __name__ == '__main__':
     )
 
     # Get the template task experiment that we want to optimize if not already manually input
-    if not args.task_id:
-        args.task_id = Task.get_task(
-            project_name='Nosyarlin', task_name='Train_' + date.today().strftime('%Y-%m-%d')).id
+    # if not args.task_id:
+    #     args.task_id = Task.get_task(
+    #         project_name='Nosyarlin', task_name='Train_' + date.today().strftime('%Y-%m-%d')).id
 
     optimizer = HyperParameterOptimizer(
         base_task_id=args.task_id,
 
         # setting the hyper-parameters to optimize
         hyper_parameters=[
-            # DiscreteParameterRange(
-            #     'Args/epochs', values=[15]),
-            # DiscreteParameterRange('Args/skip_test', values=[False]),
-            # DiscreteParameterRange(
-            #     'Args/archi', values=['inception', 'resnet50', 'mobilenet']),
             DiscreteParameterRange(
-                'Args/weight_decay', values=[0, 1e-4, 1e-5, 1e-6]),
-            UniformParameterRange(
-                'Args/lr', min_value=0.0005, max_value=0.005, step_size=0.0005),
+                'Args/epochs', values=[20]),
+            # DiscreteParameterRange('Args/skip_test', values=[False]),
+            DiscreteParameterRange(
+                'Args/archi', values=['inception', 'resnet50', 'mobilenet']),
+            DiscreteParameterRange(
+                'Args/weight_decay', values=[0, 1e-6]),
+            DiscreteParameterRange(
+                'Args/lr', values=[0.0005]),
             # ParameterSet(
             #     parameter_combinations=[
             #         {'Args/betadist_alpha':0.9, 'Args/betadist_beta':0.99},
             #         {'Args/betadist_alpha':0.8, 'Args/betadist_beta':0.9}]),
             DiscreteParameterRange(
-                'Args/eps', values=[1e-7, 1e-8, 1e-9]),
-            UniformParameterRange(
-                'Args/gamma', min_value=0.05, max_value=0.2, step_size=0.05)
+                'Args/eps', values=[1e-8]),
+            DiscreteParameterRange(
+                'Args/gamma', values=[0.1])
         ],
         # setting the objective metric we want to maximize/minimize
-        objective_metric_title='Training',
-        objective_metric_series='accuracy',
-        objective_metric_sign='max',
+        objective_metric_title='Training and Validation',
+        objective_metric_series='Val loss',
+        objective_metric_sign='min',
 
         # setting optimizer
         optimizer_class=OptimizerOptuna,
