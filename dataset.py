@@ -17,12 +17,16 @@ class ImageDataset(data.Dataset):
         if not is_train:
             self.transforms = transforms.Compose([
                 transforms.Resize(img_size, interpolation=2),
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406],
-                    std=[0.229, 0.224, 0.225]
-                ),
                 transforms.FiveCrop(crop_size),
+                transforms.Lambda(lambda crops: torch.stack(
+                    [transforms.ToTensor()(crop) for crop in crops]
+                )),
+                transforms.Lambda(lambda crops: torch.stack(
+                    [transforms.Normalize(
+                        mean=[0.485, 0.456, 0.406],
+                        std=[0.229, 0.224, 0.225]
+                    )(crop) for crop in crops]
+                ))
             ])
         else:
             self.transforms = transforms.Compose([
