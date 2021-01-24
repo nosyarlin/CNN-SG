@@ -17,12 +17,12 @@ class ImageDataset(data.Dataset):
         if not is_train:
             self.transforms = transforms.Compose([
                 transforms.Resize(img_size, interpolation=2),
-                transforms.CenterCrop(crop_size),
                 transforms.ToTensor(),
                 transforms.Normalize(
                     mean=[0.485, 0.456, 0.406],
                     std=[0.229, 0.224, 0.225]
                 ),
+                transforms.FiveCrop(crop_size),
             ])
         else:
             self.transforms = transforms.Compose([
@@ -148,7 +148,8 @@ def get_splits(image_dir: str, y_fpath: str, test_size: float, validation_size: 
     X_train, X_val, y_train, y_val = train_test_split(X_train,
                                                       y_train,
                                                       test_size=(
-                                                          validation_size / (1.0 - test_size)
+                                                          validation_size /
+                                                          (1.0 - test_size)
                                                       ),
                                                       stratify=y_train)
 
@@ -179,4 +180,5 @@ if __name__ == '__main__':
     for file, obj in files.items():
         write_to_csv(obj, '{}.csv'.format(file))
 
-    print("Dataset has been split with the following proportions: {} train, {} val, {} test".format(1-prop_test-prop_val, prop_val, prop_test))
+    print("Dataset has been split with the following proportions: {} train, {} val, {} test".format(
+        1 - prop_test - prop_val, prop_val, prop_test))

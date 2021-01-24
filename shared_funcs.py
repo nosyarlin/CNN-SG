@@ -38,7 +38,9 @@ def evaluate_model(model, dl, loss_func, device, logger_title):
 
             X, y = X.to(device), y.to(device)
 
+            X = X.view(-1, X.size(2), X.size(3), X.size(4))
             logits = model(X)
+            logits = logits.view(-1, 5, logits.size(1)).mean(dim=1)
             loss = loss_func(logits, y)
             losses.append(loss.item())
 
