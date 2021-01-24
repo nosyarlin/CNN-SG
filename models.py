@@ -5,7 +5,7 @@ import sys
 
 def get_model(
         name: str, num_classes: int, train_all_weights: bool,
-        pretrained: bool):
+        pretrained: bool, dropout=0):
     """
     Returns CNN model and trainable parameters
 
@@ -13,19 +13,19 @@ def get_model(
         name: Name of architecture. mobilenet/resnet50
     """
     if name == 'resnet50':
-        return _get_resnet(name, num_classes, train_all_weights, pretrained)
+        return _get_resnet(name, num_classes, train_all_weights, pretrained, dropout)
     elif name == 'resnet101':
-        return _get_resnet(name, num_classes, train_all_weights, pretrained)
+        return _get_resnet(name, num_classes, train_all_weights, pretrained, dropout)
     elif name == 'resnet152':
-        return _get_resnet(name, num_classes, train_all_weights, pretrained)
+        return _get_resnet(name, num_classes, train_all_weights, pretrained, dropout)
     elif name == 'wide_resnet50':
-        return _get_resnet(name, num_classes, train_all_weights, pretrained)
+        return _get_resnet(name, num_classes, train_all_weights, pretrained, dropout)
     elif name == 'inception':
-        return _get_inception(num_classes, train_all_weights, pretrained)
+        return _get_inception(num_classes, train_all_weights, pretrained, dropout)
     elif name == 'mobilenet':
         model = models.mobilenet_v2(pretrained=pretrained)
         model.classifier = nn.Sequential(
-            nn.Dropout(0.2),
+            nn.Dropout(dropout),
             nn.Linear(model.last_channel, num_classes),
         )
         if train_all_weights:
@@ -38,16 +38,25 @@ def get_model(
     return model, parameters
 
 
-def _get_inception(num_classes: int, train_all_weights: bool, pretrained: bool):
+def _get_inception(
+        num_classes: int, train_all_weights: bool,
+        pretrained: bool, dropout: float):
+
     model = models.inception_v3(pretrained=pretrained)
 
     # Handle the auxilary net
     num_ftrs = model.AuxLogits.fc.in_features
-    model.AuxLogits.fc = nn.Linear(num_ftrs, num_classes)
+    model.AuxLogits.fc = nn.Sequential(
+        nn.Dropout(dropout),
+        nn.Linear(num_ftrs, num_classes)
+    )
 
     # Handle the primary net
     num_ftrs = model.fc.in_features
-    model.fc = nn.Linear(num_ftrs, num_classes)
+    model.fc = nn.Sequential(
+        nn.Dropout(dropout),
+        nn.Linear(num_ftrs, num_classes)
+    )
 
     # Get params
     if train_all_weights:
@@ -58,7 +67,9 @@ def _get_inception(num_classes: int, train_all_weights: bool, pretrained: bool):
     return model, parameters
 
 
-def _get_resnet(name: str, num_classes: int, train_all_weights: bool, pretrained: bool):
+def _get_resnet(
+        name: str, num_classes: int, train_all_weights: bool,
+        pretrained: bool, dropout: float):
 
     # Get model
     if name == 'resnet50':
@@ -72,7 +83,10 @@ def _get_resnet(name: str, num_classes: int, train_all_weights: bool, pretrained
 
     # Reset classifier
     num_ftrs = model.fc.in_features
-    model.fc = nn.Linear(num_ftrs, num_classes)
+    model.fc = nn.Sequential(
+        nn.Dropout(dropout),
+        nn.Linear(num_ftrs, num_classes)
+    )
 
     # Get params
     if train_all_weights:

@@ -37,6 +37,8 @@ if __name__ == '__main__':
                         help='Using CPU for processing')
     parser.add_argument('--num_classes', default='3', type=int,
                         action='store', help='Number of classes to be trained')
+    parser.add_argument('--dropout', default='0.2', type=float,
+                        action='store', help='Dropout probablity')
     parser.add_argument('--lr', default='0.001', type=float, help='The learning rate')
     parser.add_argument('--betadist_alpha', default=0.9, type=float,
                         help='The alpha value controlling the shape of the beta distribution for the Adam optimiser')
@@ -133,8 +135,8 @@ if __name__ == '__main__':
 
     # Build model
     model, parameters = get_model(
-        args.archi, args.num_classes,
-        not args.train_only_classifier, not args.no_pretraining
+        args.archi, args.num_classes, not args.train_only_classifier,
+        not args.no_pretraining, args.dropout
     )
 
     # Prepare for training
