@@ -114,14 +114,13 @@ if __name__ == '__main__':
     hp_names = (
         "SkipTest", "LearningRate", "BetaDist_alpha", "BetaDist_beta", "Eps",
         "WeightDecay", "Epochs", "StepSize", "Gamma", "BatchSize", "ImgSize",
-        "CropSize", "Architecture", "NumClasses", "NoDataAugmentation",
-        "TrainOnlyClassifier", "NoPretraining", "NumTrainImages", "NumValImages",
-        "NumTestImages")
+        "CropSize", "Architecture", "NumClasses", "TrainOnlyClassifier",
+        "NoPretraining", "NumTrainImages", "NumValImages", "NumTestImages")
     hp_values = (
         args.skip_test, args.lr, args.betadist_alpha, args.betadist_beta,
         args.eps, args.weight_decay, args.epochs, args.step_size, args.gamma,
         args.batch_size, args.img_size, args.crop_size, args.archi,
-        args.num_classes, args.no_data_augmentation, args.train_only_classifier,
+        args.num_classes, args.train_only_classifier,
         args.no_pretraining, len(X_train), len(X_val), len(X_test))
 
     hp_records = pd.DataFrame(
