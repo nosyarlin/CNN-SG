@@ -1,5 +1,6 @@
 from clearml import Logger
 from torch import nn
+from torch.cuda.amp import autocast, GradScaler
 import csv
 import numpy as np
 import os
@@ -68,6 +69,7 @@ def train_model(model, dl, loss_func, optimizer, device, archi, epoch):
     train_loss = []
     total_count = 0
     total_correct = 0
+    scaler = GradScaler()
 
     j = 0  # Starting the iteration count
 
@@ -77,24 +79,29 @@ def train_model(model, dl, loss_func, optimizer, device, archi, epoch):
         model.zero_grad()
         X, y = X.to(device), y.to(device)
 
-        # Inception gives two outputs
-        if archi == "inception":
-            logits, aux_logits = model(X)
-            loss1 = loss_func(logits, y)
-            loss2 = loss_func(aux_logits, y)
-            loss = loss1 + 0.4 * loss2
-        else:
-            logits = model(X)
-            loss = loss_func(logits, y)
-        train_loss.append(loss.item())
+        # auto cast to fp16 or fp32
+        with autocast():
+            # Inception gives two outputs
+            if archi == "inception":
+                logits, aux_logits = model(X)
+                loss1 = loss_func(logits, y)
+                loss2 = loss_func(aux_logits, y)
+                loss = loss1 + 0.4 * loss2
+            else:
+                logits = model(X)
+                loss = loss_func(logits, y)
+            train_loss.append(loss.item())
 
         pred = logits.argmax(1)
         total_correct += (pred == y).sum().item()
         total_count += y.size(0)
 
-        loss.backward()
-        optimizer.step()
+        # Scales loss, perform backprop and unscale
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
 
+        # Update clearml
         Logger.current_logger().report_scalar(
             "Training", "loss", iteration=((epoch + 1) * j), value=loss.item())
         Logger.current_logger().report_scalar(
