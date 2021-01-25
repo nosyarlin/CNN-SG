@@ -31,8 +31,6 @@ if __name__ == '__main__':
                         help='Set if you want the model to be trained from scratch')
     parser.add_argument('--train_only_classifier', action='store_true',
                         help='Set if we train classification layer only')
-    parser.add_argument('--no_data_augmentation', action='store_true',
-                        help='Skip data augmentation')
     parser.add_argument('--use_cpu', action='store_true',
                         help='Using CPU for processing')
     parser.add_argument('--num_classes', default='3', type=int,
@@ -90,7 +88,7 @@ if __name__ == '__main__':
     y_test = read_csv('y_test.csv')
     train_dl = get_dataloader(
         X_train, y_train, args.batch_size, args.image_dir,
-        args.img_size, args.crop_size, args.no_data_augmentation
+        args.img_size, args.crop_size, True
     )
     val_dl = get_dataloader(
         X_val, y_val, args.batch_size, args.image_dir,
