@@ -31,13 +31,13 @@ if __name__ == '__main__':
                         help='Clearml Task ID that you want to optimise')
 
     args = parser.parse_args(
-        ['--task_id', '160f736150454ce1b4290afe1b221fd9']
+        # ['--task_id', '160f736150454ce1b4290afe1b221fd9']
     )
 
     # Get the template task experiment that we want to optimize if not already manually input
-    # if not args.task_id:
-    #     args.task_id = Task.get_task(
-    #         project_name='Nosyarlin', task_name='Train_' + date.today().strftime('%Y-%m-%d')).id
+    if not args.task_id:
+        args.task_id = Task.get_task(
+            project_name='Nosyarlin', task_name='Train_' + date.today().strftime('%Y-%m-%d')).id
 
     optimizer = HyperParameterOptimizer(
         base_task_id=args.task_id,
@@ -45,14 +45,17 @@ if __name__ == '__main__':
         # setting the hyper-parameters to optimize
         hyper_parameters=[
             DiscreteParameterRange(
-                'Args/epochs', values=[20]),
-            # DiscreteParameterRange('Args/skip_test', values=[False]),
+                'Args/epochs', values=[10]),
             DiscreteParameterRange(
-                'Args/archi', values=['inception', 'resnet50', 'mobilenet']),
+                'Args/skip_test', values=[True]),
             DiscreteParameterRange(
-                'Args/weight_decay', values=[0, 1e-6]),
+                'Args/archi', values=['inception', 'resnet50']),
             DiscreteParameterRange(
-                'Args/lr', values=[0.0005]),
+                'Args/weight_decay', values=[1e-5, 1e-6, 1e-7]),
+            DiscreteParameterRange(
+                'Args/lr', values=[0.0005, 0.001]),
+            DiscreteParameterRange(
+                'Args/dropout', values=[0.1, 0.2, 0.3]),
             # ParameterSet(
             #     parameter_combinations=[
             #         {'Args/betadist_alpha':0.9, 'Args/betadist_beta':0.99},
@@ -60,7 +63,9 @@ if __name__ == '__main__':
             DiscreteParameterRange(
                 'Args/eps', values=[1e-8]),
             DiscreteParameterRange(
-                'Args/gamma', values=[0.1])
+                'Args/gamma', values=[0.1]),
+            DiscreteParameterRange(
+                'Args/path_to_save_results', values=['E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test/'])
         ],
         # setting the objective metric we want to maximize/minimize
         objective_metric_title='Training and Validation',
@@ -68,8 +73,8 @@ if __name__ == '__main__':
         objective_metric_sign='min',
 
         # setting optimizer
-        optimizer_class=OptimizerOptuna,
         optuna_pruner=optuna.pruners.HyperbandPruner(),
+        optimizer_class=OptimizerOptuna,
 
         # Configuring optimization parameters
         execution_queue='default',
