@@ -21,11 +21,11 @@ if __name__ == '__main__':
         description='Process Command-line Arguments')
     parser.add_argument('--image_dir', default='C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
                         help='Path to the directory containing the images')
-    parser.add_argument('--path_to_save_results', default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/MobileNet_FYP/AllLayer_propTrain=0.7/',
+    parser.add_argument('--path_to_save_results', default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet101_FYP/',
                         help='Path to the directory to save the model, hyperparameters and results')
     parser.add_argument('--skip_test', action='store_true',
                         help='Set if testing should be skipped')
-    parser.add_argument('--archi', default='mobilenet',
+    parser.add_argument('--archi', default='resnet101',
                         help='Architecture of the model to be trained. Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet')
     parser.add_argument('--no_pretraining', action='store_true',
                         help='Set if you want the model to be trained from scratch')
@@ -101,7 +101,7 @@ if __name__ == '__main__':
     hp_names = (
         "SkipTest", "LearningRate", "BetaDist_alpha", "BetaDist_beta", "Eps",
         "WeightDecay", "Epochs", "StepSize", "Gamma", "BatchSize", "ImgSize",
-        "CropSize", "Architecture", "NumClasses", "TrainOnlyClassifier", "Dropout"
+        "CropSize", "Architecture", "NumClasses", "TrainOnlyClassifier", "Dropout",
         "NoPretraining", "NumTrainImages", "NumValImages", "NumTestImages")
     hp_values = (
         args.skip_test, args.lr, args.betadist_alpha, args.betadist_beta,
@@ -170,7 +170,8 @@ if __name__ == '__main__':
 
     # Test
     if args.skip_test:
-        sys.exit("\nTesting will not be conducted")
+        print("\nTesting will not be conducted. Exiting now.")
+        sys.exit() #requires exit code 0 for clearml to detect successful termination
 
     print("Training and validation complete. Starting testing now.")
     model.load_state_dict(weights)
