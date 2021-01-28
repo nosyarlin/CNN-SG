@@ -161,9 +161,14 @@ def get_splits(image_dir: str, y_fpath: str, test_size: float, validation_size: 
 
 
 def get_dataloader(x, y, batch_size, image_dir, img_size, crop_size, is_train):
-    return data.DataLoader(ImageDataset(image_dir, img_size, crop_size, x, y, is_train),
-                           batch_size=batch_size,
-                           shuffle=True)
+    if is_train:
+        return data.DataLoader(ImageDataset(image_dir, img_size, crop_size, x, y, is_train),
+                            batch_size=batch_size,
+                            shuffle=True)
+    else:
+        return data.DataLoader(ImageDataset(image_dir, img_size, crop_size, x, y, is_train),
+                            batch_size=batch_size,
+                            shuffle=False)
 
 
 if __name__ == '__main__':

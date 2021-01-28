@@ -21,11 +21,11 @@ if __name__ == '__main__':
         description='Process Command-line Arguments')
     parser.add_argument('--image_dir', default='C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
                         help='Path to the directory containing the images')
-    parser.add_argument('--path_to_save_results', default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet101_FYP/',
+    parser.add_argument('--path_to_save_results', default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test/',
                         help='Path to the directory to save the model, hyperparameters and results')
     parser.add_argument('--skip_test', action='store_true',
                         help='Set if testing should be skipped')
-    parser.add_argument('--archi', default='resnet101',
+    parser.add_argument('--archi', default='mobilenet',
                         help='Architecture of the model to be trained. Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet')
     parser.add_argument('--no_pretraining', action='store_true',
                         help='Set if you want the model to be trained from scratch')
@@ -46,7 +46,7 @@ if __name__ == '__main__':
                         help='Epsilon value for Adam optimiser')
     parser.add_argument('--weight_decay', default='1e-6', type=float,
                         help='Weight decay for Adam optimiser')
-    parser.add_argument('--epochs', default='10', type=int,
+    parser.add_argument('--epochs', default='1', type=int,
                         help='Number of epochs to be run for training')
     parser.add_argument('--step_size', default='5', type=int,
                         help='Step size')
@@ -182,6 +182,7 @@ if __name__ == '__main__':
     # Saving results and probabilities
     probabilities = probabilities.T.tolist()
     test_probs_df = pd.DataFrame({
+        'file_name': X_test,
         'prob_empty': probabilities[0],
         'prob_human': probabilities[1],
         'prob_animal': probabilities[2]}

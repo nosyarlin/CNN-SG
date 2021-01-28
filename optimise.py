@@ -69,7 +69,7 @@ if __name__ == '__main__':
         ],
         # setting the objective metric we want to maximize/minimize
         objective_metric_title='Training and Validation',
-        objective_metric_series='Val loss',
+        objective_metric_series='Val accuracy',
         objective_metric_sign='min',
 
         # setting optimizer
