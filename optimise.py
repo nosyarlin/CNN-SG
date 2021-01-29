@@ -86,8 +86,6 @@ if __name__ == '__main__':
         max_iteration_per_job=150000,
     )
 
-    print("Aiming to {} {}".format(objective_metric_sign, objective_metric_series))
-
     # setting the time gap between two consecutive reports
     optimizer.set_report_period(60)
     optimizer.start(job_complete_callback=job_complete_callback)
