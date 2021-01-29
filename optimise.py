@@ -31,13 +31,13 @@ if __name__ == '__main__':
                         help='Clearml Task ID that you want to optimise')
 
     args = parser.parse_args(
-        # ['--task_id', '160f736150454ce1b4290afe1b221fd9']
+        ['--task_id', '1e1cb155a9954a19a7b94a54d5a65573']
     )
 
     # Get the template task experiment that we want to optimize if not already manually input
-    if not args.task_id:
-        args.task_id = Task.get_task(
-            project_name='Nosyarlin', task_name='Train_' + date.today().strftime('%Y-%m-%d')).id
+    # if not args.task_id:
+    #     args.task_id = Task.get_task(
+    #         project_name='Nosyarlin', task_name='Train_' + date.today().strftime('%Y-%m-%d')).id
 
     optimizer = HyperParameterOptimizer(
         base_task_id=args.task_id,
@@ -70,7 +70,7 @@ if __name__ == '__main__':
         # setting the objective metric we want to maximize/minimize
         objective_metric_title='Training and Validation',
         objective_metric_series='Val accuracy',
-        objective_metric_sign='min',
+        objective_metric_sign='max',
 
         # setting optimizer
         optuna_pruner=optuna.pruners.HyperbandPruner(),
@@ -85,6 +85,8 @@ if __name__ == '__main__':
         min_iteration_per_job=15000,
         max_iteration_per_job=150000,
     )
+
+    print("Aiming to {} {}".format(objective_metric_sign, objective_metric_series))
 
     # setting the time gap between two consecutive reports
     optimizer.set_report_period(60)
