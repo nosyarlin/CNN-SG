@@ -59,7 +59,7 @@ def evaluate_model(model, dl, loss_func, device, logger_title):
                 value=(total_correct / total_count)
             )
 
-    probabilities = torch.cat(probabilities, 0)
+        probabilities = torch.cat(probabilities, 0).cpu().numpy()
 
     return total_correct / total_count, np.mean(losses), probabilities
 
@@ -134,7 +134,7 @@ def train_validate(
         scheduler.step()
 
         # Validate
-        acc_val, loss_val, probabilities = evaluate_model(
+        acc_val, loss_val, _ = evaluate_model(
             model, val_dl, loss_func, device, 'Validation (Most recent epoch)')
         val_acc.append(acc_val)
         val_loss.append(loss_val)

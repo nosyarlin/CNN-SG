@@ -171,7 +171,7 @@ if __name__ == '__main__':
     # Test
     if args.skip_test:
         print("\nTesting will not be conducted. Exiting now.")
-        sys.exit() #requires exit code 0 for clearml to detect successful termination
+        sys.exit()  # requires exit code 0 for clearml to detect successful termination
 
     print("Training and validation complete. Starting testing now.")
     model.load_state_dict(weights)
