@@ -9,9 +9,13 @@ import os
 import pandas as pd
 import sys
 import torch
+from hanging_threads import start_monitoring
 
 
 if __name__ == '__main__':
+    # Monitoring for hangs
+    monitoring_thread = start_monitoring(seconds_frozen=60)
+
     # Connecting to the clearml dashboard
     task = Task.init(project_name="Nosyarlin", task_name="Train_" + date.today().strftime('%Y-%m-%d'),
                      task_type=Task.TaskTypes.training)
@@ -21,7 +25,7 @@ if __name__ == '__main__':
         description='Process Command-line Arguments')
     parser.add_argument('--image_dir', default='C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
                         help='Path to the directory containing the images')
-    parser.add_argument('--path_to_save_results', default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception_FYP/AllLayer_propTrain=0.3/run_5/',
+    parser.add_argument('--path_to_save_results', default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception_FYP/AllLayer_propTrain=0.7/run_5/',
                         help='Path to the directory to save the model, hyperparameters and results')
     parser.add_argument('--skip_test', action='store_true',
                         help='Set if testing should be skipped')
@@ -35,7 +39,7 @@ if __name__ == '__main__':
                         help='Using CPU for processing')
     parser.add_argument('--num_classes', default='3', type=int,
                         action='store', help='Number of classes to be trained')
-    parser.add_argument('--dropout', default='1e-2', type=float,
+    parser.add_argument('--dropout', default='0.1', type=float,
                         action='store', help='Dropout probablity')
     parser.add_argument('--lr', default='0.0005', type=float, help='The learning rate')
     parser.add_argument('--betadist_alpha', default=0.9, type=float,
@@ -44,9 +48,9 @@ if __name__ == '__main__':
                         help='The beta value controlling the shape of the beta distribution for the Adam optimiser')
     parser.add_argument('--eps', default='1e-8', type=float,
                         help='Epsilon value for Adam optimiser')
-    parser.add_argument('--weight_decay', default='1e-8', type=float,
+    parser.add_argument('--weight_decay', default='0', type=float,
                         help='Weight decay for Adam optimiser')
-    parser.add_argument('--epochs', default='10', type=int,
+    parser.add_argument('--epochs', default='15', type=int,
                         help='Number of epochs to be run for training')
     parser.add_argument('--step_size', default='5', type=int,
                         help='Step size')
