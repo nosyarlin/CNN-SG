@@ -1,0 +1,1 @@
+This directory is for storing my train-val-test split csv files. There will be 6 files here. Namely, X_train.csv, X_test.csv, X_val.csv, y_train.csv, y_test.csv and y_val.csv.

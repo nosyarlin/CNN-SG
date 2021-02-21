@@ -1,0 +1,1 @@
+This directory is for storing training results. There will be 4 files here. train_acc.csv, train_loss.csv, val_acc.csv, val_loss.csv.
