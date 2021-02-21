@@ -1,12 +1,13 @@
-import numpy as np
-import os
-import torch
 from collections import defaultdict
+from config import ROOT_DIR
 from PIL import Image
 from shared_funcs import write_to_csv
 from sklearn.model_selection import train_test_split
 from torch.utils import data
 from torchvision import transforms
+import numpy as np
+import os
+import torch
 
 
 class ImageDataset(data.Dataset):
@@ -174,6 +175,9 @@ def get_dataloader(x, y, batch_size, image_dir, img_size, crop_size, is_train):
 if __name__ == '__main__':
     y_fpath = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Datasheets/FYP_dataset_datasheet.csv'
     image_dir = 'C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media'
+    # y_fpath = os.path.join(ROOT_DIR, 'data', 'labels.csv')
+    # image_dir = os.path.join(ROOT_DIR, 'data', 'images')
+    splits_dir = os.path.join(ROOT_DIR, 'data', 'splits')
     prop_test = 0.15
     prop_val = 0.15
 
@@ -187,7 +191,8 @@ if __name__ == '__main__':
     files = {'X_train': X_train, 'X_val': X_val, 'X_test': X_test,
              'y_train': y_train, 'y_val': y_val, 'y_test': y_test}
     for file, obj in files.items():
-        write_to_csv(obj, '{}.csv'.format(file))
+        path = os.path.join(splits_dir, '{}.csv'.format(file))
+        write_to_csv(obj, path)
 
     print("Dataset has been split with the following proportions: {} train, {} val, {} test".format(
         1 - prop_test - prop_val, prop_val, prop_test))

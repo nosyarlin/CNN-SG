@@ -1,6 +1,8 @@
 from clearml import Task
+from config import ROOT_DIR
 from dataset import get_dataloader
 from datetime import date
+from hanging_threads import start_monitoring
 from models import get_model
 from shared_funcs import read_csv, write_to_csv, train_validate, evaluate_model
 from torch import nn, optim
@@ -9,7 +11,6 @@ import os
 import pandas as pd
 import sys
 import torch
-from hanging_threads import start_monitoring
 
 
 if __name__ == '__main__':
@@ -65,18 +66,19 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Check that paths to save results and models exist
-    if os.path.exists(args.path_to_save_results) and len(os.listdir(args.path_to_save_results)) == 0 :
+    if os.path.exists(args.path_to_save_results) and len(os.listdir(args.path_to_save_results)) == 0:
         print("\nSaving results in " + args.path_to_save_results)
     else:
         sys.exit("\nError: File path to save results do not exist, or directory is not empty")
 
     # Read data
-    X_train = read_csv('X_train.csv')
-    y_train = read_csv('y_train.csv')
-    X_val = read_csv('X_val.csv')
-    y_val = read_csv('y_val.csv')
-    X_test = read_csv('X_test.csv')
-    y_test = read_csv('y_test.csv')
+    splits_dir = os.path.join(ROOT_DIR, 'data', 'splits')
+    X_train = read_csv(os.path.join(splits_dir, 'X_train.csv'))
+    y_train = read_csv(os.path.join(splits_dir, 'y_train.csv'))
+    X_val = read_csv(os.path.join(splits_dir, 'X_val.csv'))
+    y_val = read_csv(os.path.join(splits_dir, 'y_val.csv'))
+    X_test = read_csv(os.path.join(splits_dir, 'X_test.csv'))
+    y_test = read_csv(os.path.join(splits_dir, 'y_test.csv'))
     train_dl = get_dataloader(
         X_train, y_train, args.batch_size, args.image_dir,
         args.img_size, args.crop_size, True
@@ -161,10 +163,11 @@ if __name__ == '__main__':
         args.path_to_save_results
     )
 
-    write_to_csv(train_loss, 'train_loss.csv')
-    write_to_csv(train_acc, 'train_acc.csv')
-    write_to_csv(val_loss, 'val_loss.csv')
-    write_to_csv(val_acc, 'val_acc.csv')
+    results_dir = os.path.join(ROOT_DIR, 'results')
+    write_to_csv(train_loss, os.path.join(results_dir, 'train_loss.csv'))
+    write_to_csv(train_acc, os.path.join(results_dir, 'train_acc.csv'))
+    write_to_csv(val_loss, os.path.join(results_dir, 'val_loss.csv'))
+    write_to_csv(val_acc, os.path.join(results_dir, 'val_acc.csv'))
     train_val_results.to_csv(
         index=False,
         path_or_buf=os.path.join(
