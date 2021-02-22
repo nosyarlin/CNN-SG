@@ -13,15 +13,7 @@ import sys
 import torch
 
 
-if __name__ == '__main__':
-    # Monitoring for hangs
-    monitoring_thread = start_monitoring(seconds_frozen=60)
-
-    # Connecting to the clearml dashboard
-    task = Task.init(project_name="Nosyarlin", task_name="Train_" + date.today().strftime('%Y-%m-%d'),
-                     task_type=Task.TaskTypes.training)
-
-    # Set hyperparameters
+def get_arg_parser():
     parser = argparse.ArgumentParser(
         description='Process Command-line Arguments')
     parser.add_argument('--image_dir', default='C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
@@ -63,6 +55,19 @@ if __name__ == '__main__':
                         help='Image size for each image')
     parser.add_argument('--crop_size', default='299', type=int,
                         help='Crop size for each image. Inception v3 expects 299')
+    return parser
+
+
+if __name__ == '__main__':
+    # Monitoring for hangs
+    monitoring_thread = start_monitoring(seconds_frozen=60)
+
+    # Connecting to the clearml dashboard
+    task = Task.init(project_name="Nosyarlin", task_name="Train_" + date.today().strftime('%Y-%m-%d'),
+                     task_type=Task.TaskTypes.training)
+
+    # Set hyperparameters
+    parser = get_arg_parser()
     args = parser.parse_args()
 
     # Check that paths to save results and models exist

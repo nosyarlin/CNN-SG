@@ -61,6 +61,7 @@ def get_arg_parser():
     parser.add_argument(
         '--crop_size', default='299', type=int,
         help='Crop size for each image. Inception v3 expects 299')
+    return parser
 
 
 if __name__ == '__main__':
