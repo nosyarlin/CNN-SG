@@ -27,7 +27,7 @@ def get_arg_parser():
     )
     parser.add_argument(
         '--path_to_save_results',
-        default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/MobileNet_FYP/AllLayer_propTrain=0.7/run_4/',
+        default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/MobileNet_FYP/AllLayer_propTrain=0.7/run_3/',
         help='Path to the directory to save the model, hyperparameters and results'
     )
     parser.add_argument(
