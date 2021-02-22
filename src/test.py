@@ -1,7 +1,7 @@
 from config import ROOT_DIR
 from dataset import get_dataloader
 from models import get_model
-from shared_funcs import evaluate_model
+from shared_funcs import evaluate_model, load_checkpoint
 from torch import nn
 import argparse
 import os
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     model, _ = get_model(
         args.archi, args.num_classes, False, False, args.dropout
     )
-    model.load_state_dict(torch.load(args.model_path))
+    load_checkpoint(args.model_path, model)
 
     # Run data through model
     if not args.use_cpu:

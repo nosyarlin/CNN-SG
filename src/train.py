@@ -4,9 +4,13 @@ from dataset import get_dataloader
 from datetime import date
 from hanging_threads import start_monitoring
 from models import get_model
-from shared_funcs import read_csv, write_to_csv, train_validate, evaluate_model
+from shared_funcs import (
+    read_csv, write_to_csv, train_validate, evaluate_model,
+    save_checkpoint, load_checkpoint
+)
 from torch import nn, optim
 import argparse
+import numpy as np
 import os
 import pandas as pd
 import sys
@@ -25,6 +29,11 @@ def get_arg_parser():
         '--path_to_save_results',
         default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception_FYP/AllLayer_propTrain=0.7/run_5/',
         help='Path to the directory to save the model, hyperparameters and results'
+    )
+    parser.add_argument(
+        '--model_path',
+        default=None,
+        help='Path to saved model weights. If this is set, we will use the provided weights as the starting point for training'
     )
     parser.add_argument(
         '--skip_test', action='store_true',
@@ -188,6 +197,8 @@ if __name__ == '__main__':
         step_size=args.step_size,
         gamma=args.gamma
     )
+    if args.model_path is not None:
+        load_checkpoint(args.model_path, model, optimizer, scheduler)
 
     # Train and validate
     weights, train_loss, train_acc, val_loss, val_acc, train_val_results = train_validate(
@@ -207,6 +218,18 @@ if __name__ == '__main__':
             args.path_to_save_results,
             'train_val_results.csv')
     )
+
+    # Save model, optimizer and scheduler
+    save_checkpoint(
+        os.path.join(
+            args.path_to_save_results,
+            'archi_{}_train_acc_{}_val_acc_{}_.pth'.format(
+                args.archi,
+                np.round(train_acc, 3),
+                np.round(val_acc, 3)
+            )
+        ),
+        model, optimizer, scheduler)
 
     # Test
     if args.skip_test:

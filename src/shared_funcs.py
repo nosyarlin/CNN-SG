@@ -142,8 +142,6 @@ def train_validate(
         # Save model if improved
         if not best_weights or val_acc[-1] > best_val_acc:
             best_weights = model.state_dict()
-            torch.save(best_weights, os.path.join(
-                path_to_save_results, 'model.pth'))
             best_val_acc = val_acc[-1]
         else:
             print("Model has not improved, and will not be saved.\n")
@@ -180,3 +178,21 @@ def train_validate(
     })
 
     return best_weights, train_loss, train_acc, val_loss, val_acc, train_val_results
+
+
+def save_checkpoint(path, model, optimizer, scheduler):
+    state = {
+        'model': model.state_dict(),
+        'optimizer': optimizer.state_dict(),
+        'scheduler': scheduler.state_dict(),
+    }
+    torch.save(state, path)
+
+
+def load_checkpoint(path, model, optimizer=None, scheduler=None):
+    checkpoint = torch.load(path)
+    model.load_state_dict(checkpoint['model'])
+    if optimizer is not None:
+        optimizer.load_state_dict(checkpoint['optimizer'])
+    if scheduler is not None:
+        scheduler.load_state_dict(checkpoint['scheduler'])
