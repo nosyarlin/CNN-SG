@@ -16,45 +16,70 @@ import torch
 def get_arg_parser():
     parser = argparse.ArgumentParser(
         description='Process Command-line Arguments')
-    parser.add_argument('--image_dir', default='C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
-                        help='Path to the directory containing the images')
-    parser.add_argument('--path_to_save_results', default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception_FYP/AllLayer_propTrain=0.7/run_5/',
-                        help='Path to the directory to save the model, hyperparameters and results')
-    parser.add_argument('--skip_test', action='store_true',
-                        help='Set if testing should be skipped')
-    parser.add_argument('--archi', default='inception',
-                        help='Architecture of the model to be trained. Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet')
-    parser.add_argument('--no_pretraining', action='store_true',
-                        help='Set if you want the model to be trained from scratch')
-    parser.add_argument('--train_only_classifier', action='store_true',
-                        help='Set if we train classification layer only')
-    parser.add_argument('--use_cpu', action='store_true',
-                        help='Using CPU for processing')
-    parser.add_argument('--num_classes', default='3', type=int,
-                        action='store', help='Number of classes to be trained')
-    parser.add_argument('--dropout', default='0.1', type=float,
-                        action='store', help='Dropout probablity')
-    parser.add_argument('--lr', default='0.0005', type=float, help='The learning rate')
-    parser.add_argument('--betadist_alpha', default=0.9, type=float,
-                        help='The alpha value controlling the shape of the beta distribution for the Adam optimiser')
-    parser.add_argument('--betadist_beta', default=0.99, type=float,
-                        help='The beta value controlling the shape of the beta distribution for the Adam optimiser')
-    parser.add_argument('--eps', default='1e-8', type=float,
-                        help='Epsilon value for Adam optimiser')
-    parser.add_argument('--weight_decay', default='0', type=float,
-                        help='Weight decay for Adam optimiser')
-    parser.add_argument('--epochs', default='15', type=int,
-                        help='Number of epochs to be run for training')
-    parser.add_argument('--step_size', default='5', type=int,
-                        help='Step size')
-    parser.add_argument('--gamma', default='0.1', type=float,
-                        help='Gamma value for optimiser')
-    parser.add_argument('--batch_size', default='32', type=int,
-                        help='Batch size for training')
-    parser.add_argument('--img_size', default='360', type=int,
-                        help='Image size for each image')
-    parser.add_argument('--crop_size', default='299', type=int,
-                        help='Crop size for each image. Inception v3 expects 299')
+    parser.add_argument(
+        '--image_dir',
+        default='C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
+        help='Path to the directory containing the images'
+    )
+    parser.add_argument(
+        '--path_to_save_results',
+        default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception_FYP/AllLayer_propTrain=0.7/run_5/',
+        help='Path to the directory to save the model, hyperparameters and results'
+    )
+    parser.add_argument(
+        '--skip_test', action='store_true',
+        help='Set if testing should be skipped')
+    parser.add_argument(
+        '--archi', default='inception',
+        help='Architecture of the model to be trained. Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet')
+    parser.add_argument(
+        '--no_pretraining', action='store_true',
+        help='Set if you want the model to be trained from scratch')
+    parser.add_argument(
+        '--train_only_classifier', action='store_true',
+        help='Set if we train classification layer only')
+    parser.add_argument(
+        '--use_cpu', action='store_true',
+        help='Using CPU for processing')
+    parser.add_argument(
+        '--num_classes', default='3', type=int,
+        action='store', help='Number of classes to be trained')
+    parser.add_argument(
+        '--dropout', default='0.1', type=float,
+        action='store', help='Dropout probablity')
+    parser.add_argument(
+        '--lr', default='0.0005', type=float, help='The learning rate')
+    parser.add_argument(
+        '--betadist_alpha', default=0.9, type=float,
+        help='The alpha value controlling the shape of the beta distribution for the Adam optimiser')
+    parser.add_argument(
+        '--betadist_beta', default=0.99, type=float,
+        help='The beta value controlling the shape of the beta distribution for the Adam optimiser')
+    parser.add_argument(
+        '--eps', default='1e-8', type=float,
+        help='Epsilon value for Adam optimiser')
+    parser.add_argument(
+        '--weight_decay', default='0', type=float,
+        help='Weight decay for Adam optimiser')
+    parser.add_argument(
+        '--epochs', default='15', type=int,
+        help='Number of epochs to be run for training')
+    parser.add_argument(
+        '--step_size', default='5', type=int,
+        help='Step size')
+    parser.add_argument(
+        '--gamma', default='0.1', type=float,
+        help='Gamma value for optimiser')
+    parser.add_argument(
+        '--batch_size', default='32', type=int,
+        help='Batch size for training')
+    parser.add_argument(
+        '--img_size', default='360', type=int,
+        help='Image size for each image')
+    parser.add_argument(
+        '--crop_size', default='299', type=int,
+        help='Crop size for each image. Inception v3 expects 299')
+
     return parser
 
 
@@ -74,7 +99,8 @@ if __name__ == '__main__':
     if os.path.exists(args.path_to_save_results) and len(os.listdir(args.path_to_save_results)) == 0:
         print("\nSaving results in " + args.path_to_save_results)
     else:
-        sys.exit("\nError: File path to save results do not exist, or directory is not empty")
+        sys.exit(
+            "\nError: File path to save results do not exist, or directory is not empty")
 
     # Read data
     splits_dir = os.path.join(ROOT_DIR, 'data', 'splits')
@@ -142,9 +168,11 @@ if __name__ == '__main__':
         device = torch.device('cpu')
 
     if torch.backends.cudnn.is_available():
-        print("\nUsing {} with cuDNN version {} for training with {} architecture.".format(device, torch.backends.cudnn.version(), args.archi))
+        print("\nUsing {} with cuDNN version {} for training with {} architecture.".format(
+            device, torch.backends.cudnn.version(), args.archi))
     else:
-        print("\nUsing {} WITHOUT cuDNN for training with {} architecture.".format(device, args.archi))
+        print("\nUsing {} WITHOUT cuDNN for training with {} architecture.".format(
+            device, args.archi))
 
     betas = (args.betadist_alpha, args.betadist_beta)
     optimizer = optim.Adam(
