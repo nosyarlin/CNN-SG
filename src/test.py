@@ -1,7 +1,7 @@
 from config import ROOT_DIR
 from dataset import get_dataloader
 from models import get_model
-from shared_funcs import read_csv, evaluate_model
+from shared_funcs import evaluate_model
 from torch import nn
 import argparse
 import os
