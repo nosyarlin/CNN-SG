@@ -11,6 +11,8 @@ import torch
 
 def get_arg_parser():
     default_model_path = os.path.join(ROOT_DIR, 'models', 'model.pth')
+    default_X_test = os.path.join(ROOT_DIR, 'data', 'splits', 'X_test.csv')
+    default_y_test = os.path.join(ROOT_DIR, 'data', 'splits', 'y_test.csv')
 
     parser = argparse.ArgumentParser(
         description='Process Command-line Arguments')
@@ -23,6 +25,14 @@ def get_arg_parser():
         '--model_path',
         default=default_model_path,
         help='Path to saved model weights'
+    )
+    parser.add_argument(
+        '--X_test', default=default_X_test,
+        help='Path to X data'
+    )
+    parser.add_argument(
+        '--y_test', default=default_y_test,
+        help='Path to y data'
     )
     parser.add_argument(
         '--path_to_save_results',
@@ -58,11 +68,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Get test data
-    splits_dir = os.path.join(ROOT_DIR, 'data', 'splits')
-    X_test = read_csv(os.path.join(splits_dir, 'X_test.csv'))
-    y_test = read_csv(os.path.join(splits_dir, 'y_test.csv'))
     test_dl = get_dataloader(
-        X_test, y_test, args.batch_size, args.image_dir,
+        args.X_test, args.y_test, args.batch_size, args.image_dir,
         args.img_size, args.crop_size, False
     )
 
@@ -87,7 +94,7 @@ if __name__ == '__main__':
     # Saving results and probabilities
     probabilities = probabilities.T.tolist()
     test_probs_df = pd.DataFrame({
-        'file_name': X_test,
+        'file_name': args.X_test,
         'prob_empty': probabilities[0],
         'prob_human': probabilities[1],
         'prob_animal': probabilities[2]}
