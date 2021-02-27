@@ -10,15 +10,16 @@ import torch
 
 
 def get_arg_parser():
-    default_model_path = os.path.join(ROOT_DIR, 'models', 'model.pth')
-    default_X_test = os.path.join(ROOT_DIR, 'data', 'splits', 'X_test.csv')
-    default_y_test = os.path.join(ROOT_DIR, 'data', 'splits', 'y_test.csv')
+    default_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50_FYP/AllLayer_propTrain=0.7/run_2/model.pth"
+    default_X_test = os.path.join(ROOT_DIR, 'data', 'splits', 'X_test_sbwr_phase1.csv')
+    default_y_test = os.path.join(ROOT_DIR, 'data', 'splits', 'Y_test_sbwr_phase1.csv')
+    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/Train_2021-01-25_32c9a04cdece4e4cacdb89f5d2c3f542'
 
     parser = argparse.ArgumentParser(
         description='Process Command-line Arguments')
     parser.add_argument(
         '--image_dir',
-        default='C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
+        default='C:/_for-temp-data-that-need-SSD-speed/SBWR_20191127-20200120/',
         help='Path to the directory containing the images'
     )
     parser.add_argument(
@@ -36,11 +37,11 @@ def get_arg_parser():
     )
     parser.add_argument(
         '--path_to_save_results',
-        default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception_FYP/AllLayer_propTrain=0.7/run_5/',
+        default=default_save_path,
         help='Path to the directory to save the model, hyperparameters and results'
     )
     parser.add_argument(
-        '--archi', default='inception',
+        '--archi', default='resnet50',
         help='Architecture of the model to be trained. Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet')
     parser.add_argument(
         '--use_cpu',
@@ -86,6 +87,13 @@ if __name__ == '__main__':
         device = torch.device('cuda')
     else:
         device = torch.device('cpu')
+
+    if torch.backends.cudnn.is_available():
+        print("\nUsing {} with cuDNN version {} for testing with {} architecture.".format(
+            device, torch.backends.cudnn.version(), args.archi))
+    else:
+        print("\nUsing {} WITHOUT cuDNN for testing with {} architecture.".format(
+            device, args.archi))
 
     loss_func = nn.CrossEntropyLoss()
     test_acc, test_loss, probabilities = evaluate_model(

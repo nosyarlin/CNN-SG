@@ -94,7 +94,7 @@ def get_arg_parser():
 
 if __name__ == '__main__':
     # Monitoring for hangs
-    monitoring_thread = start_monitoring(seconds_frozen=60)
+    #monitoring_thread = start_monitoring(seconds_frozen=60)
 
     # Connecting to the clearml dashboard
     task = Task.init(project_name="Nosyarlin", task_name="Train_" + date.today().strftime('%Y-%m-%d'),
