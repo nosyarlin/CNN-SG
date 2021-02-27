@@ -146,10 +146,11 @@ def train_validate(
             save_checkpoint(
                 os.path.join(
                     path_to_save_results,
-                    'archi_{}_train_acc_{}_val_acc_{}_.pth'.format(
+                    'archi_{}_train_acc_{}_val_acc_{}_epoch_{}.pth'.format(
                         archi,
                         np.round(train_acc[-1], 3),
-                        np.round(val_acc[-1], 3)
+                        np.round(val_acc[-1], 3),
+                        epoch + 1
                     )
                 ),
                 model, optimizer, scheduler)
