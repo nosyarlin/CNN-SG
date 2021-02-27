@@ -1,7 +1,7 @@
 from config import ROOT_DIR
 from dataset import get_dataloader
 from models import get_model
-from shared_funcs import evaluate_model, load_checkpoint
+from shared_funcs import evaluate_model, load_checkpoint, read_csv
 from torch import nn
 import argparse
 import os
@@ -70,8 +70,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Get test data
+    X_test = read_csv(args.X_test)
+    y_test = read_csv(args.y_test)
     test_dl = get_dataloader(
-        args.X_test, args.y_test, args.batch_size, args.image_dir,
+        X_test, y_test, args.batch_size, args.image_dir,
         args.img_size, args.crop_size, False
     )
 
