@@ -219,18 +219,6 @@ if __name__ == '__main__':
             'train_val_results.csv')
     )
 
-    # Save model, optimizer and scheduler
-    save_checkpoint(
-        os.path.join(
-            args.path_to_save_results,
-            'archi_{}_train_acc_{}_val_acc_{}_.pth'.format(
-                args.archi,
-                np.round(train_acc, 3),
-                np.round(val_acc, 3)
-            )
-        ),
-        model, optimizer, scheduler)
-
     # Test
     if args.skip_test:
         print("\nTesting will not be conducted. Exiting now.")

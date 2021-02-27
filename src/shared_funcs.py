@@ -143,6 +143,16 @@ def train_validate(
         if not best_weights or val_acc[-1] > best_val_acc:
             best_weights = model.state_dict()
             best_val_acc = val_acc[-1]
+            save_checkpoint(
+                os.path.join(
+                    path_to_save_results,
+                    'archi_{}_train_acc_{}_val_acc_{}_.pth'.format(
+                        archi,
+                        np.round(train_acc[-1], 3),
+                        np.round(val_acc[-1], 3)
+                    )
+                ),
+                model, optimizer, scheduler)
         else:
             print("Model has not improved, and will not be saved.\n")
 
