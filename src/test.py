@@ -7,14 +7,10 @@ import argparse
 import os
 import pandas as pd
 import torch
+import sys
 
 
 def get_arg_parser():
-    default_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50_FYP/AllLayer_propTrain=0.7/run_2/model.pth"
-    default_X_test = os.path.join(ROOT_DIR, 'data', 'splits', 'X_test_sbwr_phase1.csv')
-    default_y_test = os.path.join(ROOT_DIR, 'data', 'splits', 'Y_test_sbwr_phase1.csv')
-    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/Train_2021-01-25_32c9a04cdece4e4cacdb89f5d2c3f542'
-
     parser = argparse.ArgumentParser(
         description='Process Command-line Arguments')
     parser.add_argument(
@@ -41,33 +37,57 @@ def get_arg_parser():
         help='Path to the directory to save the model, hyperparameters and results'
     )
     parser.add_argument(
-        '--archi', default='resnet50',
+        '--archi', default=default_archi,
         help='Architecture of the model to be trained. Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet')
     parser.add_argument(
         '--use_cpu',
         action='store_true',
         help='Using CPU for processing')
     parser.add_argument(
-        '--num_classes', default='3', type=int, action='store',
+        '--num_classes', default=default_num_classes, type=int, action='store',
         help='Number of classes to be trained')
     parser.add_argument(
-        '--dropout', default='0.1', type=float,
+        '--dropout', default=default_dropout, type=float,
         action='store', help='Dropout probablity')
     parser.add_argument(
-        '--batch_size', default='32', type=int,
+        '--batch_size', default=default_batch_size, type=int,
         help='Batch size for training')
     parser.add_argument(
-        '--img_size', default='360', type=int,
+        '--img_size', default=default_img_size, type=int,
         help='Image size for each image')
     parser.add_argument(
-        '--crop_size', default='299', type=int,
+        '--crop_size', default=default_crop_size, type=int,
         help='Crop size for each image. Inception v3 expects 299')
     return parser
 
 
 if __name__ == '__main__':
+    saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception_FYP/AllLayer_propTrain=0.7/run_7/"
+    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/In_0.7_07'
+    default_X_test = os.path.join(ROOT_DIR, 'data', 'splits', 'X_test_sbwr_phase1.csv')
+    default_y_test = os.path.join(ROOT_DIR, 'data', 'splits', 'Y_test_sbwr_phase1.csv')
+
+    default_hp_path = os.path.join(saved_model_path, 'hyperparameter_records.csv')
+    default_model_path = os.path.join(saved_model_path, 'model.pth')
+
+    # Get hyperparameters of the saved model
+    hp = pd.read_csv(default_hp_path)
+    default_archi = hp.loc[hp['Hyperparameters'] == 'Architecture', 'Values'].item()
+    default_num_classes = hp.loc[hp['NumClasses'] == 'Architecture', 'Values'].item()
+    default_dropout = hp.loc[hp['Hyperparameters'] == 'Dropout', 'Values'].item()
+    default_batch_size = hp.loc[hp['Hyperparameters'] == 'BatchSize', 'Values'].item()
+    default_img_size = hp.loc[hp['Hyperparameters'] == 'ImgSize', 'Values'].item()
+    default_crop_size = hp.loc[hp['Hyperparameters'] == 'CropSize', 'Values'].item()
+
     parser = get_arg_parser()
     args = parser.parse_args()
+
+    # Check that paths to save results and models exist
+    if os.path.exists(args.path_to_save_results) and len(os.listdir(args.path_to_save_results)) == 0:
+        print("\nSaving results in " + args.path_to_save_results)
+    else:
+        sys.exit(
+            "\nError: File path to save results do not exist, or directory is not empty")
 
     # Get test data
     X_test = read_csv(args.X_test)
@@ -101,6 +121,7 @@ if __name__ == '__main__':
     test_acc, test_loss, probabilities = evaluate_model(
         model, test_dl, loss_func, device, 'Testing'
     )
+    print("Testing complete. Test acc: {}, Test loss: {}".format(test_acc, test_loss))
 
     # Saving results and probabilities
     probabilities = probabilities.T.tolist()

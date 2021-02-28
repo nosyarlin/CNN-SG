@@ -52,12 +52,12 @@ def evaluate_model(model, dl, loss_func, device, logger_title):
             softmax = nn.Softmax(1)
             probabilities.append(softmax(logits))
 
-            Logger.current_logger().report_scalar(
-                logger_title, "loss", iteration=j, value=loss.item())
-            Logger.current_logger().report_scalar(
-                logger_title, "accuracy", iteration=j,
-                value=(total_correct / total_count)
-            )
+            # Logger.current_logger().report_scalar(
+            #     logger_title, "loss", iteration=j, value=loss.item())
+            # Logger.current_logger().report_scalar(
+            #     logger_title, "accuracy", iteration=j,
+            #     value=(total_correct / total_count)
+            # )
 
         probabilities = torch.cat(probabilities, 0).cpu().numpy()
 
@@ -202,8 +202,9 @@ def save_checkpoint(path, model, optimizer, scheduler):
 
 def load_checkpoint(path, model, optimizer=None, scheduler=None):
     checkpoint = torch.load(path)
-    model.load_state_dict(checkpoint['model'])
-    if optimizer is not None:
-        optimizer.load_state_dict(checkpoint['optimizer'])
-    if scheduler is not None:
-        scheduler.load_state_dict(checkpoint['scheduler'])
+    model.load_state_dict(checkpoint)
+    # model.load_state_dict(checkpoint['model'])
+    # if optimizer is not None:
+    #     optimizer.load_state_dict(checkpoint['optimizer'])
+    # if scheduler is not None:
+    #     scheduler.load_state_dict(checkpoint['scheduler'])
