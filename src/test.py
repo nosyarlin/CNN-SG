@@ -1,3 +1,5 @@
+from clearml import Task
+from datetime import date
 from config import ROOT_DIR
 from dataset import get_dataloader
 from models import get_model
@@ -62,8 +64,12 @@ def get_arg_parser():
 
 
 if __name__ == '__main__':
-    saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception_FYP/AllLayer_propTrain=0.7/run_7/"
-    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/In_0.7_07'
+    # Connecting to the clearml dashboard
+    task = Task.init(project_name="Nosyarlin", task_name="Test_" + date.today().strftime('%Y-%m-%d'),
+                    task_type=Task.TaskTypes.testing)
+    
+    saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50_FYP/AllLayer_propTrain=0.7/run_2/"
+    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/Re_0.7_02'
     default_X_test = os.path.join(ROOT_DIR, 'data', 'splits', 'X_test_sbwr_phase1.csv')
     default_y_test = os.path.join(ROOT_DIR, 'data', 'splits', 'Y_test_sbwr_phase1.csv')
 
@@ -73,7 +79,7 @@ if __name__ == '__main__':
     # Get hyperparameters of the saved model
     hp = pd.read_csv(default_hp_path)
     default_archi = hp.loc[hp['Hyperparameters'] == 'Architecture', 'Values'].item()
-    default_num_classes = hp.loc[hp['NumClasses'] == 'Architecture', 'Values'].item()
+    default_num_classes = hp.loc[hp['Hyperparameters'] == 'NumClasses', 'Values'].item()
     default_dropout = hp.loc[hp['Hyperparameters'] == 'Dropout', 'Values'].item()
     default_batch_size = hp.loc[hp['Hyperparameters'] == 'BatchSize', 'Values'].item()
     default_img_size = hp.loc[hp['Hyperparameters'] == 'ImgSize', 'Values'].item()
@@ -84,7 +90,7 @@ if __name__ == '__main__':
 
     # Check that paths to save results and models exist
     if os.path.exists(args.path_to_save_results) and len(os.listdir(args.path_to_save_results)) == 0:
-        print("\nSaving results in " + args.path_to_save_results)
+        print("\nSaving results in " + args.path_to_save_results + "\n")
     else:
         sys.exit(
             "\nError: File path to save results do not exist, or directory is not empty")
