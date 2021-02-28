@@ -68,8 +68,8 @@ if __name__ == '__main__':
     task = Task.init(project_name="Nosyarlin", task_name="Test_" + date.today().strftime('%Y-%m-%d'),
                     task_type=Task.TaskTypes.testing)
     
-    saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50_FYP/AllLayer_propTrain=0.7/run_2/"
-    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/Re_0.7_02'
+    saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/MobileNet_FYP/AllLayer_propTrain=0.7/run_1/"
+    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/Mo_0.7_01'
     default_X_test = os.path.join(ROOT_DIR, 'data', 'splits', 'X_test_sbwr_phase1.csv')
     default_y_test = os.path.join(ROOT_DIR, 'data', 'splits', 'Y_test_sbwr_phase1.csv')
 
@@ -127,9 +127,9 @@ if __name__ == '__main__':
     test_acc, test_loss, probabilities = evaluate_model(
         model, test_dl, loss_func, device, 'Testing'
     )
-    print("Testing complete. Test acc: {}, Test loss: {}".format(test_acc, test_loss))
+    print("\nTesting complete. Test acc: {}, Test loss: {}\n".format(test_acc, test_loss))
 
-    # Saving results and probabilities
+    # Saving results, probabilities and hyperparameters
     probabilities = probabilities.T.tolist()
     test_probs_df = pd.DataFrame({
         'file_name': args.X_test,
@@ -153,3 +153,14 @@ if __name__ == '__main__':
             'test_results.csv'
         )
     )
+
+    hp_names = (
+        "TrainedModel", "ModelID", "TestSet")
+    hp_values = (
+        args.model_path, args.path_to_save_results.split("/")[-1], args.X_test.split("\\")[-1])
+
+    hp2 = pd.DataFrame(
+        {'Hyperparameters': hp_names, 'Values': hp_values})
+    hp_records = hp.append(hp2)
+    hp_records.to_csv(index=False, path_or_buf=os.path.join(
+        args.path_to_save_results, 'testing_hyperparameter_records.csv'))
