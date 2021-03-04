@@ -155,7 +155,7 @@ def train_validate(
                 ),
                 model, optimizer, scheduler)
         else:
-            print("Model has not improved, and will not be saved.\n")
+            print("\nModel trained in epoch {} has not improved, and will not be saved.".format(epoch + 1))
 
         # Logging the results in clearml
         Logger.current_logger().report_scalar(
@@ -202,9 +202,9 @@ def save_checkpoint(path, model, optimizer, scheduler):
 
 def load_checkpoint(path, model, optimizer=None, scheduler=None):
     checkpoint = torch.load(path)
-    model.load_state_dict(checkpoint)
-    # model.load_state_dict(checkpoint['model'])
-    # if optimizer is not None:
-    #     optimizer.load_state_dict(checkpoint['optimizer'])
-    # if scheduler is not None:
-    #     scheduler.load_state_dict(checkpoint['scheduler'])
+    # model.load_state_dict(checkpoint)
+    model.load_state_dict(checkpoint['model'])
+    if optimizer is not None:
+        optimizer.load_state_dict(checkpoint['optimizer'])
+    if scheduler is not None:
+        scheduler.load_state_dict(checkpoint['scheduler'])
