@@ -22,24 +22,27 @@ def get_arg_parser():
         description='Process Command-line Arguments')
     parser.add_argument(
         '--image_dir',
-        default='C:/_for-temp-data-that-need-SSD-speed/SBWR_20191127-20200120',
+        default='C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
+        # default='C:/_for-temp-data-that-need-SSD-speed/SBWR_20191127-20200120',
         help='Path to the directory containing the images'
     )
     parser.add_argument(
         '--path_to_save_results',
-        default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/Mo_0.7_06/FT_5Wks',
+        default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception_FYP/AllLayer_propTrain=0.7/run_14',
+        # default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/Mo_0.7_06/FT_6Wks',
         help='Path to the directory to save the model, hyperparameters and results'
     )
     parser.add_argument(
         '--model_path',
-        default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/MobileNet_FYP/AllLayer_propTrain=0.7/run_6/archi_mobilenet_train_acc_0.903_val_acc_0.946_epoch_14.pth',
+        default=None,
+        # default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/MobileNet_FYP/AllLayer_propTrain=0.7/run_6/archi_mobilenet_train_acc_0.903_val_acc_0.946_epoch_14.pth',
         help='Path to saved model weights. If this is set, we will use the provided weights as the starting point for training'
     )
     parser.add_argument(
         '--skip_test', action='store_true',
         help='Set if testing should be skipped')
     parser.add_argument(
-        '--archi', default='mobilenet',
+        '--archi', default='inception',
         help='Architecture of the model to be trained. Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet')
     parser.add_argument(
         '--no_pretraining', action='store_true',
@@ -54,7 +57,7 @@ def get_arg_parser():
         '--num_classes', default='3', type=int,
         action='store', help='Number of classes to be trained')
     parser.add_argument(
-        '--dropout', default='0.0001', type=float,
+        '--dropout', default='0', type=float,
         action='store', help='Dropout probablity')
     parser.add_argument(
         '--lr', default='0.0005', type=float, help='The learning rate')
@@ -68,10 +71,10 @@ def get_arg_parser():
         '--eps', default='1e-8', type=float,
         help='Epsilon value for Adam optimiser')
     parser.add_argument(
-        '--weight_decay', default='1e-8', type=float,
+        '--weight_decay', default='0', type=float,
         help='Weight decay for Adam optimiser')
     parser.add_argument(
-        '--epochs', default='10', type=int,
+        '--epochs', default='15', type=int,
         help='Number of epochs to be run for training')
     parser.add_argument(
         '--step_size', default='5', type=int,
@@ -113,12 +116,21 @@ if __name__ == '__main__':
 
     # Read data
     splits_dir = os.path.join(ROOT_DIR, 'data', 'splits')
-    X_train = read_csv(os.path.join(splits_dir, 'X_train_sbwr_phase1.csv'))
-    y_train = read_csv(os.path.join(splits_dir, 'Y_train_sbwr_phase1.csv'))
-    X_val = read_csv(os.path.join(splits_dir, 'X_val_sbwr_phase1.csv'))
-    y_val = read_csv(os.path.join(splits_dir, 'Y_val_sbwr_phase1.csv'))
-    X_test = read_csv(os.path.join(splits_dir, 'X_test_sbwr_phase1.csv'))
-    y_test = read_csv(os.path.join(splits_dir, 'Y_test_sbwr_phase1.csv'))
+    
+    X_train = read_csv(os.path.join(splits_dir, 'X_train.csv'))
+    y_train = read_csv(os.path.join(splits_dir, 'y_train.csv'))
+    X_val = read_csv(os.path.join(splits_dir, 'X_val.csv'))
+    y_val = read_csv(os.path.join(splits_dir, 'y_val.csv'))
+    X_test = read_csv(os.path.join(splits_dir, 'X_test.csv'))
+    y_test = read_csv(os.path.join(splits_dir, 'y_test.csv'))
+    
+    # X_train = read_csv(os.path.join(splits_dir, 'X_train_sbwr_phase1.csv'))
+    # y_train = read_csv(os.path.join(splits_dir, 'Y_train_sbwr_phase1.csv'))
+    # X_val = read_csv(os.path.join(splits_dir, 'X_val_sbwr_phase1.csv'))
+    # y_val = read_csv(os.path.join(splits_dir, 'Y_val_sbwr_phase1.csv'))
+    # X_test = read_csv(os.path.join(splits_dir, 'X_test_sbwr_phase1.csv'))
+    # y_test = read_csv(os.path.join(splits_dir, 'Y_test_sbwr_phase1.csv'))
+    
     train_dl = get_dataloader(
         X_train, y_train, args.batch_size, args.image_dir,
         args.img_size, args.crop_size, True

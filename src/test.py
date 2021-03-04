@@ -68,13 +68,13 @@ if __name__ == '__main__':
     task = Task.init(project_name="Nosyarlin", task_name="Test_" + date.today().strftime('%Y-%m-%d'),
                     task_type=Task.TaskTypes.testing)
     
-    saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/MobileNet_FYP/AllLayer_propTrain=0.7/run_6/"
-    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/Mo_0.7_06/NoFT_test_20200114'
+    saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/MobileNet_FYP/AllLayer_propTrain=0.7/run_3/"
+    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/Mo_0.7_03/NoFT_test_20200114'
     default_X_test = os.path.join(ROOT_DIR, 'data', 'splits', 'X_test_sbwr_phase1.csv')
     default_y_test = os.path.join(ROOT_DIR, 'data', 'splits', 'Y_test_sbwr_phase1.csv')
 
     default_hp_path = os.path.join(saved_model_path, 'hyperparameter_records.csv')
-    default_model_path = os.path.join(saved_model_path, 'archi_mobilenet_train_acc_0.903_val_acc_0.946_epoch_14.pth')
+    default_model_path = os.path.join(saved_model_path, 'archi_mobilenet_train_acc_0.9_val_acc_0.94_epoch_13.pth')
 
     # Get hyperparameters of the saved model
     hp = pd.read_csv(default_hp_path)
