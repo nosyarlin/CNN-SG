@@ -22,20 +22,20 @@ def get_arg_parser():
         description='Process Command-line Arguments')
     parser.add_argument(
         '--image_dir',
-        default='C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
-        # default='C:/_for-temp-data-that-need-SSD-speed/SBWR_20191127-20200120',
+        # default='C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
+        default='C:/_for-temp-data-that-need-SSD-speed/SBWR_20191127-20200120',
         help='Path to the directory containing the images'
     )
     parser.add_argument(
         '--path_to_save_results',
-        default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Inception_FYP/AllLayer_propTrain=0.7/run_14',
-        # default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/Mo_0.7_06/FT_6Wks',
+        # default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50_FYP/AllLayer_propTrain=0.7/run_8',
+        default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/Mo_0.7_07/FT_6Wks',
         help='Path to the directory to save the model, hyperparameters and results'
     )
     parser.add_argument(
         '--model_path',
-        default=None,
-        # default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/MobileNet_FYP/AllLayer_propTrain=0.7/run_6/archi_mobilenet_train_acc_0.903_val_acc_0.946_epoch_14.pth',
+        # default=None,
+        default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/MobileNet_FYP/AllLayer_propTrain=0.7/run_7/archi_mobilenet_train_acc_0.901_val_acc_0.943_epoch_15.pth',
         help='Path to saved model weights. If this is set, we will use the provided weights as the starting point for training'
     )
     parser.add_argument(
@@ -117,19 +117,19 @@ if __name__ == '__main__':
     # Read data
     splits_dir = os.path.join(ROOT_DIR, 'data', 'splits')
     
-    X_train = read_csv(os.path.join(splits_dir, 'X_train.csv'))
-    y_train = read_csv(os.path.join(splits_dir, 'y_train.csv'))
-    X_val = read_csv(os.path.join(splits_dir, 'X_val.csv'))
-    y_val = read_csv(os.path.join(splits_dir, 'y_val.csv'))
-    X_test = read_csv(os.path.join(splits_dir, 'X_test.csv'))
-    y_test = read_csv(os.path.join(splits_dir, 'y_test.csv'))
+    # X_train = read_csv(os.path.join(splits_dir, 'X_train.csv'))
+    # y_train = read_csv(os.path.join(splits_dir, 'y_train.csv'))
+    # X_val = read_csv(os.path.join(splits_dir, 'X_val.csv'))
+    # y_val = read_csv(os.path.join(splits_dir, 'y_val.csv'))
+    # X_test = read_csv(os.path.join(splits_dir, 'X_test.csv'))
+    # y_test = read_csv(os.path.join(splits_dir, 'y_test.csv'))
     
-    # X_train = read_csv(os.path.join(splits_dir, 'X_train_sbwr_phase1.csv'))
-    # y_train = read_csv(os.path.join(splits_dir, 'Y_train_sbwr_phase1.csv'))
-    # X_val = read_csv(os.path.join(splits_dir, 'X_val_sbwr_phase1.csv'))
-    # y_val = read_csv(os.path.join(splits_dir, 'Y_val_sbwr_phase1.csv'))
-    # X_test = read_csv(os.path.join(splits_dir, 'X_test_sbwr_phase1.csv'))
-    # y_test = read_csv(os.path.join(splits_dir, 'Y_test_sbwr_phase1.csv'))
+    X_train = read_csv(os.path.join(splits_dir, 'X_train_sbwr_phase1.csv'))
+    y_train = read_csv(os.path.join(splits_dir, 'Y_train_sbwr_phase1.csv'))
+    X_val = read_csv(os.path.join(splits_dir, 'X_val_sbwr_phase1.csv'))
+    y_val = read_csv(os.path.join(splits_dir, 'Y_val_sbwr_phase1.csv'))
+    X_test = read_csv(os.path.join(splits_dir, 'X_test_sbwr_phase1.csv'))
+    y_test = read_csv(os.path.join(splits_dir, 'Y_test_sbwr_phase1.csv'))
     
     train_dl = get_dataloader(
         X_train, y_train, args.batch_size, args.image_dir,
@@ -155,14 +155,22 @@ if __name__ == '__main__':
     else:
         print('Testing will NOT be conducted\n')
 
+    # Extract hyperparameters if further training from a pre-trained model 
+    if args.model_path is not None:
+        hp_path = os.path.join(os.path.dirname(args.model_path), 'hyperparameter_records.csv')
+        hp = pd.read_csv(hp_path)
+        args.archi = hp.loc[hp['Hyperparameters'] == 'Architecture', 'Values'].item()
+        args.weight_decay = float(hp.loc[hp['Hyperparameters'] == 'WeightDecay', 'Values'].item())
+        args.dropout = float(hp.loc[hp['Hyperparameters'] == 'Dropout', 'Values'].item())
+
     # Output hyperparameters for recording purposes
     hp_names = (
-        "SkipTest", "LearningRate", "BetaDist_alpha", "BetaDist_beta", "Eps",
+        "SkipTest", "ModelPath", "LearningRate", "BetaDist_alpha", "BetaDist_beta", "Eps",
         "WeightDecay", "Epochs", "StepSize", "Gamma", "BatchSize", "ImgSize",
         "CropSize", "Architecture", "NumClasses", "TrainOnlyClassifier", "Dropout",
         "NoPretraining", "NumTrainImages", "NumValImages", "NumTestImages")
     hp_values = (
-        args.skip_test, args.lr, args.betadist_alpha, args.betadist_beta,
+        args.skip_test, args.model_path, args.lr, args.betadist_alpha, args.betadist_beta,
         args.eps, args.weight_decay, args.epochs, args.step_size, args.gamma,
         args.batch_size, args.img_size, args.crop_size, args.archi,
         args.num_classes, args.train_only_classifier, args.dropout,
