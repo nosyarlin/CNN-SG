@@ -6,6 +6,7 @@ import numpy as np
 import os
 import pandas as pd
 import torch
+from tqdm import tqdm
 
 
 def write_to_csv(obj, fname):
@@ -34,7 +35,7 @@ def evaluate_model(model, dl, loss_func, device, logger_title):
 
         j = 0  # Starting the iteration count
 
-        for X, y in dl:
+        for X, y in tqdm(dl):
             j += 1  # Adding one iteration count per batch
 
             X, y = X.to(device), y.to(device)

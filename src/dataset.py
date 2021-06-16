@@ -52,7 +52,8 @@ class ImageDataset(data.Dataset):
         return len(self.y)
 
     def __getitem__(self, idx):
-        fname = os.path.join(self.image_dir, self.X[idx][:2], self.X[idx])
+        # fname = os.path.join(self.image_dir, self.X[idx][:2], self.X[idx]) #For images extracted from camelot server
+        fname = os.path.join(self.image_dir, self.X[idx]) #For other images. X needs to be the path after image.dir
         img = Image.open(fname)
         if img.mode != 'RGB':
             img = img.convert('RGB')

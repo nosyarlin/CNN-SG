@@ -28,21 +28,21 @@ def get_arg_parser():
     )
     parser.add_argument(
         '--path_to_save_results',
-        # default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50_FYP/AllLayer_propTrain=0.7/run_8',
-        default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/Mo_0.7_07/FT_6Wks',
+        # default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50_FYP/AllLayer_propTrain=0.7/run_9',
+        default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/Mo_0.7_06/extra',
         help='Path to the directory to save the model, hyperparameters and results'
     )
     parser.add_argument(
         '--model_path',
         # default=None,
-        default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/MobileNet_FYP/AllLayer_propTrain=0.7/run_7/archi_mobilenet_train_acc_0.901_val_acc_0.943_epoch_15.pth',
+        default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/Mo_0.7_06/FT_6Wks/archi_mobilenet_train_acc_0.759_val_acc_0.862_epoch_7.pth',
         help='Path to saved model weights. If this is set, we will use the provided weights as the starting point for training'
     )
     parser.add_argument(
         '--skip_test', action='store_true',
         help='Set if testing should be skipped')
     parser.add_argument(
-        '--archi', default='inception',
+        '--archi', default='mobilenet',
         help='Architecture of the model to be trained. Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet')
     parser.add_argument(
         '--no_pretraining', action='store_true',
@@ -57,7 +57,7 @@ def get_arg_parser():
         '--num_classes', default='3', type=int,
         action='store', help='Number of classes to be trained')
     parser.add_argument(
-        '--dropout', default='0', type=float,
+        '--dropout', default='0.01', type=float,
         action='store', help='Dropout probablity')
     parser.add_argument(
         '--lr', default='0.0005', type=float, help='The learning rate')
@@ -71,10 +71,10 @@ def get_arg_parser():
         '--eps', default='1e-8', type=float,
         help='Epsilon value for Adam optimiser')
     parser.add_argument(
-        '--weight_decay', default='0', type=float,
+        '--weight_decay', default='1e-8', type=float,
         help='Weight decay for Adam optimiser')
     parser.add_argument(
-        '--epochs', default='15', type=int,
+        '--epochs', default='5', type=int,
         help='Number of epochs to be run for training')
     parser.add_argument(
         '--step_size', default='5', type=int,
@@ -144,7 +144,7 @@ if __name__ == '__main__':
         args.img_size, args.crop_size, False
     )
 
-    print("Dataset to be used includes {} training images, {} validation images and {} testing images.".format(
+    print("\nDataset to be used includes {} training images, {} validation images and {} testing images.".format(
         len(X_train), len(X_val), len(X_test)))
     print("Number of empty:humans:animals in training, validation and testing sets respectively is: {}:{}:{}; {}:{}:{}; {}:{}:{}\n".format(
         y_train.count("0"), y_train.count("1"), y_train.count("2"),
