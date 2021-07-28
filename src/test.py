@@ -25,13 +25,17 @@ def get_arg_parser():
         default=default_model_path,
         help='Path to saved model weights'
     )
+    # parser.add_argument(
+    #     '--X_test', default=default_X_test,
+    #     help='Path to X data'
+    # )
+    # parser.add_argument(
+    #     '--y_test', default=default_y_test,
+    #     help='Path to y data'
+    # )
     parser.add_argument(
-        '--X_test', default=default_X_test,
-        help='Path to X data'
-    )
-    parser.add_argument(
-        '--y_test', default=default_y_test,
-        help='Path to y data'
+        '--xy_test', default=default_xy_test,
+        help='Path to xy dataframe'
     )
     parser.add_argument(
         '--path_to_save_results',
@@ -68,13 +72,14 @@ if __name__ == '__main__':
     task = Task.init(project_name="Nosyarlin", task_name="Test_" + date.today().strftime('%Y-%m-%d'),
                     task_type=Task.TaskTypes.testing)
     
-    saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/In_0.7_17/FT_6Wks"
-    default_model_path = os.path.join(saved_model_path, 'archi_inception_train_acc_0.85_val_acc_0.926_epoch_4.pth')
-    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase2/SBWR-AR-23-X2'
+    saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/Mo_0.7_07/FT_6Wks"
+    default_model_path = os.path.join(saved_model_path, 'archi_mobilenet_train_acc_0.727_val_acc_0.839_epoch_13.pth')
+    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/CCNR_JB/Mo_0.7_07/FT_6Wks'
     
-    default_dataset_path = 'C:/_for-temp-data-that-need-SSD-speed/Phase2_SBWR_20200120-20200624'
-    default_X_test = os.path.join(ROOT_DIR, 'data', 'splits', 'sbwr_phase2_test_X.csv')
-    default_y_test = os.path.join(ROOT_DIR, 'data', 'splits', 'sbwr_phase2_test_y.csv')
+    default_dataset_path = 'C:/_for-temp-data-that-need-SSD-speed/'
+    # default_X_test = os.path.join(ROOT_DIR, 'data', 'splits', 'ccnr_jb_test_x.csv')
+    # default_y_test = os.path.join(ROOT_DIR, 'data', 'splits', 'ccnr_jb_test_y.csv')
+    default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'ccnr_jb_test_xy.csv')
 
     default_hp_path = os.path.join(saved_model_path, 'hyperparameter_records.csv')
 
@@ -98,8 +103,12 @@ if __name__ == '__main__':
             "\nError: File path to save results do not exist, or directory is not empty")
 
     # Get test data
-    X_test = read_csv(args.X_test)
-    y_test = read_csv(args.y_test)
+    # X_test = read_csv(args.X_test)
+    # y_test = read_csv(args.y_test)
+    xy_test = pd.read_csv(args.xy_test)
+    X_test = xy_test.FileName
+    y_test = xy_test.SpeciesCode
+
     test_dl = get_dataloader(
         X_test, y_test, args.batch_size, args.image_dir,
         args.img_size, args.crop_size, False
