@@ -74,7 +74,7 @@ def train_model(model, dl, loss_func, optimizer, device, archi, epoch):
 
     j = 0  # Starting the iteration count
 
-    for X, y in dl:
+    for X, y in tqdm(dl):
         j += 1  # Adding one iteration count per batch
 
         model.zero_grad()

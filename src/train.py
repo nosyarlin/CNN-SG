@@ -22,21 +22,30 @@ def get_arg_parser():
         description='Process Command-line Arguments')
     parser.add_argument(
         '--image_dir',
-        # default='C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media',
-        default='C:/_for-temp-data-that-need-SSD-speed/SBWR_20191127-20200120',
+        default=default_image_dir,
         help='Path to the directory containing the images'
     )
     parser.add_argument(
-        '--path_to_save_results',
-        # default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50_FYP/AllLayer_propTrain=0.7/run_9',
-        default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/Mo_0.7_06/extra',
+        '--save_results_path',
+        default=default_save_results_path,
         help='Path to the directory to save the model, hyperparameters and results'
     )
     parser.add_argument(
         '--model_path',
-        # default=None,
-        default='E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/SBWR_Phase1/Mo_0.7_06/FT_6Wks/archi_mobilenet_train_acc_0.759_val_acc_0.862_epoch_7.pth',
-        help='Path to saved model weights. If this is set, we will use the provided weights as the starting point for training'
+        default=default_model_path,
+        help='Path to saved model weights. If this is set, we will use the provided weights as the starting point for training. If none, no further training will be conducted.'
+    )
+    parser.add_argument(
+        '--xy_train', default=default_xy_train,
+        help='Path to xy dataframe that will be used for training. Should contain two columns, "FileName" and "SpeciesCode".'
+    )
+    parser.add_argument(
+        '--xy_val', default=default_xy_val,
+        help='Path to xy dataframe that will be used for validation. Should contain two columns, "FileName" and "SpeciesCode".'
+    )
+    parser.add_argument(
+        '--xy_test', default=default_xy_test,
+        help='Path to xy dataframe that will be used for testing. Should contain two columns, "FileName" and "SpeciesCode".'
     )
     parser.add_argument(
         '--skip_test', action='store_true',
@@ -104,52 +113,56 @@ if __name__ == '__main__':
                      task_type=Task.TaskTypes.training)
 
     # Set hyperparameters
+    default_image_dir = 'C:/_for-temp-data-that-need-SSD-speed/'
+    default_save_results_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test'
+    default_model_path = None
+
+    default_xy_train = os.path.join(ROOT_DIR, 'data', 'splits', 'jb_train_example.csv')
+    default_xy_val = os.path.join(ROOT_DIR, 'data', 'splits', 'jb_val_example.csv')
+    default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'jb_test_example.csv')
+    
+    # xy_train.FileName = read_csv(os.path.join(splits_dir, 'xy_train.FileName_sbwr_phase1.csv'))
+    # xy_train.SpeciesCode = read_csv(os.path.join(splits_dir, 'Y_train_sbwr_phase1.csv'))
+    # xy_val.FileName = read_csv(os.path.join(splits_dir, 'X_val_sbwr_phase1.csv'))
+    # xy_val.SpeciesCode = read_csv(os.path.join(splits_dir, 'Y_val_sbwr_phase1.csv'))
+    # xy_test.FileName = read_csv(os.path.join(splits_dir, 'X_test_sbwr_phase1.csv'))
+    # xy_test.SpeciesCode = read_csv(os.path.join(splits_dir, 'Y_test_sbwr_phase1.csv'))
+
     parser = get_arg_parser()
     args = parser.parse_args()
 
     # Check that paths to save results and models exist
-    if os.path.exists(args.path_to_save_results) and len(os.listdir(args.path_to_save_results)) == 0:
-        print("\nSaving results in " + args.path_to_save_results)
+    if os.path.exists(args.save_results_path) and len(os.listdir(args.save_results_path)) == 0:
+        print("\nSaving results in " + args.save_results_path)
     else:
         sys.exit(
             "\nError: File path to save results do not exist, or directory is not empty")
 
     # Read data
-    splits_dir = os.path.join(ROOT_DIR, 'data', 'splits')
-    
-    # X_train = read_csv(os.path.join(splits_dir, 'X_train.csv'))
-    # y_train = read_csv(os.path.join(splits_dir, 'y_train.csv'))
-    # X_val = read_csv(os.path.join(splits_dir, 'X_val.csv'))
-    # y_val = read_csv(os.path.join(splits_dir, 'y_val.csv'))
-    # X_test = read_csv(os.path.join(splits_dir, 'X_test.csv'))
-    # y_test = read_csv(os.path.join(splits_dir, 'y_test.csv'))
-    
-    X_train = read_csv(os.path.join(splits_dir, 'X_train_sbwr_phase1.csv'))
-    y_train = read_csv(os.path.join(splits_dir, 'Y_train_sbwr_phase1.csv'))
-    X_val = read_csv(os.path.join(splits_dir, 'X_val_sbwr_phase1.csv'))
-    y_val = read_csv(os.path.join(splits_dir, 'Y_val_sbwr_phase1.csv'))
-    X_test = read_csv(os.path.join(splits_dir, 'X_test_sbwr_phase1.csv'))
-    y_test = read_csv(os.path.join(splits_dir, 'Y_test_sbwr_phase1.csv'))
-    
+    xy_train = pd.read_csv(args.xy_train)
+    xy_val = pd.read_csv(args.xy_val)
+    xy_test = pd.read_csv(args.xy_test)
+
     train_dl = get_dataloader(
-        X_train, y_train, args.batch_size, args.image_dir,
+        xy_train.FileName, xy_train.SpeciesCode, args.batch_size, args.image_dir,
         args.img_size, args.crop_size, True
     )
     val_dl = get_dataloader(
-        X_val, y_val, args.batch_size, args.image_dir,
+        xy_val.FileName, xy_val.SpeciesCode, args.batch_size, args.image_dir,
         args.img_size, args.crop_size, False
     )
     test_dl = get_dataloader(
-        X_test, y_test, args.batch_size, args.image_dir,
+        xy_test.FileName, xy_test.SpeciesCode, args.batch_size, args.image_dir,
         args.img_size, args.crop_size, False
     )
 
     print("\nDataset to be used includes {} training images, {} validation images and {} testing images.".format(
-        len(X_train), len(X_val), len(X_test)))
+        len(xy_train.FileName), len(xy_val.FileName), len(xy_test.FileName)))
     print("Number of empty:humans:animals in training, validation and testing sets respectively is: {}:{}:{}; {}:{}:{}; {}:{}:{}\n".format(
-        y_train.count("0"), y_train.count("1"), y_train.count("2"),
-        y_val.count("0"), y_val.count("1"), y_val.count("2"),
-        y_test.count("0"), y_test.count("1"), y_test.count("2")))
+        len(xy_train[xy_train.SpeciesCode == 0]), len(xy_train[xy_train.SpeciesCode == 1]), len(xy_train[xy_train.SpeciesCode == 2]),
+        len(xy_val[xy_val.SpeciesCode == 0]), len(xy_val[xy_val.SpeciesCode == 1]), len(xy_val[xy_val.SpeciesCode == 2]),
+        len(xy_test[xy_test.SpeciesCode == 0]), len(xy_test[xy_test.SpeciesCode == 1]), len(xy_test[xy_test.SpeciesCode == 2])))
+
     if not args.skip_test:
         print('Testing will be conducted\n')
     else:
@@ -174,12 +187,12 @@ if __name__ == '__main__':
         args.eps, args.weight_decay, args.epochs, args.step_size, args.gamma,
         args.batch_size, args.img_size, args.crop_size, args.archi,
         args.num_classes, args.train_only_classifier, args.dropout,
-        args.no_pretraining, len(X_train), len(X_val), len(X_test))
+        args.no_pretraining, len(xy_train.FileName), len(xy_val.FileName), len(xy_test.FileName))
 
     hp_records = pd.DataFrame(
         {'Hyperparameters': hp_names, 'Values': hp_values})
     hp_records.to_csv(index=False, path_or_buf=os.path.join(
-        args.path_to_save_results, 'hyperparameter_records.csv'))
+        args.save_results_path, 'hyperparameter_records.csv'))
 
     print(hp_records)
 
@@ -224,7 +237,7 @@ if __name__ == '__main__':
     weights, train_loss, train_acc, val_loss, val_acc, train_val_results = train_validate(
         args.epochs, model, optimizer, scheduler, loss_func,
         train_dl, val_dl, device, args.archi,
-        args.path_to_save_results
+        args.save_results_path
     )
 
     results_dir = os.path.join(ROOT_DIR, 'results')
@@ -235,7 +248,7 @@ if __name__ == '__main__':
     train_val_results.to_csv(
         index=False,
         path_or_buf=os.path.join(
-            args.path_to_save_results,
+            args.save_results_path,
             'train_val_results.csv')
     )
 
@@ -253,14 +266,14 @@ if __name__ == '__main__':
     # Saving results and probabilities
     probabilities = probabilities.T.tolist()
     test_probs_df = pd.DataFrame({
-        'file_name': X_test,
+        'file_name': xy_test.FileName,
         'prob_empty': probabilities[0],
         'prob_human': probabilities[1],
         'prob_animal': probabilities[2]}
     )
     test_probs_df.to_csv(index=False, path_or_buf=os.path.join(
-        args.path_to_save_results, 'test_probabilities.csv'))
+        args.save_results_path, 'test_probabilities.csv'))
 
     test_results_df = pd.DataFrame({'Acc': [test_acc], 'Loss': [test_loss]})
     test_results_df.to_csv(index=False, path_or_buf=os.path.join(
-        args.path_to_save_results, 'test_results.csv'))
+        args.save_results_path, 'test_results.csv'))
