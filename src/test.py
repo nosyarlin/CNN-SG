@@ -64,9 +64,9 @@ if __name__ == '__main__':
     task = Task.init(project_name="Nosyarlin", task_name="Test_" + date.today().strftime('%Y-%m-%d'),
                     task_type=Task.TaskTypes.testing)
     
-    saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/MobileNet_FYP/AllLayer_propTrain=0.7/run_9"
-    default_model_path = os.path.join(saved_model_path, 'archi_mobilenet_train_acc_0.898_val_acc_0.941_epoch_14.pth')
-    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/CCNR_JB/Mo_0.7_09/No_FT'
+    saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Resnet50_FYP/AllLayer_propTrain=0.7/run_9"
+    default_model_path = os.path.join(saved_model_path, 'archi_resnet50_train_acc_0.88_val_acc_0.938_epoch_12.pth')
+    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/CCNR_JB/Re_0.7_09/No_FT'
     
     default_image_dir = 'C:/_for-temp-data-that-need-SSD-speed/'
     default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'ccnr_jb_test_xy.csv')

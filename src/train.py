@@ -51,7 +51,7 @@ def get_arg_parser():
         '--skip_test', action='store_true',
         help='Set if testing should be skipped')
     parser.add_argument(
-        '--archi', default='mobilenet',
+        '--archi', default='resnet50',
         help='Architecture of the model to be trained. Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet')
     parser.add_argument(
         '--no_pretraining', action='store_true',
@@ -83,7 +83,7 @@ def get_arg_parser():
         '--weight_decay', default='1e-8', type=float,
         help='Weight decay for Adam optimiser')
     parser.add_argument(
-        '--epochs', default='5', type=int,
+        '--epochs', default='15', type=int,
         help='Number of epochs to be run for training')
     parser.add_argument(
         '--step_size', default='5', type=int,
@@ -114,12 +114,12 @@ if __name__ == '__main__':
 
     # Set hyperparameters
     default_image_dir = 'C:/_for-temp-data-that-need-SSD-speed/'
-    default_save_results_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Test'
+    default_save_results_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/trained_model/'
     default_model_path = None
 
-    default_xy_train = os.path.join(ROOT_DIR, 'data', 'splits', 'jb_train_example.csv')
-    default_xy_val = os.path.join(ROOT_DIR, 'data', 'splits', 'jb_val_example.csv')
-    default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'jb_test_example.csv')
+    default_xy_train = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_train_sheet.csv')
+    default_xy_val = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_val_sheet.csv')
+    default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_test_sheet.csv')
     
     # xy_train.FileName = read_csv(os.path.join(splits_dir, 'xy_train.FileName_sbwr_phase1.csv'))
     # xy_train.SpeciesCode = read_csv(os.path.join(splits_dir, 'Y_train_sbwr_phase1.csv'))
