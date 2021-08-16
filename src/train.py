@@ -15,6 +15,7 @@ import os
 import pandas as pd
 import sys
 import torch
+import yappi
 
 
 def get_arg_parser():
@@ -51,7 +52,7 @@ def get_arg_parser():
         '--skip_test', action='store_true',
         help='Set if testing should be skipped')
     parser.add_argument(
-        '--archi', default='resnet50',
+        '--archi', default='mobilenet',
         help='Architecture of the model to be trained. Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet')
     parser.add_argument(
         '--no_pretraining', action='store_true',
@@ -66,7 +67,7 @@ def get_arg_parser():
         '--num_classes', default='3', type=int,
         action='store', help='Number of classes to be trained')
     parser.add_argument(
-        '--dropout', default='0.01', type=float,
+        '--dropout', default='0.001', type=float,
         action='store', help='Dropout probablity')
     parser.add_argument(
         '--lr', default='0.0005', type=float, help='The learning rate')
@@ -105,8 +106,8 @@ def get_arg_parser():
 
 
 if __name__ == '__main__':
-    # Monitoring for hangs
-    # monitoring_thread = start_monitoring(seconds_frozen=60)
+    # Monitoring for hangs and profiler
+    #monitoring_thread = start_monitoring(seconds_frozen=60)
 
     # Connecting to the clearml dashboard
     task = Task.init(project_name="Nosyarlin", task_name="Train_" + date.today().strftime('%Y-%m-%d'),
@@ -114,19 +115,12 @@ if __name__ == '__main__':
 
     # Set hyperparameters
     default_image_dir = 'C:/_for-temp-data-that-need-SSD-speed/'
-    default_save_results_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/trained_model/'
+    default_save_results_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Mo_0.7_07/trained_model'
     default_model_path = None
 
     default_xy_train = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_train_sheet.csv')
     default_xy_val = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_val_sheet.csv')
     default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_test_sheet.csv')
-    
-    # xy_train.FileName = read_csv(os.path.join(splits_dir, 'xy_train.FileName_sbwr_phase1.csv'))
-    # xy_train.SpeciesCode = read_csv(os.path.join(splits_dir, 'Y_train_sbwr_phase1.csv'))
-    # xy_val.FileName = read_csv(os.path.join(splits_dir, 'X_val_sbwr_phase1.csv'))
-    # xy_val.SpeciesCode = read_csv(os.path.join(splits_dir, 'Y_val_sbwr_phase1.csv'))
-    # xy_test.FileName = read_csv(os.path.join(splits_dir, 'X_test_sbwr_phase1.csv'))
-    # xy_test.SpeciesCode = read_csv(os.path.join(splits_dir, 'Y_test_sbwr_phase1.csv'))
 
     parser = get_arg_parser()
     args = parser.parse_args()
@@ -194,7 +188,7 @@ if __name__ == '__main__':
     hp_records.to_csv(index=False, path_or_buf=os.path.join(
         args.save_results_path, 'hyperparameter_records.csv'))
 
-    print(hp_records)
+    print(hp_records.to_string())
 
     # Build model
     model, parameters = get_model(
@@ -232,6 +226,10 @@ if __name__ == '__main__':
     )
     if args.model_path is not None:
         load_checkpoint(args.model_path, model, optimizer, scheduler)
+    
+    #Profiler
+    yappi.set_clock_type("WALL")
+    yappi.start(profile_threads = True)
 
     # Train and validate
     weights, train_loss, train_acc, val_loss, val_acc, train_val_results = train_validate(
@@ -251,6 +249,16 @@ if __name__ == '__main__':
             args.save_results_path,
             'train_val_results.csv')
     )
+
+    #Profiler
+    yappi.stop()
+    stats = yappi.get_func_stats().sort(sort_type = "ttot", sort_order = "desc")
+    stats_file = os.path.join(args.save_results_path, 'yappi_function_stats.prof')
+    stats.save(stats_file, "pstat")
+    #stats.print_all()
+
+    #threads = yappi.get_thread_stats()
+    #threads.print_all()
 
     # Test
     if args.skip_test:
