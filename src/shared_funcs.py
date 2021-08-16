@@ -140,6 +140,10 @@ def train_validate(
         val_acc.append(acc_val)
         val_loss.append(loss_val)
 
+        print("Epoch: {} of {} completed.".format(epoch + 1, epochs))
+        print("Validation acc: {}, Validation loss: {}\n"
+              .format(acc_val, loss_val))
+
         # Save model if improved
         if not best_weights or val_acc[-1] > best_val_acc:
             best_weights = model.state_dict()
@@ -156,7 +160,7 @@ def train_validate(
                 ),
                 model, optimizer, scheduler)
         else:
-            print("\nModel trained in epoch {} has not improved, and will not be saved.".format(epoch + 1))
+            print("\nModel trained in epoch {} has not improved, and will not be saved.\n".format(epoch + 1))
 
         # Logging the results in clearml
         Logger.current_logger().report_scalar(
@@ -175,10 +179,6 @@ def train_validate(
             "Training and Validation", "Val loss",
             iteration=epoch + 1, value=loss_val
         )
-
-        print("Epoch: {} of {}".format(epoch + 1, epochs))
-        print("Validation acc: {}, Validation loss: {}"
-              .format(acc_val, loss_val))
 
     # Saving results into a dataframe
     train_val_results = pd.DataFrame({

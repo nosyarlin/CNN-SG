@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
     # Connecting to the clearml dashboard
     task = Task.init(project_name="Nosyarlin", task_name="Train_" + date.today().strftime('%Y-%m-%d'),
-                     task_type=Task.TaskTypes.training)
+                     task_type=Task.TaskTypes.training, reuse_last_task_id=False)
 
     # Set hyperparameters
     default_image_dir = 'C:/_for-temp-data-that-need-SSD-speed/'
