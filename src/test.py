@@ -94,10 +94,11 @@ if __name__ == '__main__':
 
     # Get test data
     xy_test = pd.read_csv(args.xy_test)
+    check_img_size(xy_test.FileName, "testing set", args.img_size)
 
     test_dl = get_dataloader(
         xy_test.FileName, xy_test.SpeciesCode, args.batch_size, args.image_dir,
-        args.img_size, args.crop_size, False
+        args.crop_size, False
     )
 
     print("Dataset to be used includes {} testing images.".format(len(xy_test.FileName)))

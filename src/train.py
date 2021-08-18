@@ -6,7 +6,7 @@ from hanging_threads import start_monitoring
 from models import get_model
 from shared_funcs import (
     read_csv, write_to_csv, train_validate, evaluate_model,
-    save_checkpoint, load_checkpoint
+    save_checkpoint, load_checkpoint, check_img_size
 )
 from torch import nn, optim
 import argparse
@@ -84,7 +84,7 @@ def get_arg_parser():
         '--weight_decay', default='1e-8', type=float,
         help='Weight decay for Adam optimiser')
     parser.add_argument(
-        '--epochs', default='15', type=int,
+        '--epochs', default='11', type=int,
         help='Number of epochs to be run for training')
     parser.add_argument(
         '--step_size', default='5', type=int,
@@ -115,12 +115,12 @@ if __name__ == '__main__':
 
     # Set hyperparameters
     default_image_dir = 'C:/_for-temp-data-that-need-SSD-speed/'
-    default_save_results_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Mo_0.7_07/trained_model'
-    default_model_path = None
+    default_save_results_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Mo_0.7_07/trained_model_2'
+    default_model_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Mo_0.7_07/trained_model/archi_mobilenet_train_acc_0.844_val_acc_0.912_epoch_1.pth'
 
-    default_xy_train = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_train_sheet.csv')
-    default_xy_val = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_val_sheet.csv')
-    default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_test_sheet.csv')
+    default_xy_train = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_train_sheet_resized.csv')
+    default_xy_val = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_val_sheet_resized.csv')
+    default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_test_sheet_resized.csv')
 
     parser = get_arg_parser()
     args = parser.parse_args()
@@ -137,17 +137,22 @@ if __name__ == '__main__':
     xy_val = pd.read_csv(args.xy_val)
     xy_test = pd.read_csv(args.xy_test)
 
+    # Check the image size for the first image
+    check_img_size(xy_train.FileName, "training set", args.img_size)
+    check_img_size(xy_val.FileName, "validation set", args.img_size)
+    check_img_size(xy_test.FileName, "testing set", args.img_size)
+
     train_dl = get_dataloader(
         xy_train.FileName, xy_train.SpeciesCode, args.batch_size, args.image_dir,
-        args.img_size, args.crop_size, True
+        args.crop_size, True
     )
     val_dl = get_dataloader(
         xy_val.FileName, xy_val.SpeciesCode, args.batch_size, args.image_dir,
-        args.img_size, args.crop_size, False
+        args.crop_size, False
     )
     test_dl = get_dataloader(
         xy_test.FileName, xy_test.SpeciesCode, args.batch_size, args.image_dir,
-        args.img_size, args.crop_size, False
+        args.crop_size, False
     )
 
     print("\nDataset to be used includes {} training images, {} validation images and {} testing images.".format(

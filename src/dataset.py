@@ -11,13 +11,12 @@ import torch
 
 
 class ImageDataset(data.Dataset):
-    def __init__(self, image_dir, img_size, crop_size, X, y, is_train):
+    def __init__(self, image_dir, crop_size, X, y, is_train):
         self.image_dir = image_dir
         self.X = X
         self.y = torch.LongTensor([int(i) for i in y])
         if not is_train:
             self.transforms = transforms.Compose([
-                transforms.Resize(img_size, interpolation=2),
                 transforms.FiveCrop(crop_size),
                 transforms.Lambda(lambda crops: torch.stack(
                     [transforms.ToTensor()(crop) for crop in crops]
@@ -31,7 +30,6 @@ class ImageDataset(data.Dataset):
             ])
         else:
             self.transforms = transforms.Compose([
-                transforms.Resize(img_size, interpolation=2),
                 transforms.ColorJitter(0.2, 0.2, 0.2, 0.05),
                 transforms.RandomAffine(
                     degrees=10,
@@ -162,13 +160,13 @@ def get_splits(image_dir: str, y_fpath: str, test_size: float, validation_size: 
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 
-def get_dataloader(x, y, batch_size, image_dir, img_size, crop_size, is_train):
+def get_dataloader(x, y, batch_size, image_dir, crop_size, is_train):
     if is_train:
-        return data.DataLoader(ImageDataset(image_dir, img_size, crop_size, x, y, is_train),
+        return data.DataLoader(ImageDataset(image_dir, crop_size, x, y, is_train),
                             batch_size=batch_size,
                             shuffle=True)
     else:
-        return data.DataLoader(ImageDataset(image_dir, img_size, crop_size, x, y, is_train),
+        return data.DataLoader(ImageDataset(image_dir, crop_size, x, y, is_train),
                             batch_size=batch_size,
                             shuffle=False)
 
