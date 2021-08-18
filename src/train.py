@@ -61,6 +61,9 @@ def get_arg_parser():
         '--train_only_classifier', action='store_true',
         help='Set if we train classification layer only')
     parser.add_argument(
+        '--num_workers', default='1', type=int,
+        help='Number of threads to be set for the GPU')
+    parser.add_argument(
         '--use_cpu', action='store_true',
         help='Using CPU for processing')
     parser.add_argument(
@@ -84,7 +87,7 @@ def get_arg_parser():
         '--weight_decay', default='1e-8', type=float,
         help='Weight decay for Adam optimiser')
     parser.add_argument(
-        '--epochs', default='11', type=int,
+        '--epochs', default='8', type=int,
         help='Number of epochs to be run for training')
     parser.add_argument(
         '--step_size', default='5', type=int,
@@ -116,7 +119,7 @@ if __name__ == '__main__':
     # Set hyperparameters
     default_image_dir = 'C:/_for-temp-data-that-need-SSD-speed/'
     default_save_results_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Mo_0.7_07/trained_model_2'
-    default_model_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Mo_0.7_07/trained_model/archi_mobilenet_train_acc_0.844_val_acc_0.912_epoch_1.pth'
+    default_model_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Mo_0.7_07/trained_model/archi_mobilenet_train_acc_0.872_val_acc_0.913_epoch_7.pth'
 
     default_xy_train = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_train_sheet_resized.csv')
     default_xy_val = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_val_sheet_resized.csv')
@@ -144,15 +147,15 @@ if __name__ == '__main__':
 
     train_dl = get_dataloader(
         xy_train.FileName, xy_train.SpeciesCode, args.batch_size, args.image_dir,
-        args.crop_size, True
+        args.crop_size, True, args.num_workers
     )
     val_dl = get_dataloader(
         xy_val.FileName, xy_val.SpeciesCode, args.batch_size, args.image_dir,
-        args.crop_size, False
+        args.crop_size, False, args.num_workers
     )
     test_dl = get_dataloader(
         xy_test.FileName, xy_test.SpeciesCode, args.batch_size, args.image_dir,
-        args.crop_size, False
+        args.crop_size, False, args.num_workers
     )
 
     print("\nDataset to be used includes {} training images, {} validation images and {} testing images.".format(
@@ -177,12 +180,12 @@ if __name__ == '__main__':
 
     # Output hyperparameters for recording purposes
     hp_names = (
-        "SkipTest", "ModelPath", "LearningRate", "BetaDist_alpha", "BetaDist_beta", "Eps",
+        "SkipTest", "NumWorkers", "ModelPath", "LearningRate", "BetaDist_alpha", "BetaDist_beta", "Eps",
         "WeightDecay", "Epochs", "StepSize", "Gamma", "BatchSize", "ImgSize",
         "CropSize", "Architecture", "NumClasses", "TrainOnlyClassifier", "Dropout",
         "NoPretraining", "NumTrainImages", "NumValImages", "NumTestImages")
     hp_values = (
-        args.skip_test, args.model_path, args.lr, args.betadist_alpha, args.betadist_beta,
+        args.skip_test, args.num_workers, args.model_path, args.lr, args.betadist_alpha, args.betadist_beta,
         args.eps, args.weight_decay, args.epochs, args.step_size, args.gamma,
         args.batch_size, args.img_size, args.crop_size, args.archi,
         args.num_classes, args.train_only_classifier, args.dropout,

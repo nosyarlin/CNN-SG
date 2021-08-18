@@ -18,22 +18,18 @@ def get_arg_parser():
     parser.add_argument(
         '--image_dir',
         default=default_image_dir,
-        help='Path to the directory containing the images'
-    )
+        help='Path to the directory containing the images')
     parser.add_argument(
         '--model_path',
         default=default_model_path,
-        help='Path to saved model weights'
-    )
+        help='Path to saved model weights')
     parser.add_argument(
         '--xy_test', default=default_xy_test,
-        help='Path to xy dataframe'
-    )
+        help='Path to xy dataframe')
     parser.add_argument(
         '--path_to_save_results',
         default=default_save_path,
-        help='Path to the directory to save the model, hyperparameters and results'
-    )
+        help='Path to the directory to save the model, hyperparameters and results')
     parser.add_argument(
         '--archi', default=default_archi,
         help='Architecture of the model to be trained. Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet')
@@ -41,6 +37,9 @@ def get_arg_parser():
         '--use_cpu',
         action='store_true',
         help='Using CPU for processing')
+    parser.add_argument(
+        '--num_workers', default='3', type=int,
+        help='Number of threads to be set for the GPU')
     parser.add_argument(
         '--num_classes', default=default_num_classes, type=int, action='store',
         help='Number of classes to be trained')
@@ -98,7 +97,7 @@ if __name__ == '__main__':
 
     test_dl = get_dataloader(
         xy_test.FileName, xy_test.SpeciesCode, args.batch_size, args.image_dir,
-        args.crop_size, False
+        args.crop_size, False, args.num_workers
     )
 
     print("Dataset to be used includes {} testing images.".format(len(xy_test.FileName)))

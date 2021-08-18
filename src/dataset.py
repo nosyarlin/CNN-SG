@@ -18,15 +18,8 @@ class ImageDataset(data.Dataset):
         if not is_train:
             self.transforms = transforms.Compose([
                 transforms.FiveCrop(crop_size),
-                transforms.Lambda(lambda crops: torch.stack(
-                    [transforms.ToTensor()(crop) for crop in crops]
-                )),
-                transforms.Lambda(lambda crops: torch.stack(
-                    [transforms.Normalize(
-                        mean=[0.485, 0.456, 0.406],
-                        std=[0.229, 0.224, 0.225]
-                    )(crop) for crop in crops]
-                ))
+                transforms.Lambda(batch_to_tensor),
+                transforms.Lambda(batch_to_normalize)
             ])
         else:
             self.transforms = transforms.Compose([
@@ -58,6 +51,19 @@ class ImageDataset(data.Dataset):
         label = self.y[idx]
 
         return self.transforms(img), label
+
+
+def batch_to_tensor(crops):
+    return torch.stack(
+        [transforms.ToTensor()(crop) for crop in crops])
+
+
+def batch_to_normalize(crops):
+    return torch.stack(
+        [transforms.Normalize(
+            mean=[0.485, 0.456, 0.406],
+            std=[0.229, 0.224, 0.225]
+        )(crop) for crop in crops])
 
 
 def get_labels(y_fpath: str, delimiter=","):
@@ -160,15 +166,15 @@ def get_splits(image_dir: str, y_fpath: str, test_size: float, validation_size: 
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 
-def get_dataloader(x, y, batch_size, image_dir, crop_size, is_train):
+def get_dataloader(x, y, batch_size, image_dir, crop_size, is_train, num_workers):
     if is_train:
         return data.DataLoader(ImageDataset(image_dir, crop_size, x, y, is_train),
                             batch_size=batch_size,
-                            shuffle=True)
+                            shuffle=True, num_workers=num_workers)
     else:
         return data.DataLoader(ImageDataset(image_dir, crop_size, x, y, is_train),
                             batch_size=batch_size,
-                            shuffle=False)
+                            shuffle=False, num_workers=num_workers)
 
 
 if __name__ == '__main__':
