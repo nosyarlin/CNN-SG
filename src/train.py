@@ -61,7 +61,7 @@ def get_arg_parser():
         '--train_only_classifier', action='store_true',
         help='Set if we train classification layer only')
     parser.add_argument(
-        '--num_workers', default='1', type=int,
+        '--num_workers', default='4', type=int,
         help='Number of threads to be set for the GPU')
     parser.add_argument(
         '--use_cpu', action='store_true',
@@ -70,7 +70,7 @@ def get_arg_parser():
         '--num_classes', default='3', type=int,
         action='store', help='Number of classes to be trained')
     parser.add_argument(
-        '--dropout', default='0.001', type=float,
+        '--dropout', default='0.1', type=float,
         action='store', help='Dropout probablity')
     parser.add_argument(
         '--lr', default='0.0005', type=float, help='The learning rate')
@@ -84,10 +84,10 @@ def get_arg_parser():
         '--eps', default='1e-8', type=float,
         help='Epsilon value for Adam optimiser')
     parser.add_argument(
-        '--weight_decay', default='1e-8', type=float,
+        '--weight_decay', default='1e-5', type=float,
         help='Weight decay for Adam optimiser')
     parser.add_argument(
-        '--epochs', default='8', type=int,
+        '--epochs', default='15', type=int,
         help='Number of epochs to be run for training')
     parser.add_argument(
         '--step_size', default='5', type=int,
@@ -118,8 +118,8 @@ if __name__ == '__main__':
 
     # Set hyperparameters
     default_image_dir = 'C:/_for-temp-data-that-need-SSD-speed/'
-    default_save_results_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Mo_0.7_07/trained_model_2'
-    default_model_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Mo_0.7_07/trained_model/archi_mobilenet_train_acc_0.872_val_acc_0.913_epoch_7.pth'
+    default_save_results_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/In_0.17_17/trained_model'
+    default_model_path = None
 
     default_xy_train = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_train_sheet_resized.csv')
     default_xy_val = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_val_sheet_resized.csv')

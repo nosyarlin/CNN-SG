@@ -3,7 +3,7 @@ from datetime import date
 from config import ROOT_DIR
 from dataset import get_dataloader
 from models import get_model
-from shared_funcs import evaluate_model, load_checkpoint, read_csv
+from shared_funcs import evaluate_model, load_checkpoint, read_csv, check_img_size
 from torch import nn
 import argparse
 import os
@@ -38,7 +38,7 @@ def get_arg_parser():
         action='store_true',
         help='Using CPU for processing')
     parser.add_argument(
-        '--num_workers', default='3', type=int,
+        '--num_workers', default='4', type=int,
         help='Number of threads to be set for the GPU')
     parser.add_argument(
         '--num_classes', default=default_num_classes, type=int, action='store',
@@ -63,12 +63,12 @@ if __name__ == '__main__':
     task = Task.init(project_name="Nosyarlin", task_name="Test_" + date.today().strftime('%Y-%m-%d'),
                     task_type=Task.TaskTypes.testing)
     
-    saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/trained_model/"
-    default_model_path = os.path.join(saved_model_path, 'archi_resnet50_train_acc_0.898_val_acc_0.927_epoch_15.pth')
-    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/jb_test/'
+    saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Mo_0.7_07/trained_model/"
+    default_model_path = os.path.join(saved_model_path, 'archi_mobilenet_train_acc_0.898_val_acc_0.937_epoch_15.pth')
+    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Mo_0.7_07/trained_model_2/'
     
     default_image_dir = 'C:/_for-temp-data-that-need-SSD-speed/'
-    default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_test_jb_sheet.csv')
+    default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_test_sheet_resized.csv')
 
     default_hp_path = os.path.join(saved_model_path, 'hyperparameter_records.csv')
 
