@@ -50,60 +50,79 @@ def get_arg_parser():
     )
     parser.add_argument(
         '--skip_test', action='store_true',
-        help='Set if testing should be skipped')
+        help='Set if testing should be skipped'
+    )
     parser.add_argument(
-        '--archi', default='mobilenet',
-        help='Architecture of the model to be trained. Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet')
+        '--archi', default=default_archi,
+        help='Architecture of the model to be trained. Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet'
+    )
     parser.add_argument(
         '--no_pretraining', action='store_true',
-        help='Set if you want the model to be trained from scratch')
+        help='Set if you want the model to be trained from scratch'
+    )
     parser.add_argument(
         '--train_only_classifier', action='store_true',
-        help='Set if we train classification layer only')
+        help='Set if we train classification layer only'
+    )
     parser.add_argument(
-        '--num_workers', default='4', type=int,
-        help='Number of threads to be set for the GPU')
+        '--num_workers', default=default_num_workers, type=int,
+        help='Number of threads to be set for the GPU'
+    )
     parser.add_argument(
         '--use_cpu', action='store_true',
-        help='Using CPU for processing')
+        help='Using CPU for processing'
+    )
     parser.add_argument(
         '--num_classes', default='3', type=int,
-        action='store', help='Number of classes to be trained')
+        action='store', help='Number of classes to be trained'
+    )
     parser.add_argument(
-        '--dropout', default='0.1', type=float,
-        action='store', help='Dropout probablity')
+        '--dropout', default=default_dropout, type=float,
+        action='store', help='Dropout probablity'
+    )
     parser.add_argument(
-        '--lr', default='0.0005', type=float, help='The learning rate')
+        '--lr', default='0.0005', type=float, help='The learning rate'
+    )
     parser.add_argument(
         '--betadist_alpha', default=0.9, type=float,
-        help='The alpha value controlling the shape of the beta distribution for the Adam optimiser')
+        help='The alpha value controlling the shape of the beta distribution for the Adam optimiser'
+    )
     parser.add_argument(
         '--betadist_beta', default=0.99, type=float,
-        help='The beta value controlling the shape of the beta distribution for the Adam optimiser')
+        help='The beta value controlling the shape of the beta distribution for the Adam optimiser'
+    )
     parser.add_argument(
         '--eps', default='1e-8', type=float,
-        help='Epsilon value for Adam optimiser')
+        help='Epsilon value for Adam optimiser'
+    )
     parser.add_argument(
-        '--weight_decay', default='1e-5', type=float,
-        help='Weight decay for Adam optimiser')
+        '--weight_decay', default=default_weight_decay, type=float,
+        help='Weight decay for Adam optimiser'
+    )
     parser.add_argument(
-        '--epochs', default='15', type=int,
-        help='Number of epochs to be run for training')
+        '--epochs', default=default_epochs, type=int,
+        help='Number of epochs to be run for training'
+    )
     parser.add_argument(
         '--step_size', default='5', type=int,
-        help='Step size')
+        help='Step size'
+    )
     parser.add_argument(
         '--gamma', default='0.1', type=float,
-        help='Gamma value for optimiser')
+        help='Gamma value for optimiser'
+    )
     parser.add_argument(
         '--batch_size', default='32', type=int,
-        help='Batch size for training')
+        help='Batch size for training'
+    )
     parser.add_argument(
         '--img_size', default='360', type=int,
-        help='Image size for each image')
+        help='Image size for each image'
+    )
     parser.add_argument(
         '--crop_size', default='299', type=int,
-        help='Crop size for each image. Inception v3 expects 299')
+        help='Crop size for each image. Inception v3 expects 299'
+    )
 
     return parser
 
@@ -118,12 +137,18 @@ if __name__ == '__main__':
 
     # Set hyperparameters
     default_image_dir = 'C:/_for-temp-data-that-need-SSD-speed/'
-    default_save_results_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/In_0.17_17/trained_model'
-    default_model_path = None
+    default_save_results_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Mo_0.7_09/trained_model_2' 
+    default_model_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Mo_0.7_09/trained_model/archi_mobilenet_train_acc_0.899_val_acc_0.93_epoch_12.pth'
 
     default_xy_train = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_train_sheet_resized.csv')
     default_xy_val = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_val_sheet_resized.csv')
     default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_test_sheet_resized.csv')
+
+    default_archi = 'mobilenet' #Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet
+    default_dropout = '0.0001'
+    default_weight_decay = '1e-8'
+    default_epochs = '2' 
+    default_num_workers='5'
 
     parser = get_arg_parser()
     args = parser.parse_args()

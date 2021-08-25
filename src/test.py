@@ -63,12 +63,18 @@ if __name__ == '__main__':
     task = Task.init(project_name="Nosyarlin", task_name="Test_" + date.today().strftime('%Y-%m-%d'),
                     task_type=Task.TaskTypes.testing)
     
-    saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Mo_0.7_07/trained_model/"
-    default_model_path = os.path.join(saved_model_path, 'archi_mobilenet_train_acc_0.898_val_acc_0.937_epoch_15.pth')
-    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Mo_0.7_07/trained_model_2/'
+    saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/trained_model/"
+    default_model_path = os.path.join(saved_model_path, 'archi_resnet50_train_acc_0.898_val_acc_0.927_epoch_15.pth')
+    # default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/jb_test/'
+    # default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/mand_test/'
+    # default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/sbwr_test/'
+    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/fyp_test/'
     
     default_image_dir = 'C:/_for-temp-data-that-need-SSD-speed/'
-    default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_test_sheet_resized.csv')
+    # default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_test_jb_sheet_resized.csv')
+    # default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_test_mand_sheet_resized.csv')
+    # default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_test_sbwr_sheet_resized.csv')
+    default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_test_fyp_sheet_resized.csv')
 
     default_hp_path = os.path.join(saved_model_path, 'hyperparameter_records.csv')
 
