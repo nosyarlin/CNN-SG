@@ -50,6 +50,9 @@ def get_arg_parser():
         '--batch_size', default=default_batch_size, type=int,
         help='Batch size for training')
     parser.add_argument(
+        '--img_resize', action='store_true',
+        help='Resize each image before testing')
+    parser.add_argument(
         '--img_size', default=default_img_size, type=int,
         help='Image size for each image')
     parser.add_argument(
@@ -65,16 +68,10 @@ if __name__ == '__main__':
     
     saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/trained_model/"
     default_model_path = os.path.join(saved_model_path, 'archi_resnet50_train_acc_0.898_val_acc_0.927_epoch_15.pth')
-    # default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/jb_test/'
-    # default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/mand_test/'
-    # default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/sbwr_test/'
-    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/fyp_test/'
+    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/CCNR_JB/class_jb_batch2'
     
     default_image_dir = 'C:/_for-temp-data-that-need-SSD-speed/'
-    # default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_test_jb_sheet_resized.csv')
-    # default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_test_mand_sheet_resized.csv')
-    # default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_test_sbwr_sheet_resized.csv')
-    default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_test_fyp_sheet_resized.csv')
+    default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'jb_batch2_cnn.csv')
 
     default_hp_path = os.path.join(saved_model_path, 'hyperparameter_records.csv')
 
@@ -99,11 +96,12 @@ if __name__ == '__main__':
 
     # Get test data
     xy_test = pd.read_csv(args.xy_test)
-    check_img_size(xy_test.FileName, "testing set", args.img_size)
+    if not args.img_resize:
+        check_img_size(xy_test.FileName, "testing set", args.img_size)
 
     test_dl = get_dataloader(
         xy_test.FileName, xy_test.SpeciesCode, args.batch_size, args.image_dir,
-        args.crop_size, False, args.num_workers
+        args.crop_size, False, args.num_workers, args.img_resize, args.img_size
     )
 
     print("Dataset to be used includes {} testing images.".format(len(xy_test.FileName)))

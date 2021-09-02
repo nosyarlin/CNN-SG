@@ -11,33 +11,60 @@ import torch
 
 
 class ImageDataset(data.Dataset):
-    def __init__(self, image_dir, crop_size, X, y, is_train):
+    def __init__(self, image_dir, crop_size, X, y, is_train, img_resize, img_size):
         self.image_dir = image_dir
         self.X = X
         self.y = torch.LongTensor([int(i) for i in y])
-        if not is_train:
-            self.transforms = transforms.Compose([
-                transforms.FiveCrop(crop_size),
-                transforms.Lambda(batch_to_tensor),
-                transforms.Lambda(batch_to_normalize)
-            ])
+        if img_resize:
+            if not is_train:
+                self.transforms = transforms.Compose([
+                    transforms.Resize(img_size, interpolation=2),
+                    transforms.FiveCrop(crop_size),
+                    transforms.Lambda(batch_to_tensor),
+                    transforms.Lambda(batch_to_normalize)
+                ])
+            else:
+                self.transforms = transforms.Compose([
+                    transforms.Resize(img_size, interpolation=2),
+                    transforms.ColorJitter(0.2, 0.2, 0.2, 0.05),
+                    transforms.RandomAffine(
+                        degrees=10,
+                        translate=(0, 0.1),
+                        scale=(0.9, 1.1)
+                    ),
+                    transforms.RandomGrayscale(),
+                    transforms.RandomHorizontalFlip(),
+                    transforms.CenterCrop(crop_size),
+                    transforms.ToTensor(),
+                    transforms.Normalize(
+                        mean=[0.485, 0.456, 0.406],
+                        std=[0.229, 0.224, 0.225]
+                    ),
+                ])
         else:
-            self.transforms = transforms.Compose([
-                transforms.ColorJitter(0.2, 0.2, 0.2, 0.05),
-                transforms.RandomAffine(
-                    degrees=10,
-                    translate=(0, 0.1),
-                    scale=(0.9, 1.1)
-                ),
-                transforms.RandomGrayscale(),
-                transforms.RandomHorizontalFlip(),
-                transforms.CenterCrop(crop_size),
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406],
-                    std=[0.229, 0.224, 0.225]
-                ),
-            ])
+            if not is_train:
+                self.transforms = transforms.Compose([
+                    transforms.FiveCrop(crop_size),
+                    transforms.Lambda(batch_to_tensor),
+                    transforms.Lambda(batch_to_normalize)
+                ])
+            else:
+                self.transforms = transforms.Compose([
+                    transforms.ColorJitter(0.2, 0.2, 0.2, 0.05),
+                    transforms.RandomAffine(
+                        degrees=10,
+                        translate=(0, 0.1),
+                        scale=(0.9, 1.1)
+                    ),
+                    transforms.RandomGrayscale(),
+                    transforms.RandomHorizontalFlip(),
+                    transforms.CenterCrop(crop_size),
+                    transforms.ToTensor(),
+                    transforms.Normalize(
+                        mean=[0.485, 0.456, 0.406],
+                        std=[0.229, 0.224, 0.225]
+                    ),
+                ])
 
     def __len__(self):
         return len(self.y)
@@ -166,13 +193,13 @@ def get_splits(image_dir: str, y_fpath: str, test_size: float, validation_size: 
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 
-def get_dataloader(x, y, batch_size, image_dir, crop_size, is_train, num_workers):
+def get_dataloader(x, y, batch_size, image_dir, crop_size, is_train, num_workers, img_resize, img_size):
     if is_train:
-        return data.DataLoader(ImageDataset(image_dir, crop_size, x, y, is_train),
+        return data.DataLoader(ImageDataset(image_dir, crop_size, x, y, is_train, img_resize, img_size),
                             batch_size=batch_size,
                             shuffle=True, num_workers=num_workers)
     else:
-        return data.DataLoader(ImageDataset(image_dir, crop_size, x, y, is_train),
+        return data.DataLoader(ImageDataset(image_dir, crop_size, x, y, is_train, img_resize, img_size),
                             batch_size=batch_size,
                             shuffle=False, num_workers=num_workers)
 
