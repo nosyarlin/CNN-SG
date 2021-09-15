@@ -68,10 +68,10 @@ if __name__ == '__main__':
     
     saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/trained_model/"
     default_model_path = os.path.join(saved_model_path, 'archi_resnet50_train_acc_0.898_val_acc_0.927_epoch_15.pth')
-    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/CCNR_JB/class_jb_batch2'
+    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/CCNR_JB/class_macr'
     
     default_image_dir = 'C:/_for-temp-data-that-need-SSD-speed/'
-    default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'jb_batch2_cnn.csv')
+    default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'cnn_class_macr.csv')
 
     default_hp_path = os.path.join(saved_model_path, 'hyperparameter_records.csv')
 

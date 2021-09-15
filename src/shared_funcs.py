@@ -8,6 +8,7 @@ import pandas as pd
 import torch
 from tqdm import tqdm
 from PIL import Image
+import sys
 
 
 def write_to_csv(obj, fname):
