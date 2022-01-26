@@ -136,9 +136,9 @@ if __name__ == '__main__':
                      task_type=Task.TaskTypes.training, reuse_last_task_id=False)
 
     # Set hyperparameters
-    default_image_dir = 'C:/_for-temp-data-that-need-SSD-speed/'
-    default_save_results_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Mo_0.7_08/trained_model2' 
-    default_model_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Mo_0.7_08/trained_model/archi_mobilenet_train_acc_0.888_val_acc_0.917_epoch_7.pth'
+    default_image_dir = 'C:/temp_for_SSD_speed/'
+    default_save_results_path = 'D:/CNN_Animal_ID/Testing' 
+    default_model_path = 'D:/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Mo_0.7_08/trained_model/archi_mobilenet_train_acc_0.888_val_acc_0.917_epoch_7.pth'
 
     default_xy_train = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_train_sheet_resized.csv')
     default_xy_val = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_val_sheet_resized.csv')
@@ -147,7 +147,7 @@ if __name__ == '__main__':
     default_archi = 'mobilenet' #Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet
     default_dropout = '0.05'
     default_weight_decay = '1e-5'
-    default_epochs = '6' 
+    default_epochs = '5' 
     default_num_workers='3'
 
     parser = get_arg_parser()
