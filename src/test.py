@@ -51,7 +51,7 @@ def get_arg_parser():
         help='Batch size for training')
     parser.add_argument(
         '--img_resize', action='store_true',
-        help='Resize each image before testing')
+        help='Resize each image before training/testing')
     parser.add_argument(
         '--img_size', default=default_img_size, type=int,
         help='Image size for each image')
