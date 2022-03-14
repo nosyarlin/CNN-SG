@@ -64,25 +64,34 @@ def get_arg_parser():
 if __name__ == '__main__':
     # Connecting to the clearml dashboard
     task = Task.init(project_name="Nosyarlin", task_name="Test_" + date.today().strftime('%Y-%m-%d'),
-                    task_type=Task.TaskTypes.testing)
-    
-    saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/trained_model/"
-    default_model_path = os.path.join(saved_model_path, 'archi_resnet50_train_acc_0.898_val_acc_0.927_epoch_15.pth')
-    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/CCNR_JB/class_jb_batch4'
-    
-    default_image_dir = 'C:/_for-temp-data-that-need-SSD-speed/'
-    default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'cnn_class_jb_batch4.csv')
+                     task_type=Task.TaskTypes.testing)
 
-    default_hp_path = os.path.join(saved_model_path, 'hyperparameter_records.csv')
+    saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/trained_model/"
+    default_model_path = os.path.join(
+        saved_model_path, 'archi_resnet50_train_acc_0.898_val_acc_0.927_epoch_15.pth')
+    default_save_path = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/CCNR_JB/class_jb_batch4'
+
+    default_image_dir = 'C:/_for-temp-data-that-need-SSD-speed/'
+    default_xy_test = os.path.join(
+        ROOT_DIR, 'data', 'splits', 'cnn_class_jb_batch4.csv')
+
+    default_hp_path = os.path.join(
+        saved_model_path, 'hyperparameter_records.csv')
 
     # Get hyperparameters of the saved model
     hp = pd.read_csv(default_hp_path)
-    default_archi = hp.loc[hp['Hyperparameters'] == 'Architecture', 'Values'].item()
-    default_num_classes = hp.loc[hp['Hyperparameters'] == 'NumClasses', 'Values'].item()
-    default_dropout = hp.loc[hp['Hyperparameters'] == 'Dropout', 'Values'].item()
-    default_batch_size = hp.loc[hp['Hyperparameters'] == 'BatchSize', 'Values'].item()
-    default_img_size = hp.loc[hp['Hyperparameters'] == 'ImgSize', 'Values'].item()
-    default_crop_size = hp.loc[hp['Hyperparameters'] == 'CropSize', 'Values'].item()
+    default_archi = hp.loc[hp['Hyperparameters']
+                           == 'Architecture', 'Values'].item()
+    default_num_classes = hp.loc[hp['Hyperparameters']
+                                 == 'NumClasses', 'Values'].item()
+    default_dropout = hp.loc[hp['Hyperparameters']
+                             == 'Dropout', 'Values'].item()
+    default_batch_size = hp.loc[hp['Hyperparameters']
+                                == 'BatchSize', 'Values'].item()
+    default_img_size = hp.loc[hp['Hyperparameters']
+                              == 'ImgSize', 'Values'].item()
+    default_crop_size = hp.loc[hp['Hyperparameters']
+                               == 'CropSize', 'Values'].item()
 
     parser = get_arg_parser()
     args = parser.parse_args()
@@ -104,7 +113,8 @@ if __name__ == '__main__':
         args.crop_size, False, args.num_workers, args.img_resize, args.img_size
     )
 
-    print("Dataset to be used includes {} testing images.".format(len(xy_test.FileName)))
+    print("Dataset to be used includes {} testing images.".format(
+        len(xy_test.FileName)))
 
     # Create Model
     model, _ = get_model(
@@ -130,7 +140,8 @@ if __name__ == '__main__':
     test_acc, test_loss, probabilities = evaluate_model(
         model, test_dl, loss_func, device, 'Testing'
     )
-    print("\nTesting complete. Test acc: {}, Test loss: {}\n".format(test_acc, test_loss))
+    print("\nTesting complete. Test acc: {}, Test loss: {}\n".format(
+        test_acc, test_loss))
 
     # Saving results, probabilities and hyperparameters
     probabilities = probabilities.T.tolist()

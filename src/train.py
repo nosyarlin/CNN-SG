@@ -141,18 +141,22 @@ if __name__ == '__main__':
 
     # Set hyperparameters
     default_image_dir = 'C:/temp_for_SSD_speed/'
-    default_save_results_path = 'D:/CNN_Animal_ID/Testing' 
+    default_save_results_path = 'D:/CNN_Animal_ID/Testing'
     default_model_path = 'D:/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/trained_model/archi_resnet50_train_acc_0.898_val_acc_0.927_epoch_15.pth'
 
-    default_xy_train = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_train_sheet_resized.csv')
-    default_xy_val = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_val_sheet_resized.csv')
-    default_xy_test = os.path.join(ROOT_DIR, 'data', 'splits', 'big4_20210810_test_jb_sheet_resized.csv')
+    default_xy_train = os.path.join(
+        ROOT_DIR, 'data', 'splits', 'big4_20210810_train_sheet_resized.csv')
+    default_xy_val = os.path.join(
+        ROOT_DIR, 'data', 'splits', 'big4_20210810_val_sheet_resized.csv')
+    default_xy_test = os.path.join(
+        ROOT_DIR, 'data', 'splits', 'big4_20210810_test_jb_sheet_resized.csv')
 
-    default_archi = 'mobilenet' #Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet
+    # Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet
+    default_archi = 'mobilenet'
     default_dropout = '0.05'
     default_weight_decay = '1e-5'
-    default_epochs = '5' 
-    default_num_workers='8'
+    default_epochs = '5'
+    default_num_workers = '8'
 
     parser = get_arg_parser()
     args = parser.parse_args()
@@ -190,8 +194,10 @@ if __name__ == '__main__':
     print("\nDataset to be used includes {} training images, {} validation images and {} testing images.".format(
         len(xy_train.FileName), len(xy_val.FileName), len(xy_test.FileName)))
     print("Number of empty:humans:animals in training, validation and testing sets respectively is: {}:{}:{}; {}:{}:{}; {}:{}:{}\n".format(
-        len(xy_train[xy_train.SpeciesCode == 0]), len(xy_train[xy_train.SpeciesCode == 1]), len(xy_train[xy_train.SpeciesCode == 2]),
-        len(xy_val[xy_val.SpeciesCode == 0]), len(xy_val[xy_val.SpeciesCode == 1]), len(xy_val[xy_val.SpeciesCode == 2]),
+        len(xy_train[xy_train.SpeciesCode == 0]), len(
+            xy_train[xy_train.SpeciesCode == 1]), len(xy_train[xy_train.SpeciesCode == 2]),
+        len(xy_val[xy_val.SpeciesCode == 0]), len(
+            xy_val[xy_val.SpeciesCode == 1]), len(xy_val[xy_val.SpeciesCode == 2]),
         len(xy_test[xy_test.SpeciesCode == 0]), len(xy_test[xy_test.SpeciesCode == 1]), len(xy_test[xy_test.SpeciesCode == 2])))
 
     if not args.skip_test:
@@ -199,13 +205,17 @@ if __name__ == '__main__':
     else:
         print('Testing will NOT be conducted\n')
 
-    # Extract hyperparameters if further training from a pre-trained model 
+    # Extract hyperparameters if further training from a pre-trained model
     if args.model_path is not None:
-        hp_path = os.path.join(os.path.dirname(args.model_path), 'hyperparameter_records.csv')
+        hp_path = os.path.join(os.path.dirname(
+            args.model_path), 'hyperparameter_records.csv')
         hp = pd.read_csv(hp_path)
-        args.archi = hp.loc[hp['Hyperparameters'] == 'Architecture', 'Values'].item()
-        args.weight_decay = float(hp.loc[hp['Hyperparameters'] == 'WeightDecay', 'Values'].item())
-        args.dropout = float(hp.loc[hp['Hyperparameters'] == 'Dropout', 'Values'].item())
+        args.archi = hp.loc[hp['Hyperparameters']
+                            == 'Architecture', 'Values'].item()
+        args.weight_decay = float(
+            hp.loc[hp['Hyperparameters'] == 'WeightDecay', 'Values'].item())
+        args.dropout = float(
+            hp.loc[hp['Hyperparameters'] == 'Dropout', 'Values'].item())
 
     # Output hyperparameters for recording purposes
     hp_names = (
@@ -263,10 +273,10 @@ if __name__ == '__main__':
     )
     if args.model_path is not None:
         load_checkpoint(args.model_path, model, optimizer, scheduler)
-    
-    #Profiler
+
+    # Profiler
     yappi.set_clock_type("WALL")
-    yappi.start(profile_threads = True)
+    yappi.start(profile_threads=True)
 
     # Train and validate
     weights, train_loss, train_acc, val_loss, val_acc, train_val_results = train_validate(
@@ -287,15 +297,16 @@ if __name__ == '__main__':
             'train_val_results.csv')
     )
 
-    #Profiler
+    # Profiler
     yappi.stop()
-    stats = yappi.get_func_stats().sort(sort_type = "ttot", sort_order = "desc")
-    stats_file = os.path.join(args.save_results_path, 'yappi_function_stats.prof')
+    stats = yappi.get_func_stats().sort(sort_type="ttot", sort_order="desc")
+    stats_file = os.path.join(args.save_results_path,
+                              'yappi_function_stats.prof')
     stats.save(stats_file, "pstat")
-    #stats.print_all()
+    # stats.print_all()
 
     #threads = yappi.get_thread_stats()
-    #threads.print_all()
+    # threads.print_all()
 
     # Test
     if args.skip_test:

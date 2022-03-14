@@ -162,7 +162,8 @@ def train_validate(
                 ),
                 model, optimizer, scheduler)
         else:
-            print("Model trained in epoch {} has not improved, and will not be saved.\n".format(epoch + 1))
+            print("Model trained in epoch {} has not improved, and will not be saved.\n".format(
+                epoch + 1))
 
         # Logging the results in clearml
         Logger.current_logger().report_scalar(

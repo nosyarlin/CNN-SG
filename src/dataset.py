@@ -71,7 +71,8 @@ class ImageDataset(data.Dataset):
 
     def __getitem__(self, idx):
         # fname = os.path.join(self.image_dir, self.X[idx][:2], self.X[idx]) #For images extracted from camelot server
-        fname = os.path.join(self.image_dir, self.X[idx]) #For other images. X needs to be the path after image.dir
+        # For other images. X needs to be the path after image.dir
+        fname = os.path.join(self.image_dir, self.X[idx])
         img = Image.open(fname)
         if img.mode != 'RGB':
             img = img.convert('RGB')
@@ -196,12 +197,12 @@ def get_splits(image_dir: str, y_fpath: str, test_size: float, validation_size: 
 def get_dataloader(x, y, batch_size, image_dir, crop_size, is_train, num_workers, img_resize, img_size):
     if is_train:
         return data.DataLoader(ImageDataset(image_dir, crop_size, x, y, is_train, img_resize, img_size),
-                            batch_size=batch_size,
-                            shuffle=True, num_workers=num_workers)
+                               batch_size=batch_size,
+                               shuffle=True, num_workers=num_workers)
     else:
         return data.DataLoader(ImageDataset(image_dir, crop_size, x, y, is_train, img_resize, img_size),
-                            batch_size=batch_size,
-                            shuffle=False, num_workers=num_workers)
+                               batch_size=batch_size,
+                               shuffle=False, num_workers=num_workers)
 
 
 if __name__ == '__main__':
