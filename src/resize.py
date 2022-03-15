@@ -1,5 +1,4 @@
-import os
-from config import ROOT_DIR
+from config import LABELS_FILEPATH, PREPROCESSED_IMAGE_DIR
 import pandas as pd
 from PIL import Image
 from tqdm import tqdm
@@ -7,14 +6,11 @@ from tqdm import tqdm
 
 if __name__ == '__main__':
     # Setting Inputs
-    img_datasheet = os.path.join(
-        ROOT_DIR, 'data', 'splits', 'big4_20210810_train_sheet.csv')
-    img_save_path = 'C:/_for-temp-data-that-need-SSD-speed/big4_datasets/train_val_sets/train_imgs_resized/'
     img_size = 360
 
     # Creating the datasheet
-    input_sheet = pd.read_csv(img_datasheet)
-    input_sheet['FileName_resized'] = img_save_path + \
+    input_sheet = pd.read_csv(LABELS_FILEPATH)
+    input_sheet['FileName_resized'] = PREPROCESSED_IMAGE_DIR + \
         input_sheet['Media.Filename'] + '.jpg'
 
     # Resizing and saving the images
@@ -34,5 +30,5 @@ if __name__ == '__main__':
     # Saving out the datasheet
     input_sheet['FileName'] = input_sheet['FileName_resized']
     input_sheet = input_sheet.drop('FileName_resized', 1)
-    input_sheet.to_csv(index=False, path_or_buf=img_datasheet[:len(
-        img_datasheet) - 4] + '_resized.csv')
+    input_sheet.to_csv(index=False, path_or_buf=LABELS_FILEPATH[:len(
+        LABELS_FILEPATH) - 4] + '_resized.csv')

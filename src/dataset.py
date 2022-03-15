@@ -1,5 +1,5 @@
 from collections import defaultdict
-from config import ROOT_DIR
+from config import SPLITS_DIR, PREPROCESSED_IMAGE_DIR, LABELS_FILEPATH
 from PIL import Image
 from shared_funcs import write_to_csv
 from sklearn.model_selection import train_test_split
@@ -70,8 +70,6 @@ class ImageDataset(data.Dataset):
         return len(self.y)
 
     def __getitem__(self, idx):
-        # fname = os.path.join(self.image_dir, self.X[idx][:2], self.X[idx]) #For images extracted from camelot server
-        # For other images. X needs to be the path after image.dir
         fname = os.path.join(self.image_dir, self.X[idx])
         img = Image.open(fname)
         if img.mode != 'RGB':
@@ -206,17 +204,12 @@ def get_dataloader(x, y, batch_size, image_dir, crop_size, is_train, num_workers
 
 
 if __name__ == '__main__':
-    y_fpath = 'E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Datasheets/FYP_dataset_datasheet.csv'
-    image_dir = 'C:/_for-temp-data-that-need-SSD-speed/ProjectMast_FYP_Media'
-    # y_fpath = os.path.join(ROOT_DIR, 'data', 'labels.csv')
-    # image_dir = os.path.join(ROOT_DIR, 'data', 'images')
-    splits_dir = os.path.join(ROOT_DIR, 'data', 'splits')
     prop_test = 0.15
     prop_val = 0.15
 
     X_train, X_val, X_test, y_train, y_val, y_test = get_splits(
-        image_dir,
-        y_fpath,
+        PREPROCESSED_IMAGE_DIR,
+        LABELS_FILEPATH,
         prop_test,
         prop_val,
     )
@@ -224,7 +217,7 @@ if __name__ == '__main__':
     files = {'X_train': X_train, 'X_val': X_val, 'X_test': X_test,
              'y_train': y_train, 'y_val': y_val, 'y_test': y_test}
     for file, obj in files.items():
-        path = os.path.join(splits_dir, '{}.csv'.format(file))
+        path = os.path.join(SPLITS_DIR, '{}.csv'.format(file))
         write_to_csv(obj, path)
 
     print("Dataset has been split with the following proportions: {} train, {} val, {} test".format(
