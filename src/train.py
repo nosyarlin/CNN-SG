@@ -132,9 +132,6 @@ def get_arg_parser():
 
 
 if __name__ == '__main__':
-    # Monitoring for hangs and profiler
-    #monitoring_thread = start_monitoring(seconds_frozen=60)
-
     # Connecting to the clearml dashboard
     task = Task.init(project_name="Nosyarlin", task_name="Train_" + date.today().strftime('%Y-%m-%d'),
                      task_type=Task.TaskTypes.training, reuse_last_task_id=False)
@@ -303,10 +300,6 @@ if __name__ == '__main__':
     stats_file = os.path.join(args.save_results_path,
                               'yappi_function_stats.prof')
     stats.save(stats_file, "pstat")
-    # stats.print_all()
-
-    #threads = yappi.get_thread_stats()
-    # threads.print_all()
 
     # Test
     if args.skip_test:
