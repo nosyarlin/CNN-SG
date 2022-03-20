@@ -11,7 +11,10 @@ import torch
 
 
 class ImageDataset(data.Dataset):
-    def __init__(self, image_dir, crop_size, X, y, is_train, img_resize, img_size):
+    def __init__(
+        self, image_dir, crop_size,
+        X, y, is_train, img_resize, img_size
+    ):
         self.image_dir = image_dir
         self.X = X
         self.y = torch.LongTensor([int(i) for i in y])
@@ -167,7 +170,9 @@ def balance_labels(labels: dict):
     return y
 
 
-def get_splits(image_dir: str, y_fpath: str, test_size: float, validation_size: float):
+def get_splits(
+    image_dir: str, y_fpath: str, test_size: float, validation_size: float
+):
     """
     Splits data into train and test sets
     Parameters:
@@ -177,30 +182,45 @@ def get_splits(image_dir: str, y_fpath: str, test_size: float, validation_size: 
     """
     labels = get_labels_for_images(image_dir, y_fpath)
     labels = balance_labels(labels)
-    X_train, X_test, y_train, y_test = train_test_split(list(labels.keys()),
-                                                        list(labels.values()),
-                                                        test_size=test_size,
-                                                        stratify=list(labels.values()))
-    X_train, X_val, y_train, y_val = train_test_split(X_train,
-                                                      y_train,
-                                                      test_size=(
-                                                          validation_size /
-                                                          (1.0 - test_size)
-                                                      ),
-                                                      stratify=y_train)
+    X_train, X_test, y_train, y_test = train_test_split(
+        list(labels.keys()),
+        list(labels.values()),
+        test_size=test_size,
+        stratify=list(labels.values())
+    )
+    X_train, X_val, y_train, y_val = train_test_split(
+        X_train,
+        y_train,
+        test_size=(validation_size / (1.0 - test_size)),
+        stratify=y_train
+    )
 
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 
-def get_dataloader(x, y, batch_size, image_dir, crop_size, is_train, num_workers, img_resize, img_size):
+def get_dataloader(
+    x, y, batch_size, image_dir, crop_size,
+    is_train, num_workers, img_resize, img_size
+):
     if is_train:
-        return data.DataLoader(ImageDataset(image_dir, crop_size, x, y, is_train, img_resize, img_size),
-                               batch_size=batch_size,
-                               shuffle=True, num_workers=num_workers)
+        return data.DataLoader(
+            ImageDataset(
+                image_dir, crop_size, x, y,
+                is_train, img_resize, img_size
+            ),
+            batch_size=batch_size,
+            shuffle=True,
+            num_workers=num_workers
+        )
     else:
-        return data.DataLoader(ImageDataset(image_dir, crop_size, x, y, is_train, img_resize, img_size),
-                               batch_size=batch_size,
-                               shuffle=False, num_workers=num_workers)
+        return data.DataLoader(
+            ImageDataset(
+                image_dir, crop_size, x, y,
+                is_train, img_resize, img_size),
+            batch_size=batch_size,
+            shuffle=False,
+            num_workers=num_workers
+        )
 
 
 if __name__ == '__main__':
@@ -220,5 +240,11 @@ if __name__ == '__main__':
         path = os.path.join(SPLITS_DIR, '{}.csv'.format(file))
         write_to_csv(obj, path)
 
-    print("Dataset has been split with the following proportions: {} train, {} val, {} test".format(
-        1 - prop_test - prop_val, prop_val, prop_test))
+    print(
+        "Dataset has been split with the following proportions:\
+        {} train, {} val, {} test".format(
+            1 - prop_test - prop_val,
+            prop_val,
+            prop_test
+        )
+    )
