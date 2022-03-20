@@ -1,21 +1,16 @@
-from clearml import Task
 from config import ROOT_DIR
 from dataset import get_dataloader
-from datetime import date
-from hanging_threads import start_monitoring
 from models import get_model
 from shared_funcs import (
-    read_csv, write_to_csv, train_validate, evaluate_model,
-    save_checkpoint, load_checkpoint, check_img_size
+    write_to_csv, train_validate, evaluate_model,
+    load_checkpoint, check_img_size
 )
 from torch import nn, optim
 import argparse
-import numpy as np
 import os
 import pandas as pd
 import sys
 import torch
-import yappi
 
 
 def get_arg_parser():
@@ -132,10 +127,6 @@ def get_arg_parser():
 
 
 if __name__ == '__main__':
-    # Connecting to the clearml dashboard
-    task = Task.init(project_name="Nosyarlin", task_name="Train_" + date.today().strftime('%Y-%m-%d'),
-                     task_type=Task.TaskTypes.training, reuse_last_task_id=False)
-
     # Set hyperparameters
     default_image_dir = 'C:/temp_for_SSD_speed/'
     default_save_results_path = 'D:/CNN_Animal_ID/Testing'
@@ -271,10 +262,6 @@ if __name__ == '__main__':
     if args.model_path is not None:
         load_checkpoint(args.model_path, model, optimizer, scheduler)
 
-    # Profiler
-    yappi.set_clock_type("WALL")
-    yappi.start(profile_threads=True)
-
     # Train and validate
     weights, train_loss, train_acc, val_loss, val_acc, train_val_results = train_validate(
         args.epochs, model, optimizer, scheduler, loss_func,
@@ -294,17 +281,10 @@ if __name__ == '__main__':
             'train_val_results.csv')
     )
 
-    # Profiler
-    yappi.stop()
-    stats = yappi.get_func_stats().sort(sort_type="ttot", sort_order="desc")
-    stats_file = os.path.join(args.save_results_path,
-                              'yappi_function_stats.prof')
-    stats.save(stats_file, "pstat")
-
     # Test
     if args.skip_test:
         print("\nTesting will not be conducted. Exiting now.")
-        sys.exit()  # requires exit code 0 for clearml to detect successful termination
+        sys.exit()
 
     print("Training and validation complete. Starting testing now.")
     model.load_state_dict(weights)

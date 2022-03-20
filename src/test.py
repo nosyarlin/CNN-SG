@@ -1,9 +1,7 @@
-from clearml import Task
-from datetime import date
 from config import ROOT_DIR
 from dataset import get_dataloader
 from models import get_model
-from shared_funcs import evaluate_model, load_checkpoint, read_csv, check_img_size
+from shared_funcs import evaluate_model, load_checkpoint, check_img_size
 from torch import nn
 import argparse
 import os
@@ -62,10 +60,6 @@ def get_arg_parser():
 
 
 if __name__ == '__main__':
-    # Connecting to the clearml dashboard
-    task = Task.init(project_name="Nosyarlin", task_name="Test_" + date.today().strftime('%Y-%m-%d'),
-                     task_type=Task.TaskTypes.testing)
-
     saved_model_path = "E:/JoejynDocuments/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/trained_model/"
     default_model_path = os.path.join(
         saved_model_path, 'archi_resnet50_train_acc_0.898_val_acc_0.927_epoch_15.pth')
