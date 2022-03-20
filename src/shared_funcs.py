@@ -162,8 +162,12 @@ def train_validate(
                 ),
                 model, optimizer, scheduler)
         else:
-            print("Model trained in epoch {} has not improved, and will not be saved.\n".format(
-                epoch + 1))
+            print(
+                "Model trained in epoch {} has not improved, \
+                and will not be saved.\n".format(
+                    epoch + 1
+                )
+            )
 
         # Logging the results in clearml
         Logger.current_logger().report_scalar(
@@ -192,7 +196,8 @@ def train_validate(
         'ValLoss': val_loss
     })
 
-    return best_weights, train_loss, train_acc, val_loss, val_acc, train_val_results
+    return best_weights, train_loss, train_acc,\
+        val_loss, val_acc, train_val_results
 
 
 def save_checkpoint(path, model, optimizer, scheduler):
@@ -220,4 +225,9 @@ def check_img_size(data, set_name, img_size):
 
     if not(w == img_size or h == img_size):
         sys.exit(
-            "\nError: The first image in " + set_name + " is not the correct size of " + img_size)
+            "\nError: The first image in {} is not \
+            the correct size of {}".format(
+                set_name,
+                img_size
+            )
+        )
