@@ -13,15 +13,25 @@ def get_model(
         name: Name of architecture. mobilenet/resnet50
     """
     if name == 'resnet50':
-        return _get_resnet(name, num_classes, train_all_weights, pretrained, dropout)
+        return _get_resnet(
+            name, num_classes, train_all_weights, pretrained, dropout
+        )
     elif name == 'resnet101':
-        return _get_resnet(name, num_classes, train_all_weights, pretrained, dropout)
+        return _get_resnet(
+            name, num_classes, train_all_weights, pretrained, dropout
+        )
     elif name == 'resnet152':
-        return _get_resnet(name, num_classes, train_all_weights, pretrained, dropout)
+        return _get_resnet(
+            name, num_classes, train_all_weights, pretrained, dropout
+        )
     elif name == 'wide_resnet50':
-        return _get_resnet(name, num_classes, train_all_weights, pretrained, dropout)
+        return _get_resnet(
+            name, num_classes, train_all_weights, pretrained, dropout
+        )
     elif name == 'inception':
-        return _get_inception(num_classes, train_all_weights, pretrained, dropout)
+        return _get_inception(
+            num_classes, train_all_weights, pretrained, dropout
+        )
     elif name == 'mobilenet':
         model = models.mobilenet_v2(pretrained=pretrained)
         model.classifier = nn.Sequential(
