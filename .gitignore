@@ -143,4 +143,4 @@ dmypy.json
 yappi_function_stats.prof
 
 # Model summary
-model_summary.py
+src/model_summary.py
