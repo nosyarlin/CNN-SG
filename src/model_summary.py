@@ -35,5 +35,3 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # input_size = (channel, input_image_width, input_image_height)
 summary(resnet50_model, input_size=(3, resnet50_crop_size, resnet50_crop_size))
 
-
-# Load MegaDetector model

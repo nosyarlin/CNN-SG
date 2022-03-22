@@ -138,3 +138,9 @@ dmypy.json
 
 # Mac
 .DS_Store
+
+# Profilers
+yappi_function_stats.prof
+
+# Model summary
+model_summary.py
