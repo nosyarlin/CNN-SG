@@ -31,14 +31,9 @@ def evaluate_model(model, dl, loss_func, device):
         losses = []
         total_count = 0
         total_correct = 0
-
         probabilities = []
 
-        j = 0  # Starting the iteration count
-
         for X, y in tqdm(dl):
-            j += 1  # Adding one iteration count per batch
-
             X, y = X.to(device), y.to(device)
 
             X = X.view(-1, X.size(2), X.size(3), X.size(4))
@@ -66,11 +61,7 @@ def train_model(model, dl, loss_func, optimizer, device, archi, epoch):
     total_correct = 0
     scaler = GradScaler()
 
-    j = 0  # Starting the iteration count
-
     for X, y in tqdm(dl):
-        j += 1  # Adding one iteration count per batch
-
         model.zero_grad()
         X, y = X.to(device), y.to(device)
 
