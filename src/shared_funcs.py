@@ -1,4 +1,3 @@
-from clearml import Logger
 from torch import nn
 from torch.cuda.amp import autocast, GradScaler
 import csv
@@ -55,13 +54,6 @@ def evaluate_model(model, dl, loss_func, device, logger_title):
             softmax = nn.Softmax(1)
             probabilities.append(softmax(logits))
 
-            Logger.current_logger().report_scalar(
-                logger_title, "loss", iteration=j, value=loss.item())
-            Logger.current_logger().report_scalar(
-                logger_title, "accuracy", iteration=j,
-                value=(total_correct / total_count)
-            )
-
         probabilities = torch.cat(probabilities, 0).cpu().numpy()
 
     return total_correct / total_count, np.mean(losses), probabilities
@@ -103,14 +95,6 @@ def train_model(model, dl, loss_func, optimizer, device, archi, epoch):
         scaler.scale(loss).backward()
         scaler.step(optimizer)
         scaler.update()
-
-        # Update clearml
-        Logger.current_logger().report_scalar(
-            "Training", "loss", iteration=((epoch + 1) * j), value=loss.item())
-        Logger.current_logger().report_scalar(
-            "Training", "accuracy", iteration=((epoch + 1) * j),
-            value=(total_correct / total_count)
-        )
 
     return total_correct / total_count, np.mean(train_loss)
 
@@ -168,24 +152,6 @@ def train_validate(
                     epoch + 1
                 )
             )
-
-        # Logging the results in clearml
-        Logger.current_logger().report_scalar(
-            "Training and Validation", "Train accuracy",
-            iteration=epoch + 1, value=acc_train
-        )
-        Logger.current_logger().report_scalar(
-            "Training and Validation", "Train loss",
-            iteration=epoch + 1, value=loss_train
-        )
-        Logger.current_logger().report_scalar(
-            "Training and Validation", "Val accuracy",
-            iteration=epoch + 1, value=acc_val
-        )
-        Logger.current_logger().report_scalar(
-            "Training and Validation", "Val loss",
-            iteration=epoch + 1, value=loss_val
-        )
 
     # Saving results into a dataframe
     train_val_results = pd.DataFrame({
