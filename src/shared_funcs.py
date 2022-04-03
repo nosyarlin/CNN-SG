@@ -25,7 +25,7 @@ def read_csv(fname):
     return [item for sublist in out for item in sublist]
 
 
-def evaluate_model(model, dl, loss_func, device, logger_title):
+def evaluate_model(model, dl, loss_func, device):
     model.eval()
     with torch.no_grad():
         losses = []
@@ -177,7 +177,6 @@ def save_checkpoint(path, model, optimizer, scheduler):
 
 def load_checkpoint(path, model, optimizer=None, scheduler=None):
     checkpoint = torch.load(path)
-    # model.load_state_dict(checkpoint)
     model.load_state_dict(checkpoint['model'])
     if optimizer is not None:
         optimizer.load_state_dict(checkpoint['optimizer'])

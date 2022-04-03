@@ -10,4 +10,6 @@ RESULTS_DIR = os.path.join(ROOT_DIR, 'results')
 SPLITS_DIR = os.path.join(ROOT_DIR, 'data', 'splits')
 
 # File paths
-LABELS_FILEPATH = os.path.join(ROOT_DIR, 'labels.csv')
+LABELS_FILEPATH = os.path.join(ROOT_DIR, 'data', 'labels.csv')
+MODEL_FILEPATH = os.path.join(MODEL_DIR, 'model.pth')
+HYPERPARAMETERS_FILEPATH = os.path.join(RESULTS_DIR, 'hyperparameters.csv')
