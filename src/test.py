@@ -63,7 +63,7 @@ if __name__ == '__main__':
     crop_size = hp.loc[hp['Hyperparameters']
                        == 'CropSize', 'Values'].item()
 
-    # Check that paths to save results and models exist
+    # Check that paths to save results exist and is empty
     if os.path.exists(args.path_to_save_results) and \
        len(os.listdir(args.path_to_save_results)) == 0:
         print("\nSaving results in {}\n".format(args.path_to_save_results))
@@ -147,7 +147,6 @@ if __name__ == '__main__':
     )
     test_metadata_values = (
         args.model_path,
-        args.path_to_save_results.split("/")[-1],
         args.xy_test.split("\\")[-1],
         len(xy_test.FileName),
         args.hyperparameters,

@@ -140,7 +140,7 @@ if __name__ == '__main__':
     parser = get_arg_parser()
     args = parser.parse_args()
 
-    # Check that paths to save results and models exist
+    # Check that paths to save results exist and is empty
     if os.path.exists(args.save_results_path) \
        and len(os.listdir(args.save_results_path)) == 0:
         print("\nSaving results in " + args.save_results_path)
