@@ -175,8 +175,8 @@ def load_checkpoint(path, model, optimizer=None, scheduler=None):
         scheduler.load_state_dict(checkpoint['scheduler'])
 
 
-def check_img_size(data, set_name, img_size):
-    image = Image.open(data[1])
+def check_img_size(filename, set_name, img_size):
+    image = Image.open(filename)
     w, h = image.size
 
     if not(w == img_size or h == img_size):

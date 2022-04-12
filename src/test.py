@@ -1,5 +1,5 @@
 from config import (
-    ROOT_DIR, PREPROCESSED_IMAGE_DIR, RESULT_DIR, MODEL_FILEPATH,
+    PREPROCESSED_IMAGE_DIR, RESULT_DIR, MODEL_FILEPATH,
     SPLITS_DIR, HYPERPARAMETERS_FILEPATH)
 from dataset import get_dataloader
 from models import get_model
@@ -76,7 +76,8 @@ if __name__ == '__main__':
     # Get test data
     xy_test = pd.read_csv(args.xy_test)
     if not args.img_resize:
-        check_img_size(xy_test.FileName, "testing set", img_size)
+        # Check img size of first image
+        check_img_size(xy_test.FileName[0], "testing set", img_size)
 
     test_dl = get_dataloader(
         xy_test.FileName, xy_test.SpeciesCode, batch_size, args.image_dir,

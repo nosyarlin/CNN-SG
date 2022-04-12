@@ -1,4 +1,5 @@
-from config import ROOT_DIR
+from config import (
+    PREPROCESSED_IMAGE_DIR, RESULTS_DIR, MODEL_FILEPATH, SPLITS_DIR)
 from dataset import get_dataloader
 from models import get_model
 from shared_funcs import (
@@ -18,38 +19,45 @@ def get_arg_parser():
         description='Process Command-line Arguments')
     parser.add_argument(
         '--image_dir',
-        default=default_image_dir,
+        default=PREPROCESSED_IMAGE_DIR,
         help='Path to the directory containing the images'
     )
     parser.add_argument(
         '--save_results_path',
-        default=default_save_results_path,
-        help='Path to the directory to save the model, hyperparameters and results'
+        default=RESULTS_DIR,
+        help='Path to the directory to save the model, hyperparameters \
+        and results'
     )
     parser.add_argument(
         '--model_path',
-        default=default_model_path,
-        help='Path to saved model weights. If this is set, we will use the provided weights as the starting point for training. If none, no further training will be conducted.'
+        default=MODEL_FILEPATH,
+        help='Path to saved model weights. If this is set, we will use the \
+              provided weights as the starting point for training. If none, \
+              training will be done from scratch'
     )
     parser.add_argument(
-        '--xy_train', default=default_xy_train,
-        help='Path to xy dataframe that will be used for training. Should contain two columns, "FileName" and "SpeciesCode".'
+        '--xy_train', default=os.join(SPLITS_DIR, 'train.csv'),
+        help='Path to xy dataframe that will be used for training. Should \
+              contain two columns, "FileName" and "SpeciesCode".'
     )
     parser.add_argument(
-        '--xy_val', default=default_xy_val,
-        help='Path to xy dataframe that will be used for validation. Should contain two columns, "FileName" and "SpeciesCode".'
+        '--xy_val', default=os.join(SPLITS_DIR, 'val.csv'),
+        help='Path to xy dataframe that will be used for validation. \
+              Should contain two columns, "FileName" and "SpeciesCode".'
     )
     parser.add_argument(
-        '--xy_test', default=default_xy_test,
-        help='Path to xy dataframe that will be used for testing. Should contain two columns, "FileName" and "SpeciesCode".'
+        '--xy_test', default=os.join(SPLITS_DIR, 'test.csv'),
+        help='Path to xy dataframe that will be used for testing. Should \
+              contain two columns, "FileName" and "SpeciesCode".'
     )
     parser.add_argument(
         '--skip_test', action='store_true',
         help='Set if testing should be skipped'
     )
     parser.add_argument(
-        '--archi', default=default_archi,
-        help='Architecture of the model to be trained. Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet'
+        '--archi', default='mobilenet',
+        help='Architecture of the model to be trained. Either inception, \
+              resnet50, resnet101, resnet152, wide_resnet50, or mobilenet'
     )
     parser.add_argument(
         '--no_pretraining', action='store_true',
@@ -60,7 +68,7 @@ def get_arg_parser():
         help='Set if we train classification layer only'
     )
     parser.add_argument(
-        '--num_workers', default=default_num_workers, type=int,
+        '--num_workers', default=8, type=int,
         help='Number of threads to be set for the GPU'
     )
     parser.add_argument(
@@ -72,7 +80,7 @@ def get_arg_parser():
         action='store', help='Number of classes to be trained'
     )
     parser.add_argument(
-        '--dropout', default=default_dropout, type=float,
+        '--dropout', default=0.05, type=float,
         action='store', help='Dropout probablity'
     )
     parser.add_argument(
@@ -80,22 +88,24 @@ def get_arg_parser():
     )
     parser.add_argument(
         '--betadist_alpha', default=0.9, type=float,
-        help='The alpha value controlling the shape of the beta distribution for the Adam optimiser'
+        help='The alpha value controlling the shape of the beta distribution \
+              for the Adam optimiser'
     )
     parser.add_argument(
         '--betadist_beta', default=0.99, type=float,
-        help='The beta value controlling the shape of the beta distribution for the Adam optimiser'
+        help='The beta value controlling the shape of the beta distribution \
+              for the Adam optimiser'
     )
     parser.add_argument(
         '--eps', default='1e-8', type=float,
         help='Epsilon value for Adam optimiser'
     )
     parser.add_argument(
-        '--weight_decay', default=default_weight_decay, type=float,
+        '--weight_decay', default=1e-5, type=float,
         help='Weight decay for Adam optimiser'
     )
     parser.add_argument(
-        '--epochs', default=default_epochs, type=int,
+        '--epochs', default=5, type=int,
         help='Number of epochs to be run for training'
     )
     parser.add_argument(
@@ -127,34 +137,18 @@ def get_arg_parser():
 
 
 if __name__ == '__main__':
-    # Set hyperparameters
-    default_image_dir = 'C:/temp_for_SSD_speed/'
-    default_save_results_path = 'D:/CNN_Animal_ID/Testing'
-    default_model_path = 'D:/CNN_Animal_ID/Nosyarlin/SBWR_BTNR_CCNR/Results/Big4/Re_0.7_09/trained_model/archi_resnet50_train_acc_0.898_val_acc_0.927_epoch_15.pth'
-
-    default_xy_train = os.path.join(
-        ROOT_DIR, 'data', 'splits', 'big4_20210810_train_sheet_resized.csv')
-    default_xy_val = os.path.join(
-        ROOT_DIR, 'data', 'splits', 'big4_20210810_val_sheet_resized.csv')
-    default_xy_test = os.path.join(
-        ROOT_DIR, 'data', 'splits', 'big4_20210810_test_jb_sheet_resized.csv')
-
-    # Either inception, resnet50, resnet101, resnet152, wide_resnet50, or mobilenet
-    default_archi = 'mobilenet'
-    default_dropout = '0.05'
-    default_weight_decay = '1e-5'
-    default_epochs = '5'
-    default_num_workers = '8'
-
     parser = get_arg_parser()
     args = parser.parse_args()
 
     # Check that paths to save results and models exist
-    if os.path.exists(args.save_results_path) and len(os.listdir(args.save_results_path)) == 0:
+    if os.path.exists(args.save_results_path) \
+       and len(os.listdir(args.save_results_path)) == 0:
         print("\nSaving results in " + args.save_results_path)
     else:
         sys.exit(
-            "\nError: File path to save results do not exist, or directory is not empty")
+            "\nError: File path to save results do not exist, or \
+            directory is not empty"
+        )
 
     # Read data
     xy_train = pd.read_csv(args.xy_train)
@@ -162,13 +156,15 @@ if __name__ == '__main__':
     xy_test = pd.read_csv(args.xy_test)
 
     # Check the image size for the first image
-    check_img_size(xy_train.FileName, "training set", args.img_size)
-    check_img_size(xy_val.FileName, "validation set", args.img_size)
-    check_img_size(xy_test.FileName, "testing set", args.img_size)
+    if not args.img_resize:
+        check_img_size(xy_train.FileName[0], "training set", args.img_size)
+        check_img_size(xy_val.FileName[0], "validation set", args.img_size)
+        check_img_size(xy_test.FileName[0], "testing set", args.img_size)
 
     train_dl = get_dataloader(
-        xy_train.FileName, xy_train.SpeciesCode, args.batch_size, args.image_dir,
-        args.crop_size, True, args.num_workers, args.img_resize, args.img_size
+        xy_train.FileName, xy_train.SpeciesCode, args.batch_size,
+        args.image_dir, args.crop_size, True, args.num_workers,
+        args.img_resize, args.img_size
     )
     val_dl = get_dataloader(
         xy_val.FileName, xy_val.SpeciesCode, args.batch_size, args.image_dir,
@@ -179,14 +175,20 @@ if __name__ == '__main__':
         args.crop_size, False, args.num_workers, args.img_resize, args.img_size
     )
 
-    print("\nDataset to be used includes {} training images, {} validation images and {} testing images.".format(
+    print("\nDataset to be used includes {} training images, {} validation \
+          images and {} testing images.".format(
         len(xy_train.FileName), len(xy_val.FileName), len(xy_test.FileName)))
-    print("Number of empty:humans:animals in training, validation and testing sets respectively is: {}:{}:{}; {}:{}:{}; {}:{}:{}\n".format(
-        len(xy_train[xy_train.SpeciesCode == 0]), len(
-            xy_train[xy_train.SpeciesCode == 1]), len(xy_train[xy_train.SpeciesCode == 2]),
-        len(xy_val[xy_val.SpeciesCode == 0]), len(
-            xy_val[xy_val.SpeciesCode == 1]), len(xy_val[xy_val.SpeciesCode == 2]),
-        len(xy_test[xy_test.SpeciesCode == 0]), len(xy_test[xy_test.SpeciesCode == 1]), len(xy_test[xy_test.SpeciesCode == 2])))
+    print("Number of empty:humans:animals in training, validation and testing \
+           sets respectively is: {}:{}:{}; {}:{}:{}; {}:{}:{}\n".format(
+        len(xy_train[xy_train.SpeciesCode == 0]),
+        len(xy_train[xy_train.SpeciesCode == 1]),
+        len(xy_train[xy_train.SpeciesCode == 2]),
+        len(xy_val[xy_val.SpeciesCode == 0]),
+        len(xy_val[xy_val.SpeciesCode == 1]),
+        len(xy_val[xy_val.SpeciesCode == 2]),
+        len(xy_test[xy_test.SpeciesCode == 0]),
+        len(xy_test[xy_test.SpeciesCode == 1]),
+        len(xy_test[xy_test.SpeciesCode == 2])))
 
     if not args.skip_test:
         print('Testing will be conducted\n')
@@ -207,16 +209,21 @@ if __name__ == '__main__':
 
     # Output hyperparameters for recording purposes
     hp_names = (
-        "SkipTest", "NumWorkers", "ModelPath", "LearningRate", "BetaDist_alpha", "BetaDist_beta", "Eps",
-        "WeightDecay", "Epochs", "StepSize", "Gamma", "BatchSize", "ImgSize",
-        "CropSize", "Architecture", "NumClasses", "TrainOnlyClassifier", "Dropout",
-        "NoPretraining", "NumTrainImages", "NumValImages", "NumTestImages")
+        "SkipTest", "NumWorkers", "ModelPath", "LearningRate",
+        "BetaDist_alpha", "BetaDist_beta", "Eps", "WeightDecay",
+        "Epochs", "StepSize", "Gamma", "BatchSize", "ImgSize",
+        "CropSize", "Architecture", "NumClasses", "TrainOnlyClassifier",
+        "Dropout", "NoPretraining", "NumTrainImages", "NumValImages",
+        "NumTestImages"
+    )
     hp_values = (
-        args.skip_test, args.num_workers, args.model_path, args.lr, args.betadist_alpha, args.betadist_beta,
-        args.eps, args.weight_decay, args.epochs, args.step_size, args.gamma,
-        args.batch_size, args.img_size, args.crop_size, args.archi,
-        args.num_classes, args.train_only_classifier, args.dropout,
-        args.no_pretraining, len(xy_train.FileName), len(xy_val.FileName), len(xy_test.FileName))
+        args.skip_test, args.num_workers, args.model_path, args.lr,
+        args.betadist_alpha, args.betadist_beta, args.eps, args.weight_decay,
+        args.epochs, args.step_size, args.gamma, args.batch_size,
+        args.img_size, args.crop_size, args.archi, args.num_classes,
+        args.train_only_classifier, args.dropout, args.no_pretraining,
+        len(xy_train.FileName), len(xy_val.FileName), len(xy_test.FileName)
+    )
 
     hp_records = pd.DataFrame(
         {'Hyperparameters': hp_names, 'Values': hp_values})
@@ -239,11 +246,16 @@ if __name__ == '__main__':
         device = torch.device('cpu')
 
     if torch.backends.cudnn.is_available():
-        print("\nUsing {} with cuDNN version {} for training with {} architecture.".format(
-            device, torch.backends.cudnn.version(), args.archi))
+        print(
+            "\nUsing {} with cuDNN version {} for training with {} \
+            architecture."
+            .format(device, torch.backends.cudnn.version(), args.archi)
+        )
     else:
-        print("\nUsing {} WITHOUT cuDNN for training with {} architecture.".format(
-            device, args.archi))
+        print(
+            "\nUsing {} WITHOUT cuDNN for training with {} architecture."
+            .format(device, args.archi)
+        )
 
     betas = (args.betadist_alpha, args.betadist_beta)
     optimizer = optim.Adam(
@@ -263,17 +275,21 @@ if __name__ == '__main__':
         load_checkpoint(args.model_path, model, optimizer, scheduler)
 
     # Train and validate
-    weights, train_loss, train_acc, val_loss, val_acc, train_val_results = train_validate(
+    (weights, train_loss, train_acc, val_loss, val_acc,
+        train_val_results) = train_validate(
         args.epochs, model, optimizer, scheduler, loss_func,
         train_dl, val_dl, device, args.archi,
         args.save_results_path
     )
 
-    results_dir = os.path.join(ROOT_DIR, 'results')
-    write_to_csv(train_loss, os.path.join(results_dir, 'train_loss.csv'))
-    write_to_csv(train_acc, os.path.join(results_dir, 'train_acc.csv'))
-    write_to_csv(val_loss, os.path.join(results_dir, 'val_loss.csv'))
-    write_to_csv(val_acc, os.path.join(results_dir, 'val_acc.csv'))
+    write_to_csv(
+        train_loss, os.path.join(args.save_results_path, 'train_loss.csv'))
+    write_to_csv(
+        train_acc, os.path.join(args.save_results_path, 'train_acc.csv'))
+    write_to_csv(
+        val_loss, os.path.join(args.save_results_path, 'val_loss.csv'))
+    write_to_csv(
+        val_acc, os.path.join(args.save_results_path, 'val_acc.csv'))
     train_val_results.to_csv(
         index=False,
         path_or_buf=os.path.join(
