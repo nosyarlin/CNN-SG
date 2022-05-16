@@ -155,6 +155,31 @@ if __name__ == '__main__':
     xy_val = pd.read_csv(args.xy_val)
     xy_test = pd.read_csv(args.xy_test)
 
+    # Extract hyperparameters if further training from a pre-trained model
+    if args.model_path is not None:
+        hp_path = os.path.join(os.path.dirname(
+            args.model_path), 'hyperparameter_records.csv')
+        hp = pd.read_csv(hp_path)
+        args.archi = hp.loc[hp['Hyperparameters']
+                            == 'Architecture', 'Values'].item()
+        args.weight_decay = float(
+            hp.loc[hp['Hyperparameters'] == 'WeightDecay', 'Values'].item())
+        args.dropout = float(
+            hp.loc[hp['Hyperparameters'] == 'Dropout', 'Values'].item())
+        args.archi = hp.loc[
+            hp['Hyperparameters'] == 'Architecture', 'Values'
+        ].item()
+        args.num_classes = hp.loc[
+            hp['Hyperparameters'] == 'NumClasses', 'Values'
+        ].item()
+        args.train_only_classifier = hp.loc[
+            hp['Hyperparameters'] == 'TrainOnlyClassifier', 'Values'
+        ].item()
+        args.img_size = hp.loc[
+            hp['Hyperparameters'] == 'ImgSize', 'Values'].item()
+        args.crop_size = hp.loc[
+            hp['Hyperparameters'] == 'CropSize', 'Values'].item()
+
     # Check the image size for the first image
     if not args.img_resize:
         check_img_size(xy_train.FileName[0], "training set", args.img_size)
@@ -194,18 +219,6 @@ if __name__ == '__main__':
         print('Testing will be conducted\n')
     else:
         print('Testing will NOT be conducted\n')
-
-    # Extract hyperparameters if further training from a pre-trained model
-    if args.model_path is not None:
-        hp_path = os.path.join(os.path.dirname(
-            args.model_path), 'hyperparameter_records.csv')
-        hp = pd.read_csv(hp_path)
-        args.archi = hp.loc[hp['Hyperparameters']
-                            == 'Architecture', 'Values'].item()
-        args.weight_decay = float(
-            hp.loc[hp['Hyperparameters'] == 'WeightDecay', 'Values'].item())
-        args.dropout = float(
-            hp.loc[hp['Hyperparameters'] == 'Dropout', 'Values'].item())
 
     # Output hyperparameters for recording purposes
     hp_names = (
@@ -305,7 +318,7 @@ if __name__ == '__main__':
     print("Training and validation complete. Starting testing now.")
     model.load_state_dict(weights)
     test_acc, test_loss, probabilities = evaluate_model(
-        model, test_dl, loss_func, device, 'Testing')
+        model, test_dl, loss_func, device)
     print("Test acc: {}, Test loss: {}".format(test_acc, test_loss))
 
     # Saving results and probabilities

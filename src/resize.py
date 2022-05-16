@@ -1,7 +1,8 @@
 from config import LABELS_FILEPATH, PREPROCESSED_IMAGE_DIR
-import pandas as pd
 from PIL import Image
 from tqdm import tqdm
+import os
+import pandas as pd
 
 
 if __name__ == '__main__':
@@ -10,8 +11,10 @@ if __name__ == '__main__':
 
     # Creating the datasheet
     input_sheet = pd.read_csv(LABELS_FILEPATH)
-    input_sheet['FileName_resized'] = PREPROCESSED_IMAGE_DIR + \
-        input_sheet['Media.Filename'] + '.jpg'
+    input_sheet['FileName_resized'] = os.path.join(
+        PREPROCESSED_IMAGE_DIR,
+        input_sheet.FileName
+    )
 
     # Resizing and saving the images
     for i in tqdm(range(len(input_sheet))):
