@@ -1,0 +1,1 @@
+Save resized images here
