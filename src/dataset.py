@@ -170,6 +170,14 @@ def balance_labels(labels: dict):
     return y
 
 
+def get_image_date(filename):
+    """
+    Reads date of which image was taken from exif data
+    """
+    image = Image.open(filename)
+    return image.getexif().get(306)
+
+
 def get_splits(
     image_dir: str, y_fpath: str, test_size: float, validation_size: float
 ):
@@ -181,20 +189,28 @@ def get_splits(
         validation_size: Percentage of data to be in validation set
     """
     labels = get_labels_for_images(image_dir, y_fpath)
-    labels = balance_labels(labels)
-    X_train, X_test, y_train, y_test = train_test_split(
-        list(labels.keys()),
-        list(labels.values()),
-        test_size=test_size,
-        stratify=list(labels.values())
-    )
-    X_train, X_val, y_train, y_val = train_test_split(
-        X_train,
-        y_train,
-        test_size=(validation_size / (1.0 - test_size)),
-        stratify=y_train
-    )
 
+    # Chop latest test_size% for test
+    sorted_filenames = sorted(labels.keys, key=get_image_date)
+    num_test_files = round(len(sorted_filenames) * test_size)
+    test_filenames = sorted_filenames[-num_test_files:]
+    train_labels, test_labels = {}, {}
+    for filename in labels:
+        if filename in test_filenames:
+            test_labels[filename] = labels[filename]
+        else:
+            train_labels[filename] = labels[filename]
+    test_labels = balance_labels(test_labels)
+    X_test, y_test = list(test_labels.keys()), list(test_labels.values())
+
+    # Standard train_test_split for train and validation
+    train_labels = balance_labels(train_labels)
+    X_train, X_val, y_train, y_val = train_test_split(
+        list(train_labels.keys()),
+        list(train_labels.values()),
+        test_size=(validation_size / (1.0 - test_size)),
+        stratify=list(train_labels).values()
+    )
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 
