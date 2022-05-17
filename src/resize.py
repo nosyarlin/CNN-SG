@@ -32,6 +32,6 @@ if __name__ == '__main__':
 
     # Saving out the datasheet
     input_sheet['FileName'] = input_sheet['FileName_resized']
-    input_sheet = input_sheet.drop('FileName_resized', 1)
+    input_sheet = input_sheet.drop(columns='FileName_resized')
     input_sheet.to_csv(index=False, path_or_buf=LABELS_FILEPATH[:len(
         LABELS_FILEPATH) - 4] + '_resized.csv')
