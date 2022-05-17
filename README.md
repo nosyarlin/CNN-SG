@@ -14,23 +14,24 @@ pip install -r requirements.txt
 
 ## Usage
 Move your images to data/images folder. After that, update labels.csv with the correct labels for each image. labels.csv should be in the following format
-
 ```
 Filename,SpeciesCode
 <filename>.jpg,<label>
 <filename>.jpg,<label>
 <filename>.jpg,<label>
 ```
+
 Verify that your images are all valid using the following command
 ```
 python3 corrupt_imgs.py
 ```
+
 Once you verify that all your images can be opened, resize the images with the following command so that training can be sped up
 ```
 python3 resize.py
 ```
-After that is done, create your own train, validation and test splits
 
+After that is done, create your own train, validation and test splits
 ```
 python3 dataset.py
 ```
@@ -39,6 +40,7 @@ To train and test your model, run
 ```
 python3 train.py
 ```
+
 Finally, to label new data using the model you have created, run
 ```
 python3 test.py 
