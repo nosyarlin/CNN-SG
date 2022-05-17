@@ -13,13 +13,15 @@ pip install -r requirements.txt
 ```
 
 ## Usage
-Move your images to data/images folder. After that, update labels.csv with the correct labels for each image. labels.csv should be in the following format
+Move your images to data/images folder. After that, update labels.csv inside the data directory with the correct labels for each image. labels.csv should be in the following format
 ```
-Filename,SpeciesCode
+FileName,SpeciesCode
 <filename>.jpg,<label>
 <filename>.jpg,<label>
 <filename>.jpg,<label>
 ```
+
+For the following steps, run from the src directory.
 
 Verify that your images are all valid using the following command
 ```
