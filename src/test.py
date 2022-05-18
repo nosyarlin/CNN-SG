@@ -1,15 +1,15 @@
+import os
+import sys
+import torch
+import argparse
+import pandas as pd
+from torch import nn
+from models import get_model
+from dataset import get_dataloader
+from shared_funcs import evaluate_model, load_checkpoint, check_img_size
 from config import (
     PREPROCESSED_IMAGE_DIR, RESULT_DIR, MODEL_FILEPATH,
     SPLITS_DIR, HYPERPARAMETERS_FILEPATH)
-from dataset import get_dataloader
-from models import get_model
-from shared_funcs import evaluate_model, load_checkpoint, check_img_size
-from torch import nn
-import argparse
-import os
-import pandas as pd
-import torch
-import sys
 
 
 def get_arg_parser():
@@ -33,8 +33,8 @@ def get_arg_parser():
     parser.add_argument(
         '--path_to_save_results',
         default=RESULT_DIR,
-        help='Path to the directory to save the model, hyperparameters and\
-              results')
+        help='Path to the directory to save the model, hyperparameters and \
+            results')
     parser.add_argument(
         '--num_workers', default='4', type=int,
         help='Number of threads to be set for loading data')

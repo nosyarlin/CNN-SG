@@ -1,6 +1,6 @@
-from torchvision import models
-from torch import nn
 import sys
+from torch import nn
+from torchvision import models
 
 
 def get_model(

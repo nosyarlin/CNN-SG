@@ -1,17 +1,16 @@
-from config import (
-    PREPROCESSED_IMAGE_DIR, RESULTS_DIR, MODEL_FILEPATH, SPLITS_DIR)
-from dataset import get_dataloader
-from models import get_model
-from shared_funcs import (
-    write_to_csv, train_validate, evaluate_model,
-    load_checkpoint, check_img_size
-)
-from torch import nn, optim
-import argparse
 import os
-import pandas as pd
 import sys
 import torch
+import argparse
+import pandas as pd
+from torch import nn, optim
+from models import get_model
+from dataset import get_dataloader
+from shared_funcs import (
+    write_to_csv, train_validate, evaluate_model,
+    load_checkpoint, check_img_size)
+from config import (
+    PREPROCESSED_IMAGE_DIR, RESULTS_DIR, MODEL_FILEPATH, SPLITS_DIR)
 
 
 def get_arg_parser():

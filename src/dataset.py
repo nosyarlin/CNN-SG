@@ -1,15 +1,15 @@
-from collections import defaultdict
-from config import (
-    SPLITS_DIR, PREPROCESSED_IMAGE_DIR, LABELS_FILEPATH, IMAGE_DIR)
-from PIL import Image
-import pandas as pd
-from shared_funcs import write_to_csv
-from sklearn.model_selection import train_test_split
-from torch.utils import data
-from torchvision import transforms
-import numpy as np
 import os
 import torch
+import numpy as np
+import pandas as pd
+from PIL import Image
+from torch.utils import data
+from torchvision import transforms
+from collections import defaultdict
+from shared_funcs import write_to_csv
+from sklearn.model_selection import train_test_split
+from config import (
+    SPLITS_DIR, PREPROCESSED_IMAGE_DIR, LABELS_FILEPATH, IMAGE_DIR)
 
 
 class ImageDataset(data.Dataset):

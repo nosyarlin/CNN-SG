@@ -1,13 +1,13 @@
-from torch import nn
-from torch.cuda.amp import autocast, GradScaler
-import csv
-import numpy as np
 import os
-import pandas as pd
-import torch
-from tqdm import tqdm
-from PIL import Image
 import sys
+import csv
+import torch
+import numpy as np
+import pandas as pd
+from torch import nn
+from PIL import Image
+from tqdm import tqdm
+from torch.cuda.amp import autocast, GradScaler
 
 
 def write_to_csv(obj, fname):

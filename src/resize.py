@@ -1,8 +1,8 @@
-from config import LABELS_FILEPATH, PREPROCESSED_IMAGE_DIR, IMAGE_DIR
-from PIL import Image
-from tqdm import tqdm
 import os
 import pandas as pd
+from PIL import Image
+from tqdm import tqdm
+from config import LABELS_FILEPATH, PREPROCESSED_IMAGE_DIR, IMAGE_DIR
 
 
 if __name__ == '__main__':
