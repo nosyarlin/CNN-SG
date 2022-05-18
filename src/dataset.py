@@ -1,6 +1,8 @@
 from collections import defaultdict
-from config import SPLITS_DIR, PREPROCESSED_IMAGE_DIR, LABELS_FILEPATH
+from config import (
+    SPLITS_DIR, PREPROCESSED_IMAGE_DIR, LABELS_FILEPATH, IMAGE_DIR)
 from PIL import Image
+import pandas as pd
 from shared_funcs import write_to_csv
 from sklearn.model_selection import train_test_split
 from torch.utils import data
@@ -95,31 +97,31 @@ def batch_to_normalize(crops):
         )(crop) for crop in crops])
 
 
-def get_labels(y_fpath: str, delimiter=","):
+def get_labels(y_fpath: str):
     """
-    Returns dictionary of labels
+    Returns dictionary of labels from labels.csv
+
     Parameters:
         y_fpath: Filepath to csv file with labels
-        delimiter: Delimiter used in csv file
 
     Returns:
         y (dict): Mapping from image filenames to labels
     """
-    y = {}
-    with open(y_fpath) as f:
-        for line in f:
-            temp = line.split(delimiter)
-            y[temp[0]] = int(temp[1])
+    input = pd.read_csv(y_fpath)
+    y = dict(zip(input['FileName'], input['SpeciesCode']))
+    
     return y
 
 
-def get_labels_for_images(image_dir: str, y_fpath: str, delimiter=","):
+def get_labels_for_images(image_dir: str, y_fpath: str): 
     """
-    Get labels for images stored in image_dir
+    Get labels for images stored in image_dir. Ensures 
+    that image names in labels.csv is present in the 
+    image directory.
+
     Parameters:
         image_dir: Filepath to directory with images
         y_fpath: Filepath to csv file with labels
-        delimiter: Delimiter used in csv file
 
     Returns:
         y (dict): Mapping from image filenames to labels
@@ -132,7 +134,7 @@ def get_labels_for_images(image_dir: str, y_fpath: str, delimiter=","):
                 filenames.append(name)
 
     # Get labels for the images that we have
-    labels = get_labels(y_fpath, delimiter)
+    labels = get_labels(y_fpath)
     y = {}
     for filename in filenames:
         if filename in labels:
@@ -174,7 +176,8 @@ def get_image_date(filename):
     """
     Reads date of which image was taken from exif data
     """
-    image = Image.open(filename)
+    path = os.path.join(IMAGE_DIR, filename)
+    image = Image.open(path)
     return image.getexif().get(306)
 
 
@@ -189,9 +192,9 @@ def get_splits(
         validation_size: Percentage of data to be in validation set
     """
     labels = get_labels_for_images(image_dir, y_fpath)
-
-    # Chop latest test_size% for test
-    sorted_filenames = sorted(labels.keys, key=get_image_date)
+    
+    # Chop latest test_size for test
+    sorted_filenames = sorted(labels.keys(), key=get_image_date)
     num_test_files = round(len(sorted_filenames) * test_size)
     test_filenames = sorted_filenames[-num_test_files:]
     train_labels, test_labels = {}, {}
