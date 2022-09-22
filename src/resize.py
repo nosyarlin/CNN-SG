@@ -11,11 +11,19 @@ if __name__ == '__main__':
 
     # Creating the datasheet
     input_sheet = pd.read_csv(LABELS_FILEPATH)
-    input_sheet['FileName_resized'] = input_sheet.FileName.map(
-        lambda filename: os.path.join(PREPROCESSED_IMAGE_DIR, filename)
-    )
+
+    if os.path.exists(input_sheet.FileName.iloc[0]): #filename is a full path
+        input_sheet['FileName_resized'] = input_sheet.FileName.map(
+            lambda filename: os.path.join(PREPROCESSED_IMAGE_DIR, os.path.basename(filename))
+        )
+    else:
+        input_sheet['FileName_resized'] = input_sheet.FileName.map(
+            lambda filename: os.path.join(PREPROCESSED_IMAGE_DIR, filename)
+        )
 
     # Resizing and saving the images
+    print("Resizing images by making the shorter of width or height {} pixels. " \
+        "Aspect ratio of each image is thus maintained.".format(img_size))
     for i in tqdm(range(len(input_sheet))):
         path = os.path.join(IMAGE_DIR, input_sheet.FileName[i])
         image = Image.open(path)
