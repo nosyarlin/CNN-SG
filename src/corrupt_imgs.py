@@ -21,5 +21,5 @@ for filename in tqdm(img_datasheet.FileName):
 if corrupt_imgs is not None:
     corrupt_imgs_pd = pd.DataFrame(corrupt_imgs, columns=['FileName'])
     corrupt_imgs_path = os.path.splitext(LABELS_FILEPATH)[0] + '_corrupt_imgs.csv'
-    corrupt_imgs_pd.to_csv(corrupt_imgs_path)
+    corrupt_imgs_pd.to_csv(corrupt_imgs_path, index = False)
     print("File names of corrupt images saved at {}.".format(corrupt_imgs_path))
