@@ -1,13 +1,20 @@
 import os
 import pandas as pd
-from PIL import Image
+from PIL import Image, ImageFile
 from tqdm import tqdm
-import multiprocessing as mp
-from config import LABELS_FILEPATH, PREPROCESSED_IMAGE_DIR, IMAGE_DIR, IMAGE_SIZE
+import concurrent.futures
+from config import LABELS_FILEPATH, PREPROCESSED_IMAGE_DIR, IMAGE_DIR
+from config import IMAGE_SIZE, PARALLEL, N_CORES
 
 
-def resize_img(i, input_sheet):
-    path = os.path.join(IMAGE_DIR, input_sheet.FileName[i])
+## Global Settings 
+# Allow PIL to be tolerant to truncated files
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+
+## Functions
+def resize_img(FileName, FileName_resized):
+    path = os.path.join(IMAGE_DIR, FileName)
     image = Image.open(path)
     w, h = image.size
 
@@ -18,7 +25,7 @@ def resize_img(i, input_sheet):
         new_w = int(IMAGE_SIZE * w / h)
         image_resized = image.resize((new_w, IMAGE_SIZE))
 
-    image_resized.save(input_sheet.FileName_resized[i])
+    image_resized.save(FileName_resized)
 
 
 if __name__ == '__main__':
@@ -38,19 +45,15 @@ if __name__ == '__main__':
     print("Resizing images by making the shorter of width or height {} pixels. " \
         "Aspect ratio of each image is thus maintained.".format(IMAGE_SIZE))
     
-    results = []
-    def callback_func(result):
-        results.append(result)
-        pbar.update()
+    if PARALLEL:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=N_CORES) as executor:
+            list(tqdm(executor.map(
+                resize_img, input_sheet.FileName, input_sheet.FileName_resized),
+                total=len(input_sheet)))
 
-    pool = mp.Pool(processes=mp.cpu_count())
-    pbar = tqdm(total = len(input_sheet))
-
-    for i in range(len(input_sheet)):
-        pool.apply_async(resize_img, args=(i, input_sheet), callback=callback_func)
-
-    pool.close()
-    pool.join()
+    else:
+        for i in tqdm(range(len(input_sheet))):
+            resize_img(i, input_sheet)
     
     # Saving out the datasheet
     input_sheet['FileName'] = input_sheet['FileName_resized']
