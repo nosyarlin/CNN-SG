@@ -28,30 +28,30 @@ def get_arg_parser():
     parser.add_argument(
         '--save_results_path',
         default=RESULTS_DIR,
-        help='Path to the directory to save the model, hyperparameters \
-        and results'
+        help='Path to the directory to save the model, hyperparameters ' \
+              'and results'
     )
     parser.add_argument(
         '--model_path',
         default=MODEL_FILEPATH,
-        help='Path to saved model weights. If this is set, we will use the \
-              provided weights as the starting point for training. If none, \
-              training will be done from scratch'
+        help='Path to saved model weights. If this is set, we will use the ' \
+              'provided weights as the starting point for training. If none, ' \
+              'training will be done from scratch'
     )
     parser.add_argument(
         '--xy_train', default=TRAIN_FILEPATH,
-        help='Path to xy dataframe that will be used for training. Should \
-              contain two columns, "FileName" and "SpeciesCode".'
+        help='Path to xy dataframe that will be used for training. Should ' \
+              'contain two columns, "FileName" and "SpeciesCode".'
     )
     parser.add_argument(
         '--xy_val', default=VAL_FILEPATH,
-        help='Path to xy dataframe that will be used for validation. \
-              Should contain two columns, "FileName" and "SpeciesCode".'
+        help='Path to xy dataframe that will be used for validation. ' \
+              'Should contain two columns, "FileName" and "SpeciesCode".'
     )
     parser.add_argument(
         '--xy_test', default=TEST_FILEPATH,
-        help='Path to xy dataframe that will be used for testing. Should \
-              contain two columns, "FileName" and "SpeciesCode".'
+        help='Path to xy dataframe that will be used for testing. Should ' \
+              'contain two columns, "FileName" and "SpeciesCode".'
     )
     parser.add_argument(
         '--skip_test', action='store_true',
@@ -59,8 +59,8 @@ def get_arg_parser():
     )
     parser.add_argument(
         '--archi', default=ARCHI,
-        help='Architecture of the model to be trained. Either inception, \
-              resnet50, resnet101, resnet152, wide_resnet50, or mobilenet'
+        help='Architecture of the model to be trained. Either inception, ' \
+              'resnet50, resnet101, resnet152, wide_resnet50, or mobilenet'
     )
     parser.add_argument(
         '--no_pretraining', action='store_true',
@@ -91,13 +91,13 @@ def get_arg_parser():
     )
     parser.add_argument(
         '--betadist_alpha', default=BETADIST_ALPHA, type=float,
-        help='The alpha value controlling the shape of the beta distribution \
-              for the Adam optimiser'
+        help='The alpha value controlling the shape of the beta distribution ' \
+              'for the Adam optimiser'
     )
     parser.add_argument(
         '--betadist_beta', default=BETADIST_BETA, type=float,
-        help='The beta value controlling the shape of the beta distribution \
-              for the Adam optimiser'
+        help='The beta value controlling the shape of the beta distribution ' \
+              'for the Adam optimiser'
     )
     parser.add_argument(
         '--eps', default=ADAM_EPS, type=float,
@@ -149,8 +149,8 @@ if __name__ == '__main__':
         print("\nSaving results in " + args.save_results_path)
     else:
         sys.exit(
-            "\nError: File path to save results do not exist, or \
-            directory is not empty"
+            "\nError: File path to save results do not exist, " \
+            "or directory is not empty"
         )
 
     # Read data
@@ -203,11 +203,11 @@ if __name__ == '__main__':
         args.crop_size, False, args.num_workers, args.img_resize, args.img_size
     )
 
-    print("\nDataset to be used includes {} training images, {} validation \
-          images and {} testing images.".format(
+    print("\nDataset to be used includes {} training images, {} validation " \
+          "images and {} testing images.".format(
         len(xy_train.FileName), len(xy_val.FileName), len(xy_test.FileName)))
-    print("Number of empty:humans:animals in training, validation and testing \
-           sets respectively is: {}:{}:{}; {}:{}:{}; {}:{}:{}\n".format(
+    print("Number of empty:humans:animals in training, validation and testing " \
+           "sets respectively is: {}:{}:{}; {}:{}:{}; {}:{}:{}\n".format(
         len(xy_train[xy_train.SpeciesCode == 0]),
         len(xy_train[xy_train.SpeciesCode == 1]),
         len(xy_train[xy_train.SpeciesCode == 2]),
@@ -263,8 +263,7 @@ if __name__ == '__main__':
 
     if torch.backends.cudnn.is_available():
         print(
-            "\nUsing {} with cuDNN version {} for training with {} \
-            architecture."
+            "\nUsing {} with cuDNN version {} for training with {} architecture."
             .format(device, torch.backends.cudnn.version(), args.archi)
         )
     else:
