@@ -54,7 +54,7 @@ def evaluate_model(model, dl, loss_func, device):
     return total_correct / total_count, np.mean(losses), probabilities
 
 
-def train_model(model, dl, loss_func, optimizer, device, archi, epoch):
+def train_model(model, dl, loss_func, optimizer, device, archi):
     model.train()
     train_loss = []
     total_count = 0
@@ -106,14 +106,14 @@ def train_validate(
     for epoch in range(epochs):
         # Train
         acc_train, loss_train = train_model(
-            model, train_dl, loss_func, optimizer, device, archi, epoch)
+            model, train_dl, loss_func, optimizer, device, archi)
         train_acc.append(acc_train)
         train_loss.append(loss_train)
         scheduler.step()
 
         # Validate
         acc_val, loss_val, _ = evaluate_model(
-            model, val_dl, loss_func, device, 'Validation (Most recent epoch)')
+            model, val_dl, loss_func, device)
         val_acc.append(acc_val)
         val_loss.append(loss_val)
 
@@ -138,10 +138,8 @@ def train_validate(
                 model, optimizer, scheduler)
         else:
             print(
-                "Model trained in epoch {} has not improved, \
-                and will not be saved.\n".format(
-                    epoch + 1
-                )
+                "Model trained in epoch {} has not improved, " \
+                "and will not be saved.\n".format(epoch + 1)
             )
 
     # Saving results into a dataframe
@@ -181,8 +179,8 @@ def check_img_size(filename, set_name, img_size):
 
     if not(w == img_size or h == img_size):
         sys.exit(
-            "\nError: The first image in {} is not \
-            the correct size of {}".format(
+            "\nError: The first image in {} is not " \
+            "the correct size of {}".format(
                 set_name,
                 img_size
             )
