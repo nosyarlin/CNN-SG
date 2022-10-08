@@ -7,14 +7,12 @@ from torch import nn, optim
 from models import get_model
 from dataset import get_dataloader
 from shared_funcs import (
-    write_to_csv, train_validate, evaluate_model,
-    load_checkpoint, check_img_size)
+    train_validate, evaluate_model, load_checkpoint, check_img_size)
 from config import (
-    PREPROCESSED_IMAGE_DIR, RESULTS_DIR, MODEL_FILEPATH, 
-    TRAIN_FILEPATH, VAL_FILEPATH, TEST_FILEPATH, ARCHI,
-    NUM_CLASSES, DROPOUT, LEARNING_RATE, BETADIST_ALPHA,
-    BETADIST_BETA, ADAM_EPS, WEIGHT_DECAY, EPOCHS, 
-    STEP_SIZE, GAMMA, BATCH_SIZE)
+    PREPROCESSED_IMAGE_DIR, RESULTS_DIR, MODEL_FILEPATH, TRAIN_FILEPATH, 
+    VAL_FILEPATH, TEST_FILEPATH, ARCHI, NUM_CLASSES, DROPOUT, LEARNING_RATE, 
+    BETADIST_ALPHA, BETADIST_BETA, ADAM_EPS, WEIGHT_DECAY, EPOCHS, STEP_SIZE, 
+    GAMMA, BATCH_SIZE)
 
 
 def get_arg_parser():
@@ -297,14 +295,6 @@ if __name__ == '__main__':
         args.save_results_path
     )
 
-    write_to_csv(
-        train_loss, os.path.join(args.save_results_path, 'train_loss.csv'))
-    write_to_csv(
-        train_acc, os.path.join(args.save_results_path, 'train_acc.csv'))
-    write_to_csv(
-        val_loss, os.path.join(args.save_results_path, 'val_loss.csv'))
-    write_to_csv(
-        val_acc, os.path.join(args.save_results_path, 'val_acc.csv'))
     train_val_results.to_csv(
         index=False,
         path_or_buf=os.path.join(
