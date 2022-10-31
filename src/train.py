@@ -7,10 +7,12 @@ from torch import nn, optim
 from models import get_model
 from dataset import get_dataloader
 from shared_funcs import (
-    write_to_csv, train_validate, evaluate_model,
-    load_checkpoint, check_img_size)
+    train_validate, evaluate_model, load_checkpoint, check_img_size)
 from config import (
-    PREPROCESSED_IMAGE_DIR, RESULTS_DIR, MODEL_FILEPATH, SPLITS_DIR)
+    PREPROCESSED_IMAGE_DIR, RESULTS_DIR, MODEL_FILEPATH, TRAIN_FILEPATH, 
+    VAL_FILEPATH, TEST_FILEPATH, ARCHI, NUM_CLASSES, DROPOUT, LEARNING_RATE, 
+    BETADIST_ALPHA, BETADIST_BETA, ADAM_EPS, WEIGHT_DECAY, EPOCHS, STEP_SIZE, 
+    GAMMA, BATCH_SIZE)
 
 
 def get_arg_parser():
@@ -24,39 +26,39 @@ def get_arg_parser():
     parser.add_argument(
         '--save_results_path',
         default=RESULTS_DIR,
-        help='Path to the directory to save the model, hyperparameters \
-        and results'
+        help='Path to the directory to save the model, hyperparameters ' \
+              'and results'
     )
     parser.add_argument(
         '--model_path',
         default=MODEL_FILEPATH,
-        help='Path to saved model weights. If this is set, we will use the \
-              provided weights as the starting point for training. If none, \
-              training will be done from scratch'
+        help='Path to saved model weights. If this is set, we will use the ' \
+              'provided weights as the starting point for training. If none, ' \
+              'training will be done from scratch'
     )
     parser.add_argument(
-        '--xy_train', default=os.join(SPLITS_DIR, 'train.csv'),
-        help='Path to xy dataframe that will be used for training. Should \
-              contain two columns, "FileName" and "SpeciesCode".'
+        '--xy_train', default=TRAIN_FILEPATH,
+        help='Path to xy dataframe that will be used for training. Should ' \
+              'contain two columns, "FileName" and "SpeciesCode".'
     )
     parser.add_argument(
-        '--xy_val', default=os.join(SPLITS_DIR, 'val.csv'),
-        help='Path to xy dataframe that will be used for validation. \
-              Should contain two columns, "FileName" and "SpeciesCode".'
+        '--xy_val', default=VAL_FILEPATH,
+        help='Path to xy dataframe that will be used for validation. ' \
+              'Should contain two columns, "FileName" and "SpeciesCode".'
     )
     parser.add_argument(
-        '--xy_test', default=os.join(SPLITS_DIR, 'test.csv'),
-        help='Path to xy dataframe that will be used for testing. Should \
-              contain two columns, "FileName" and "SpeciesCode".'
+        '--xy_test', default=TEST_FILEPATH,
+        help='Path to xy dataframe that will be used for testing. Should ' \
+              'contain two columns, "FileName" and "SpeciesCode".'
     )
     parser.add_argument(
         '--skip_test', action='store_true',
         help='Set if testing should be skipped'
     )
     parser.add_argument(
-        '--archi', default='mobilenet',
-        help='Architecture of the model to be trained. Either inception, \
-              resnet50, resnet101, resnet152, wide_resnet50, or mobilenet'
+        '--archi', default=ARCHI,
+        help='Architecture of the model to be trained. Either inception, ' \
+              'resnet50, resnet101, resnet152, wide_resnet50, or mobilenet'
     )
     parser.add_argument(
         '--no_pretraining', action='store_true',
@@ -75,48 +77,48 @@ def get_arg_parser():
         help='Using CPU for processing'
     )
     parser.add_argument(
-        '--num_classes', default='3', type=int,
+        '--num_classes', default=NUM_CLASSES, type=int,
         action='store', help='Number of classes to be trained'
     )
     parser.add_argument(
-        '--dropout', default=0.05, type=float,
+        '--dropout', default=DROPOUT, type=float,
         action='store', help='Dropout probablity'
     )
     parser.add_argument(
-        '--lr', default='0.0005', type=float, help='The learning rate'
+        '--lr', default=LEARNING_RATE, type=float, help='The learning rate'
     )
     parser.add_argument(
-        '--betadist_alpha', default=0.9, type=float,
-        help='The alpha value controlling the shape of the beta distribution \
-              for the Adam optimiser'
+        '--betadist_alpha', default=BETADIST_ALPHA, type=float,
+        help='The alpha value controlling the shape of the beta distribution ' \
+              'for the Adam optimiser'
     )
     parser.add_argument(
-        '--betadist_beta', default=0.99, type=float,
-        help='The beta value controlling the shape of the beta distribution \
-              for the Adam optimiser'
+        '--betadist_beta', default=BETADIST_BETA, type=float,
+        help='The beta value controlling the shape of the beta distribution ' \
+              'for the Adam optimiser'
     )
     parser.add_argument(
-        '--eps', default='1e-8', type=float,
+        '--eps', default=ADAM_EPS, type=float,
         help='Epsilon value for Adam optimiser'
     )
     parser.add_argument(
-        '--weight_decay', default=1e-5, type=float,
+        '--weight_decay', default=WEIGHT_DECAY, type=float,
         help='Weight decay for Adam optimiser'
     )
     parser.add_argument(
-        '--epochs', default=5, type=int,
+        '--epochs', default=EPOCHS, type=int,
         help='Number of epochs to be run for training'
     )
     parser.add_argument(
-        '--step_size', default='5', type=int,
+        '--step_size', default=STEP_SIZE, type=int,
         help='Step size'
     )
     parser.add_argument(
-        '--gamma', default='0.1', type=float,
+        '--gamma', default=GAMMA, type=float,
         help='Gamma value for optimiser'
     )
     parser.add_argument(
-        '--batch_size', default='32', type=int,
+        '--batch_size', default=BATCH_SIZE, type=int,
         help='Batch size for training'
     )
     parser.add_argument(
@@ -145,8 +147,8 @@ if __name__ == '__main__':
         print("\nSaving results in " + args.save_results_path)
     else:
         sys.exit(
-            "\nError: File path to save results do not exist, or \
-            directory is not empty"
+            "\nError: File path to save results do not exist, " \
+            "or directory is not empty"
         )
 
     # Read data
@@ -252,8 +254,7 @@ if __name__ == '__main__':
 
     if torch.backends.cudnn.is_available():
         print(
-            "\nUsing {} with cuDNN version {} for training with {} \
-            architecture."
+            "\nUsing {} with cuDNN version {} for training with {} architecture."
             .format(device, torch.backends.cudnn.version(), args.archi)
         )
     else:
@@ -287,14 +288,6 @@ if __name__ == '__main__':
         args.save_results_path
     )
 
-    write_to_csv(
-        train_loss, os.path.join(args.save_results_path, 'train_loss.csv'))
-    write_to_csv(
-        train_acc, os.path.join(args.save_results_path, 'train_acc.csv'))
-    write_to_csv(
-        val_loss, os.path.join(args.save_results_path, 'val_loss.csv'))
-    write_to_csv(
-        val_acc, os.path.join(args.save_results_path, 'val_acc.csv'))
     train_val_results.to_csv(
         index=False,
         path_or_buf=os.path.join(
