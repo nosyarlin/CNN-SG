@@ -152,7 +152,6 @@ if __name__ == '__main__':
     # Read data
     xy_train = pd.read_csv(args.xy_train)
     xy_val = pd.read_csv(args.xy_val)
-    xy_test = pd.read_csv(args.xy_test)
 
     # Extract hyperparameters if further training from a pre-trained model
     if args.model_path is not None:
@@ -183,7 +182,6 @@ if __name__ == '__main__':
     if not args.img_resize:
         check_img_size(xy_train.FileName[0], "training set", args.img_size)
         check_img_size(xy_val.FileName[0], "validation set", args.img_size)
-        check_img_size(xy_test.FileName[0], "testing set", args.img_size)
 
     train_dl = get_dataloader(
         xy_train.FileName, xy_train.SpeciesCode, args.batch_size,
@@ -194,28 +192,23 @@ if __name__ == '__main__':
         xy_val.FileName, xy_val.SpeciesCode, args.batch_size, args.image_dir,
         args.crop_size, False, args.num_workers, args.img_resize, args.img_size
     )
-    test_dl = get_dataloader(
-        xy_test.FileName, xy_test.SpeciesCode, args.batch_size, args.image_dir,
-        args.crop_size, False, args.num_workers, args.img_resize, args.img_size
-    )
 
-    print("\nDataset to be used includes {} training images, {} validation \
-          images and {} testing images.".format(
-        len(xy_train.FileName), len(xy_val.FileName), len(xy_test.FileName)))
-    print("Number of empty:humans:animals in training, validation and testing \
-           sets respectively is: {}:{}:{}; {}:{}:{}; {}:{}:{}\n".format(
-        len(xy_train[xy_train.SpeciesCode == 0]),
-        len(xy_train[xy_train.SpeciesCode == 1]),
-        len(xy_train[xy_train.SpeciesCode == 2]),
-        len(xy_val[xy_val.SpeciesCode == 0]),
-        len(xy_val[xy_val.SpeciesCode == 1]),
-        len(xy_val[xy_val.SpeciesCode == 2]),
-        len(xy_test[xy_test.SpeciesCode == 0]),
-        len(xy_test[xy_test.SpeciesCode == 1]),
-        len(xy_test[xy_test.SpeciesCode == 2])))
+    print("\nDataset to be used includes {} training and {} validation images.".format(
+        len(xy_train.FileName), len(xy_val.FileName)))
 
     if not args.skip_test:
-        print('Testing will be conducted\n')
+        xy_test = pd.read_csv(args.xy_test)
+
+        if not args.img_resize:
+            check_img_size(xy_test.FileName[0], "testing set", args.img_size)
+        
+        test_dl = get_dataloader(
+            xy_test.FileName, xy_test.SpeciesCode, args.batch_size, args.image_dir,
+            args.crop_size, False, args.num_workers, args.img_resize, args.img_size
+        )
+
+        print("\nTesting will be conducted with {} testing images.".format(
+            len(xy_test.FileName)))
     else:
         print('Testing will NOT be conducted\n')
 
