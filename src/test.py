@@ -8,8 +8,8 @@ from models import get_model
 from dataset import get_dataloader
 from shared_funcs import evaluate_model, load_checkpoint, check_img_size
 from config import (
-    PREPROCESSED_IMAGE_DIR, RESULT_DIR, MODEL_FILEPATH,
-    SPLITS_DIR, HYPERPARAMETERS_FILEPATH)
+    PREPROCESSED_IMAGE_DIR, MODEL_FILEPATH, TEST_FILEPATH,
+    HYPERPARAMETERS_FILEPATH, RESULTS_DIR)
 
 
 def get_arg_parser():
@@ -24,7 +24,7 @@ def get_arg_parser():
         default=MODEL_FILEPATH,
         help='Path to saved model weights')
     parser.add_argument(
-        '--xy_test', default=os.join(SPLITS_DIR, 'test.csv'),
+        '--xy_test', default=TEST_FILEPATH,
         help='Path to xy dataframe')
     parser.add_argument(
         '--hyperparameters',
@@ -32,7 +32,7 @@ def get_arg_parser():
         help='Path to hyperparameters dataframe')
     parser.add_argument(
         '--path_to_save_results',
-        default=RESULT_DIR,
+        default=RESULTS_DIR,
         help='Path to the directory to save the model, hyperparameters and \
             results')
     parser.add_argument(
@@ -41,6 +41,10 @@ def get_arg_parser():
     parser.add_argument(
         '--img_resize', action='store_true',
         help='Resize each image before training/testing')
+    parser.add_argument(
+        '--use_cpu', action='store_true',
+        help='Using CPU for processing'
+    )
     return parser
 
 
@@ -52,25 +56,25 @@ if __name__ == '__main__':
     hp = pd.read_csv(args.hyperparameters)
     archi = hp.loc[hp['Hyperparameters']
                    == 'Architecture', 'Values'].item()
-    num_classes = hp.loc[hp['Hyperparameters']
-                         == 'NumClasses', 'Values'].item()
-    dropout = hp.loc[hp['Hyperparameters']
-                     == 'Dropout', 'Values'].item()
-    batch_size = hp.loc[hp['Hyperparameters']
-                        == 'BatchSize', 'Values'].item()
-    img_size = hp.loc[hp['Hyperparameters']
-                      == 'ImgSize', 'Values'].item()
-    crop_size = hp.loc[hp['Hyperparameters']
-                       == 'CropSize', 'Values'].item()
-
+    num_classes = int(hp.loc[hp['Hyperparameters']
+                      == 'NumClasses', 'Values'].item())
+    dropout = float(hp.loc[hp['Hyperparameters']
+                    == 'Dropout', 'Values'].item())
+    batch_size = int(hp.loc[hp['Hyperparameters']
+                     == 'BatchSize', 'Values'].item())
+    img_size = int(hp.loc[hp['Hyperparameters']
+                   == 'ImgSize', 'Values'].item())
+    crop_size = int(hp.loc[hp['Hyperparameters']
+                    == 'CropSize', 'Values'].item())
+    
     # Check that paths to save results exist and is empty
     if os.path.exists(args.path_to_save_results) and \
        len(os.listdir(args.path_to_save_results)) == 0:
         print("\nSaving results in {}\n".format(args.path_to_save_results))
     else:
         sys.exit(
-            "\nError: File path to save results do not exist, or directory is \
-            not empty"
+            "\nError: File path to save results do not exist, or directory is " \
+            "not empty"
         )
 
     # Get test data
@@ -95,23 +99,23 @@ if __name__ == '__main__':
         model.cuda()
         device = torch.device('cuda')
         print(
-            "\nUsing {} with cuDNN version {} for \
-            testing with {} architecture."
+            "\nUsing {} with cuDNN version {} for" \
+            "testing with {} architecture."
             .format(
-                device, torch.backends.cudnn.version(), args.archi
+                device, torch.backends.cudnn.version(), archi
             ))
     else:
         device = torch.device('cpu')
         print(
             "\nUsing {} WITHOUT cuDNN for testing with {} architecture."
             .format(
-                device, args.archi
+                device, archi
             ))
 
     # Run data through model
     loss_func = nn.CrossEntropyLoss()
     test_acc, test_loss, probabilities = evaluate_model(
-        model, test_dl, loss_func, device, 'Testing'
+        model, test_dl, loss_func, device
     )
     print("\nTesting complete. Test acc: {}, Test loss: {}\n".format(
         test_acc, test_loss))
