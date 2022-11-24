@@ -23,14 +23,16 @@ class ImageDataset(data.Dataset):
         if img_resize:
             if not is_train:
                 self.transforms = transforms.Compose([
-                    transforms.Resize(img_size, interpolation=2),
+                    transforms.Resize(img_size, 
+                        interpolation=transforms.InterpolationMode.BILINEAR),
                     transforms.FiveCrop(crop_size),
                     transforms.Lambda(batch_to_tensor),
                     transforms.Lambda(batch_to_normalize)
                 ])
             else:
                 self.transforms = transforms.Compose([
-                    transforms.Resize(img_size, interpolation=2),
+                    transforms.Resize(img_size, 
+                        interpolation=transforms.InterpolationMode.BILINEAR),
                     transforms.ColorJitter(0.2, 0.2, 0.2, 0.05),
                     transforms.RandomAffine(
                         degrees=10,
@@ -75,7 +77,8 @@ class ImageDataset(data.Dataset):
         return len(self.y)
 
     def __getitem__(self, idx):
-        fname = os.path.join(self.image_dir, self.X[idx])
+        # fname = os.path.join(self.image_dir, self.X[idx])
+        fname = self.X[idx]
         img = Image.open(fname)
         if img.mode != 'RGB':
             img = img.convert('RGB')
