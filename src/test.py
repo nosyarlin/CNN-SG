@@ -146,8 +146,7 @@ if __name__ == '__main__':
     )
 
     test_metadata_keys = (
-        "TrainedModel", "ModelID", "TestSet", "TestSetSize",
-        "HyperparametersPath"
+        "TrainedModel", "TestSet", "TestSetSize", "HyperparametersPath"
     )
     test_metadata_values = (
         args.model_path,
