@@ -12,7 +12,7 @@ from config import (
     PREPROCESSED_IMAGE_DIR, RESULTS_DIR, MODEL_FILEPATH, TRAIN_FILEPATH, 
     VAL_FILEPATH, TEST_FILEPATH, ARCHI, NUM_CLASSES, DROPOUT, LEARNING_RATE, 
     BETADIST_ALPHA, BETADIST_BETA, ADAM_EPS, WEIGHT_DECAY, EPOCHS, STEP_SIZE, 
-    GAMMA, BATCH_SIZE)
+    GAMMA, BATCH_SIZE, IMAGE_SIZE)
 
 
 def get_arg_parser():
@@ -126,8 +126,8 @@ def get_arg_parser():
         help='Resize each image before training/testing'
     )
     parser.add_argument(
-        '--img_size', default='360', type=int,
-        help='Image size for each image'
+        '--img_size', default=IMAGE_SIZE, type=int,
+        help='Image size for each image, if img_resize is True'
     )
     parser.add_argument(
         '--crop_size', default='299', type=int,
@@ -181,9 +181,9 @@ if __name__ == '__main__':
             hp['Hyperparameters'] == 'CropSize', 'Values'].item()
 
     # Check the image size for the first image
-    if not args.img_resize:
-        check_img_size(xy_train.FileName[0], "training set", args.img_size)
-        check_img_size(xy_val.FileName[0], "validation set", args.img_size)
+    # if not args.img_resize:
+    #     check_img_size(xy_train.FileName[0], "training set", args.img_size)
+    #     check_img_size(xy_val.FileName[0], "validation set", args.img_size)
 
     train_dl = get_dataloader(
         xy_train.FileName, xy_train.SpeciesCode, args.batch_size,
@@ -220,8 +220,7 @@ if __name__ == '__main__':
         "BetaDist_alpha", "BetaDist_beta", "Eps", "WeightDecay",
         "Epochs", "StepSize", "Gamma", "BatchSize", "ImgSize",
         "CropSize", "Architecture", "NumClasses", "TrainOnlyClassifier",
-        "Dropout", "NoPretraining", "NumTrainImages", "NumValImages",
-        "NumTestImages"
+        "Dropout", "NoPretraining", "NumTrainImages", "NumValImages"
     )
     hp_values = (
         args.skip_test, args.num_workers, args.model_path, args.lr,
@@ -229,7 +228,7 @@ if __name__ == '__main__':
         args.epochs, args.step_size, args.gamma, args.batch_size,
         args.img_size, args.crop_size, args.archi, args.num_classes,
         args.train_only_classifier, args.dropout, args.no_pretraining,
-        len(xy_train.FileName), len(xy_val.FileName), len(xy_test.FileName)
+        len(xy_train.FileName), len(xy_val.FileName)
     )
 
     hp_records = pd.DataFrame(
