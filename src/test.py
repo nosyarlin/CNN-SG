@@ -99,7 +99,7 @@ if __name__ == '__main__':
         model.cuda()
         device = torch.device('cuda')
         print(
-            "\nUsing {} with cuDNN version {} for" \
+            "\nUsing {} with cuDNN version {} for " \
             "testing with {} architecture."
             .format(
                 device, torch.backends.cudnn.version(), archi
@@ -121,13 +121,10 @@ if __name__ == '__main__':
         test_acc, test_loss))
 
     # Saving results, probabilities and metadata
-    probabilities = probabilities.T.tolist()
-    test_probs_df = pd.DataFrame({
-        'file_name': xy_test.FileName,
-        'prob_empty': probabilities[0],
-        'prob_human': probabilities[1],
-        'prob_animal': probabilities[2]}
-    )
+    prob_column_num = range(0, num_classes, 1)
+    prob_column_names = ['prob_' + str(s) for s in prob_column_num]
+    test_probs_df = pd.DataFrame(probabilities, columns = prob_column_names)
+    test_probs_df.insert(loc = 0, column = 'file_name', value = xy_test.FileName)
     test_probs_df.to_csv(
         index=False,
         path_or_buf=os.path.join(
