@@ -18,29 +18,36 @@ def get_arg_parser():
     parser.add_argument(
         '--image_dir',
         default=PREPROCESSED_IMAGE_DIR,
-        help='Path to the directory containing the images')
+        help='Path to the directory containing the images'
+    )
     parser.add_argument(
         '--model_path',
         default=MODEL_FILEPATH,
-        help='Path to saved model weights')
+        help='Path to saved model weights'
+    )
     parser.add_argument(
         '--xy_test', default=TEST_FILEPATH,
-        help='Path to xy dataframe')
+        help='Path to xy dataframe'
+    )
     parser.add_argument(
         '--hyperparameters',
         default=HYPERPARAMETERS_FILEPATH,
-        help='Path to hyperparameters dataframe')
+        help='Path to hyperparameters dataframe'
+    )
     parser.add_argument(
-        '--path_to_save_results',
+        '--results_path',
         default=RESULTS_DIR,
-        help='Path to the directory to save the model, hyperparameters and \
-            results')
+        help='Path to the directory to save the model, hyperparameters ' \
+             'and results'
+    )
     parser.add_argument(
         '--num_workers', default='4', type=int,
-        help='Number of threads to be set for loading data')
+        help='Number of threads to be set for loading data'
+    )
     parser.add_argument(
         '--img_resize', action='store_true',
-        help='Resize each image before training/testing')
+        help='Resize each image before training/testing'
+    )
     parser.add_argument(
         '--use_cpu', action='store_true',
         help='Using CPU for processing'
@@ -68,13 +75,13 @@ if __name__ == '__main__':
                     == 'CropSize', 'Values'].item())
     
     # Check that paths to save results exist and is empty
-    if os.path.exists(args.path_to_save_results) and \
-       len(os.listdir(args.path_to_save_results)) == 0:
-        print("\nSaving results in {}\n".format(args.path_to_save_results))
+    if os.path.exists(args.results_path) and \
+       len(os.listdir(args.results_path)) == 0:
+        print("\nSaving results in {}\n".format(args.results_path))
     else:
         sys.exit(
-            "\nError: File path to save results do not exist, or directory is " \
-            "not empty"
+            "\nError: File path to save results do not exist, or directory " \
+            "is not empty"
         )
 
     # Get test data
@@ -120,40 +127,8 @@ if __name__ == '__main__':
     print("\nTesting complete. Test acc: {}, Test loss: {}\n".format(
         test_acc, test_loss))
 
-    # Saving results, probabilities and metadata
-    prob_column_num = range(0, num_classes, 1)
-    prob_column_names = ['prob_' + str(s) for s in prob_column_num]
-    test_probs_df = pd.DataFrame(probabilities, columns = prob_column_names)
-    test_probs_df.insert(loc = 0, column = 'file_name', value = xy_test.FileName)
-    test_probs_df.to_csv(
-        index=False,
-        path_or_buf=os.path.join(
-            args.path_to_save_results,
-            'test_probabilities.csv'
-        )
-    )
-
-    test_results_df = pd.DataFrame({'Acc': [test_acc], 'Loss': [test_loss]})
-    test_results_df.to_csv(
-        index=False,
-        path_or_buf=os.path.join(
-            args.path_to_save_results,
-            'test_results.csv'
-        )
-    )
-
-    test_metadata_keys = (
-        "TrainedModel", "TestSet", "TestSetSize", "HyperparametersPath"
-    )
-    test_metadata_values = (
-        args.model_path,
-        args.xy_test.split("\\")[-1],
-        len(xy_test.FileName),
-        args.hyperparameters,
-    )
-
-    test_metadata = pd.DataFrame(
-        {'Metadata': test_metadata_keys, 'Values': test_metadata_values}
-    )
-    test_metadata.to_csv(index=False, path_or_buf=os.path.join(
-        args.path_to_save_results, 'testing_metadata.csv'))
+    # Saving test results, probabilities and metadata
+    save_test_results(
+        test_acc, test_loss, probabilities, num_classes, xy_test.FileName,
+        args.results_path, args.model_path, args.xy_test, 
+        args.hyperparameters)

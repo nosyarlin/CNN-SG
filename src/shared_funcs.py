@@ -54,6 +54,46 @@ def evaluate_model(model, dl, loss_func, device):
     return total_correct / total_count, np.mean(losses), probabilities
 
 
+def save_test_results(
+        test_acc, test_loss, probabilities, num_classes, FileNames,
+        save_results_path, model_path, xy_test_path, hyperparameters_path):
+
+    ## Save overall test results
+    test_results_df = pd.DataFrame({'Acc': [test_acc], 'Loss': [test_loss]})
+    test_results_df.to_csv(
+        index = False, 
+        path_or_buf = os.path.join(save_results_path, 'test_results.csv'))
+
+    ## Save test probabilities
+    prob_column_num = range(0, num_classes, 1)
+    prob_column_names = ['prob_' + str(s) for s in prob_column_num]
+    test_probs_df = pd.DataFrame(probabilities, columns = prob_column_names)
+    test_probs_df.insert(loc = 0, column = 'file_name', value = FileNames)
+    test_probs_df.to_csv(
+        index = False, 
+        path_or_buf = os.path.join(save_results_path, 'test_probabilities.csv'))
+
+    ## Save test metadata
+    test_metadata_keys = (
+        "TrainedModel", 
+        "TestSet", 
+        "TestSetSize", 
+        "HyperparametersPath"
+    )
+    test_metadata_values = (
+        model_path, 
+        xy_test_path.split("\\")[-1], 
+        len(FileNames), 
+        hyperparameters_path,
+    )
+    test_metadata = pd.DataFrame(
+        {'Metadata': test_metadata_keys, 'Values': test_metadata_values}
+    )
+    test_metadata.to_csv(
+        index = False, 
+        path_or_buf = os.path.join(save_results_path, 'testing_metadata.csv'))
+
+
 def train_model(model, dl, loss_func, optimizer, device, archi):
     model.train()
     train_loss = []

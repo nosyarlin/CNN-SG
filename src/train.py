@@ -12,7 +12,7 @@ from config import (
     PREPROCESSED_IMAGE_DIR, RESULTS_DIR, MODEL_FILEPATH, TRAIN_FILEPATH, 
     VAL_FILEPATH, TEST_FILEPATH, ARCHI, NUM_CLASSES, DROPOUT, LEARNING_RATE, 
     BETADIST_ALPHA, BETADIST_BETA, ADAM_EPS, WEIGHT_DECAY, EPOCHS, STEP_SIZE, 
-    GAMMA, BATCH_SIZE, IMAGE_SIZE)
+    GAMMA, BATCH_SIZE, IMAGE_SIZE, HYPERPARAMETERS_FILEPATH)
 
 
 def get_arg_parser():
@@ -24,7 +24,7 @@ def get_arg_parser():
         help='Path to the directory containing the images'
     )
     parser.add_argument(
-        '--save_results_path',
+        '--results_path',
         default=RESULTS_DIR,
         help='Path to the directory to save the model, hyperparameters ' \
               'and results'
@@ -54,6 +54,10 @@ def get_arg_parser():
     parser.add_argument(
         '--skip_test', action='store_true',
         help='Set if testing should be skipped'
+    )
+    parser.add_argument(
+        '--hyperparameters', default=HYPERPARAMETERS_FILEPATH,
+        help='Path to save hyperparameters dataframe'
     )
     parser.add_argument(
         '--archi', default=ARCHI,
@@ -142,9 +146,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Check that paths to save results exist and is empty
-    if os.path.exists(args.save_results_path) \
-       and len(os.listdir(args.save_results_path)) == 0:
-        print("\nSaving results in " + args.save_results_path)
+    if os.path.exists(args.results_path) \
+       and len(os.listdir(args.results_path)) == 0:
+        print("\nSaving results in " + args.results_path)
     else:
         sys.exit(
             "\nError: File path to save results do not exist, " \
@@ -159,7 +163,7 @@ if __name__ == '__main__':
     if args.model_path is not None:
         hp_path = os.path.join(os.path.dirname(
             args.model_path), 'hyperparameter_records.csv')
-        hp = pd.read_csv(hp_path)
+        hp = pd.read_csv(args.hyperparameters)
         args.archi = hp.loc[hp['Hyperparameters']
                             == 'Architecture', 'Values'].item()
         args.weight_decay = float(
@@ -233,9 +237,7 @@ if __name__ == '__main__':
 
     hp_records = pd.DataFrame(
         {'Hyperparameters': hp_names, 'Values': hp_values})
-    hp_records.to_csv(index=False, path_or_buf=os.path.join(
-        args.save_results_path, 'hyperparameter_records.csv'))
-
+    hp_records.to_csv(index=False, path_or_buf=args.hyperparameters)
     print(hp_records.to_string())
 
     # Build model
@@ -284,14 +286,13 @@ if __name__ == '__main__':
         train_val_results) = train_validate(
         args.epochs, model, optimizer, scheduler, loss_func,
         train_dl, val_dl, device, args.archi,
-        args.save_results_path
+        args.results_path
     )
 
     train_val_results.to_csv(
         index=False,
         path_or_buf=os.path.join(
-            args.save_results_path,
-            'train_val_results.csv')
+            args.results_path, 'train_val_results.csv')
     )
 
     # Test
@@ -305,17 +306,8 @@ if __name__ == '__main__':
         model, test_dl, loss_func, device)
     print("Test acc: {}, Test loss: {}".format(test_acc, test_loss))
 
-    # Saving results and probabilities
-    probabilities = probabilities.T.tolist()
-    test_probs_df = pd.DataFrame({
-        'file_name': xy_test.FileName,
-        'prob_empty': probabilities[0],
-        'prob_human': probabilities[1],
-        'prob_animal': probabilities[2]}
-    )
-    test_probs_df.to_csv(index=False, path_or_buf=os.path.join(
-        args.save_results_path, 'test_probabilities.csv'))
-
-    test_results_df = pd.DataFrame({'Acc': [test_acc], 'Loss': [test_loss]})
-    test_results_df.to_csv(index=False, path_or_buf=os.path.join(
-        args.save_results_path, 'test_results.csv'))
+    # Saving test results, probabilities and metadata
+    save_test_results(
+        test_acc, test_loss, probabilities, args.num_classes, xy_test.FileName,
+        args.results_path, args.model_path, args.xy_test, 
+        args.hyperparameters)
