@@ -7,7 +7,8 @@ from torch import nn, optim
 from models import get_model
 from dataset import get_dataloader
 from shared_funcs import (
-    train_validate, evaluate_model, load_checkpoint, check_img_size)
+    train_validate, evaluate_model, load_checkpoint, check_img_size,
+    save_test_results)
 from config import (
     PREPROCESSED_IMAGE_DIR, RESULTS_DIR, MODEL_FILEPATH, TRAIN_FILEPATH, 
     VAL_FILEPATH, TEST_FILEPATH, ARCHI, NUM_CLASSES, DROPOUT, LEARNING_RATE, 

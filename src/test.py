@@ -6,7 +6,9 @@ import pandas as pd
 from torch import nn
 from models import get_model
 from dataset import get_dataloader
-from shared_funcs import evaluate_model, load_checkpoint, check_img_size
+from shared_funcs import (
+    evaluate_model, load_checkpoint, check_img_size,
+    save_test_results)
 from config import (
     PREPROCESSED_IMAGE_DIR, MODEL_FILEPATH, TEST_FILEPATH,
     HYPERPARAMETERS_FILEPATH, RESULTS_DIR)
