@@ -10,9 +10,9 @@ from shared_funcs import (
     train_validate, evaluate_model, load_checkpoint, check_img_size,
     save_test_results)
 from config import (
-    PREPROCESSED_IMAGE_DIR, RESULTS_DIR, MODEL_FILEPATH, TRAIN_FILEPATH, 
-    VAL_FILEPATH, TEST_FILEPATH, ARCHI, NUM_CLASSES, DROPOUT, LEARNING_RATE, 
-    BETADIST_ALPHA, BETADIST_BETA, ADAM_EPS, WEIGHT_DECAY, EPOCHS, STEP_SIZE, 
+    PREPROCESSED_IMAGE_DIR, RESULTS_DIR, MODEL_FILEPATH, TRAIN_FILEPATH,
+    VAL_FILEPATH, TEST_FILEPATH, ARCHI, NUM_CLASSES, DROPOUT, LEARNING_RATE,
+    BETADIST_ALPHA, BETADIST_BETA, ADAM_EPS, WEIGHT_DECAY, EPOCHS, STEP_SIZE,
     GAMMA, BATCH_SIZE, IMAGE_SIZE, HYPERPARAMETERS_FILEPATH)
 
 
@@ -162,33 +162,28 @@ if __name__ == '__main__':
 
     # Extract hyperparameters if further training from a pre-trained model
     if args.model_path is not None:
-        hp_path = os.path.join(os.path.dirname(
-            args.model_path), 'hyperparameter_records.csv')
-        hp = pd.read_csv(args.hyperparameters)
-        args.archi = hp.loc[hp['Hyperparameters']
-                            == 'Architecture', 'Values'].item()
-        args.weight_decay = float(
-            hp.loc[hp['Hyperparameters'] == 'WeightDecay', 'Values'].item())
-        args.dropout = float(
-            hp.loc[hp['Hyperparameters'] == 'Dropout', 'Values'].item())
+        hp_path = os.path.join(os.path.dirname(args.model_path),
+                               'hyperparameter_records.csv')
+        hp = pd.read_csv(hp_path)
         args.archi = hp.loc[
-            hp['Hyperparameters'] == 'Architecture', 'Values'
-        ].item()
-        args.num_classes = hp.loc[
-            hp['Hyperparameters'] == 'NumClasses', 'Values'
-        ].item()
-        args.train_only_classifier = hp.loc[
-            hp['Hyperparameters'] == 'TrainOnlyClassifier', 'Values'
-        ].item()
-        args.img_size = hp.loc[
-            hp['Hyperparameters'] == 'ImgSize', 'Values'].item()
-        args.crop_size = hp.loc[
-            hp['Hyperparameters'] == 'CropSize', 'Values'].item()
+            hp['Hyperparameters'] == 'Architecture', 'Values'].item()
+        args.weight_decay = float(hp.loc[
+            hp['Hyperparameters'] == 'WeightDecay', 'Values'].item())
+        args.dropout = float(hp.loc[
+            hp['Hyperparameters'] == 'Dropout', 'Values'].item())
+        args.num_classes = int(hp.loc[
+            hp['Hyperparameters'] == 'NumClasses', 'Values'].item())
+        args.train_only_classifier = eval(hp.loc[
+            hp['Hyperparameters'] == 'TrainOnlyClassifier', 'Values'].item())
+        args.img_size = int(hp.loc[
+            hp['Hyperparameters'] == 'ImgSize', 'Values'].item())
+        args.crop_size = int(hp.loc[
+            hp['Hyperparameters'] == 'CropSize', 'Values'].item())
 
     # Check the image size for the first image
-    # if not args.img_resize:
-    #     check_img_size(xy_train.FileName[0], "training set", args.img_size)
-    #     check_img_size(xy_val.FileName[0], "validation set", args.img_size)
+    if not args.img_resize:
+        check_img_size(xy_train.FileName[0], "training set", args.img_size)
+        check_img_size(xy_val.FileName[0], "validation set", args.img_size)
 
     train_dl = get_dataloader(
         xy_train.FileName, xy_train.SpeciesCode, args.batch_size,
@@ -310,5 +305,5 @@ if __name__ == '__main__':
     # Saving test results, probabilities and metadata
     save_test_results(
         test_acc, test_loss, probabilities, args.num_classes, xy_test.FileName,
-        args.results_path, args.model_path, args.xy_test, 
+        args.results_path, args.model_path, args.xy_test,
         args.hyperparameters)
