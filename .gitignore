@@ -144,3 +144,6 @@ yappi_function_stats.prof
 
 # Model summary
 src/model_summary.py
+
+# Results
+results/*
